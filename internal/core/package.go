@@ -15,7 +15,7 @@ const RegistryDir = "Registry"
 func (p *Package) Setup(launcher string) error {
 	var errs []error
 	for _, f := range p.Folders {
-		if err := MakeLink(p.LinkPath(f), p.Path(f.Data)); err != nil {
+		if err := MakeLink(p.LinkPath(f), p.DataPath(f)); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -42,7 +42,7 @@ func (p *Package) Finish() error {
 	}
 	for _, f := range p.Folders {
 		for _, s := range f.Session {
-			if err := EmptyFolder(filepath.Join(p.Path(f.Data), s)); err != nil {
+			if err := EmptyFolder(filepath.Join(p.DataPath(f), s)); err != nil {
 				errs = append(errs, fmt.Errorf("empty %s: %w", s, err))
 			}
 		}
@@ -56,7 +56,7 @@ func (p *Package) Finish() error {
 func (p *Package) Unlink(launcher string) error {
 	var errs []error
 	for _, f := range p.Folders {
-		if err := RemoveLink(p.LinkPath(f), p.Path(f.Data)); err != nil {
+		if err := RemoveLink(p.LinkPath(f), p.DataPath(f)); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -81,7 +81,7 @@ type FolderStatus struct {
 func (p *Package) Status() []FolderStatus {
 	var out []FolderStatus
 	for _, f := range p.Folders {
-		link, data := p.LinkPath(f), p.Path(f.Data)
+		link, data := p.LinkPath(f), p.DataPath(f)
 		out = append(out, FolderStatus{Link: link, Data: data, State: LinkStatus(link, data)})
 	}
 	return out

@@ -120,6 +120,36 @@ func CheckData(rel string) error {
 	return nil
 }
 
+// IsFull reports whether a path in portable.json is a full path (a folder
+// or program used in place, outside the package), not one inside it.
+func IsFull(path string) bool {
+	return absPath.MatchString(ExpandVars(strings.ReplaceAll(strings.TrimSpace(path), "/", `\`), ""))
+}
+
+// CheckPlace checks a folder or program the package uses: inside the
+// package (see CheckData), or a full path used in place, such as
+// G:\Online Games\Riot Games, which must not be in Windows or be a Windows,
+// user or drive-root folder.
+func CheckPlace(path string) error {
+	if !IsFull(path) {
+		return CheckData(path)
+	}
+	full := strings.TrimRight(filepath.Clean(ExpandVars(path, "")), `\`)
+	if root := os.Getenv("SystemRoot"); root != "" && (SamePath(full, root) || hasPrefixFold(full, strings.TrimRight(root, `\`)+`\`)) {
+		return errors.New(path + " is in Windows")
+	}
+	if protected(Portable(full)) || protected(full) {
+		return errors.New(path + " is a Windows or user folder, or a whole drive")
+	}
+	return nil
+}
+
+// nested reports whether a and b are the same folder or one is inside the other.
+func nested(a, b string) bool {
+	a, b = normPath(a), normPath(b)
+	return strings.EqualFold(a, b) || hasPrefixFold(a, b+`\`) || hasPrefixFold(b, a+`\`)
+}
+
 // protected reports whether link is a Windows or user folder (from GameFix).
 func protected(link string) bool {
 	link = strings.ToLower(link)

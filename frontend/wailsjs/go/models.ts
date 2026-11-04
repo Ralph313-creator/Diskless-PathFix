@@ -17,6 +17,9 @@ export namespace main {
 	    Links: string[];
 	    Icon: string;
 	    OwnIcon: boolean;
+	    InPlace: boolean[];
+	    ExeInPlace: boolean;
+	    Args: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new PackageView(source);
@@ -39,6 +42,9 @@ export namespace main {
 	        this.Links = source["Links"];
 	        this.Icon = source["Icon"];
 	        this.OwnIcon = source["OwnIcon"];
+	        this.InPlace = source["InPlace"];
+	        this.ExeInPlace = source["ExeInPlace"];
+	        this.Args = source["Args"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

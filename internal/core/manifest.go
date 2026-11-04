@@ -116,7 +116,7 @@ func (m *Manifest) Validate() error {
 		return errors.New("the package has no name")
 	}
 	if m.Exe != "" {
-		if err := CheckData(m.Exe); err != nil {
+		if err := CheckPlace(m.Exe); err != nil {
 			return fmt.Errorf("exe: %w", err)
 		}
 	}
@@ -124,8 +124,11 @@ func (m *Manifest) Validate() error {
 		if err := CheckLink(f.Link); err != nil {
 			return fmt.Errorf("folder %d: %w", i+1, err)
 		}
-		if err := CheckData(f.Data); err != nil {
+		if err := CheckPlace(f.Data); err != nil {
 			return fmt.Errorf("folder %d: %w", i+1, err)
+		}
+		if IsFull(f.Data) && nested(ExpandVars(f.Link, ""), ExpandVars(f.Data, "")) {
+			return fmt.Errorf("folder %d: %s and %s are inside each other", i+1, f.Link, f.Data)
 		}
 		for _, s := range f.Session {
 			if err := CheckData(s); err != nil {
@@ -150,7 +153,7 @@ func (m *Manifest) Validate() error {
 				return fmt.Errorf("update folder: %w", err)
 			}
 		case "run":
-			if err := CheckData(u.Exe); err != nil {
+			if err := CheckPlace(u.Exe); err != nil {
 				return fmt.Errorf("update exe: %w", err)
 			}
 		default:
@@ -167,10 +170,21 @@ func (m *Manifest) Validate() error {
 	return nil
 }
 
-// Path is a path inside the package.
+// Path is a path inside the package, or a full path used in place as it is.
 func (p *Package) Path(rel string) string {
+	if IsFull(rel) {
+		return filepath.Clean(ExpandVars(rel, p.Dir))
+	}
 	return filepath.Join(p.Dir, ExpandVars(rel, p.Dir))
 }
+
+// DataPath is where folder f's files really are: in the package, or the
+// folder used in place.
+func (p *Package) DataPath(f Folder) string { return p.Path(f.Data) }
+
+// InPlace reports whether folder f is an existing folder used where it is
+// (never copied into the package or deleted with it).
+func (p *Package) InPlace(f Folder) bool { return IsFull(f.Data) }
 
 // LinkPath is where the app expects folder f on this PC.
 func (p *Package) LinkPath(f Folder) string {

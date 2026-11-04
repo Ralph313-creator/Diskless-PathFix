@@ -80,6 +80,33 @@ Runs as administrator. Choose the apps folder (default `G:\Portable`), then:
   and the CCBoot line to copy. Each folder has a box for the subfolders emptied
   after each player (such as `LocalStorage`, where Roblox keeps logins).
 
+### Apps and folders used in place (Riot)
+
+Some apps are already on the game disk, such as Riot in `G:\Online Games\Riot Games`.
+Copying them would duplicate many GB, and the app would update the copy while
+its own records point at the original. So a package can **use them where they
+are**:
+
+- **Add another app → Use it where it is installed**: nothing is copied; the
+  launcher starts the program from its own folder (with optional arguments).
+- **Add folder → Link it to a folder that already exists**: the link points to
+  that folder (tagged **in place**); nothing is copied.
+- Folders and programs used in place are never deleted by **Remove app**. They
+  must have the same drive letter on the floor PCs (the game disk's letter).
+- A folder that is already a link, such as one another app's package made, is
+  refused (with the app's name) instead of being copied or taken over.
+
+**Add Riot** does this for Riot: it finds Riot Client from Riot's own
+`%ProgramData%\Riot Games\RiotClientInstalls.json` (skipping copies inside the
+apps folder), starts it in place, and copies and links Riot's small folders on C:
+(`%ProgramData%\Riot Games`, `%LOCALAPPDATA%\Riot Games`). The login in
+`Riot Client\Data` is never copied and is emptied after each player. Vanguard is
+a boot driver and stays installed in the client image. GameFix also links
+`%ProgramData%\Riot Games`; use one of the two for Riot on the floor PCs.
+
+Don't copy Riot Client into a package with **Copy the app**: when the copy runs,
+Riot points `RiotClientInstalls.json` at it.
+
 ### Hunt: find the folders an app uses
 
 Not sure where an app keeps its settings and saves? On the app's page click

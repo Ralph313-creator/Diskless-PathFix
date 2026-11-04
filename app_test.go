@@ -125,6 +125,29 @@ func TestListShowsIconAndChosenIcon(t *testing.T) {
 	}
 }
 
+func TestInPlaceAppAndFolderInList(t *testing.T) {
+	root := t.TempDir()
+	game := filepath.Join(t.TempDir(), "Riot Games")
+	exe := filepath.Join(game, "Riot Client", "RiotClientServices.exe")
+	os.MkdirAll(filepath.Dir(exe), 0o755)
+	os.WriteFile(exe, []byte("MZ"), 0o644)
+	a := &App{Root: root}
+	if err := a.createInPlace("Game", exe, "--launch-product=valorant  --launch-patchline=live", []byte("MZ")); err != nil {
+		t.Fatal(err)
+	}
+	dir := filepath.Join(root, "Game")
+	if err := a.AddFolderInPlace(dir, filepath.Join(t.TempDir(), "Riot Games"), game, ""); err != nil {
+		t.Fatal(err)
+	}
+	v := a.List()[0]
+	if len(v.InPlace) != 1 || !v.InPlace[0] {
+		t.Fatalf("InPlace = %v", v.InPlace)
+	}
+	if strings.Join(v.Args, "|") != "--launch-product=valorant|--launch-patchline=live" || !v.ExeInPlace {
+		t.Fatalf("args %v exe in place %v", v.Args, v.ExeInPlace)
+	}
+}
+
 func TestListWithoutRootIsEmpty(t *testing.T) {
 	if got := (&App{}).List(); got != nil {
 		t.Fatalf("got %v", got)

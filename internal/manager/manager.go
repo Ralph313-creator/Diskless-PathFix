@@ -112,9 +112,12 @@ func AddFolder(p *core.Package, link string, session []string) error {
 			return fmt.Errorf("%s is already in the package", link)
 		}
 	}
+	if err := linkedElsewhere(real); err != nil {
+		return err
+	}
 	f := core.Folder{Link: link, Data: dataFor(link), Session: session}
 	if info, err := os.Stat(real); err == nil && info.IsDir() {
-		if err := Copy(real, p.Path(f.Data), session); err != nil {
+		if err := Copy(real, p.DataPath(f), session); err != nil {
 			return err
 		}
 	}
@@ -129,7 +132,7 @@ func RemoveFolder(p *core.Package, i int) error {
 		return fmt.Errorf("the package has no folder %d", i+1)
 	}
 	f := p.Folders[i]
-	if err := core.RemoveLink(p.LinkPath(f), p.Path(f.Data)); err != nil {
+	if err := core.RemoveLink(p.LinkPath(f), p.DataPath(f)); err != nil {
 		return err
 	}
 	p.Folders = append(p.Folders[:i:i], p.Folders[i+1:]...)

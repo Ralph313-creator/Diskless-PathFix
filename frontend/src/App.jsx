@@ -42,14 +42,17 @@ export default function App() {
     }
     useEffect(() => { Go.GetRoot().then(r => { setRoot(r); refresh() }) }, [])
 
-    // run does one action with a busy label and shows how it went.
+    // run does one action with a busy label and shows how it went. It
+    // resolves to true when the action worked.
     const run = async (label, fn, okText) => {
         setBusy(label)
         try {
             const out = await fn()
             setToast({ok: true, text: okText || (typeof out === 'string' && out ? lastLine(out) : 'Done')})
+            return true
         } catch (e) {
             setToast({ok: false, text: String(e)})
+            return false
         } finally {
             setBusy('')
             refresh()
@@ -82,11 +85,13 @@ export default function App() {
                     </div>
                     <div className="new-game" style={{flexDirection: 'column'}}>
                         <button className="primary" disabled={!!busy || !root} onClick={() => setCreating('roblox')}>Add Roblox</button>
+                        <button disabled={!!busy || !root} onClick={() => setCreating('riot')}>Add Riot</button>
                         <button disabled={!!busy || !root} onClick={() => setCreating('app')}>Add another app</button>
                     </div>
                 </div>
                 <div className="content">
                     {creating === 'roblox' && <NewRoblox busy={busy} run={run} done={(dir) => { setCreating(''); setSelected(dir) }} root={root}/>}
+                    {creating === 'riot' && <NewRiot busy={busy} run={run} done={(dir) => { setCreating(''); setSelected(dir) }} root={root}/>}
                     {creating === 'app' && <NewApp busy={busy} run={run} done={(dir) => { setCreating(''); setSelected(dir) }} root={root}/>}
                     {!creating && !pkg && (
                         <div className="empty">
@@ -139,8 +144,33 @@ function NewRoblox({busy, run, done, root}) {
             <p className="small muted">Pick how Roblox is installed in the client image, so its folder gets linked.</p>
             <div className="hunt-actions">
                 <button className="primary" disabled={!!busy}
-                        onClick={() => run('Downloading Roblox', () => Go.MakeRoblox(perUser)).then(() => done(root + '\\Roblox'))}>
+                        onClick={() => run('Downloading Roblox', () => Go.MakeRoblox(perUser)).then(ok => ok && done(root + '\\Roblox'))}>
                     Make and download
+                </button>
+            </div>
+        </div>
+    )
+}
+
+function NewRiot({busy, run, done, root}) {
+    const [dir, setDir] = useState('')
+    useEffect(() => { Go.FindRiot().then(d => { if (d) setDir(d) }) }, [])
+    return (
+        <div className="card">
+            <div className="card-head"><h2>Add Riot</h2></div>
+            <p className="muted">Riot Client and its games stay where they are on the game disk: nothing big is copied, and
+                Riot keeps updating them there. <code>{root}\Riot</code> gets a launcher that starts Riot Client, and Riot's
+                small folders on C: (<code>%ProgramData%\Riot Games</code> and <code>%LOCALAPPDATA%\Riot Games</code>), linked.
+                Customers' Riot logins (<code>Riot Client\Data</code>) are emptied when Riot closes.</p>
+            <div className="field"><span className="field-label">Riot</span>
+                <input value={dir} onChange={e => setDir(e.target.value)} placeholder="G:\Online Games\Riot Games"/>
+                <button onClick={async () => { const d = await Go.PickFolder('The Riot Games folder (with Riot Client in it)'); if (d) setDir(d) }}>Browse…</button></div>
+            <p className="small muted">Vanguard (VALORANT's anti-cheat) is a driver that loads at boot: it stays installed in
+                the client image. GameFix also links <code>%ProgramData%\Riot Games</code>; use one of the two for Riot on the floor PCs.</p>
+            <div className="hunt-actions">
+                <button className="primary" disabled={!!busy || !dir}
+                        onClick={() => run('Making Riot', () => Go.MakeRiot(dir), 'Made Riot').then(ok => ok && done(root + '\\Riot'))}>
+                    Make
                 </button>
             </div>
         </div>
@@ -151,6 +181,8 @@ function NewApp({busy, run, done, root}) {
     const [name, setName] = useState('')
     const [appDir, setAppDir] = useState('')
     const [exe, setExe] = useState('')
+    const [inPlace, setInPlace] = useState(false)
+    const [args, setArgs] = useState('')
     const pickExe = async () => {
         const f = await Go.PickExe()
         if (!f) return
@@ -161,19 +193,26 @@ function NewApp({busy, run, done, root}) {
     return (
         <div className="card">
             <div className="card-head"><h2>Add another app</h2></div>
-            <p className="muted">The app's folder is copied into <code>{root}\{name || '<name>'}</code>. Then add the folders
-                and registry keys it keeps outside its own folder.</p>
+            <label className="watch"><input type="radio" checked={!inPlace} onChange={() => setInPlace(false)}/>
+                Copy the app into <code>{root}\{name || '<name>'}</code> (it is on C: or another PC's disk)</label>
+            <label className="watch"><input type="radio" checked={inPlace} onChange={() => setInPlace(true)}/>
+                Use it where it is installed, such as on the game disk (nothing copied, it keeps updating there)</label>
             <div className="field"><span className="field-label">Program</span>
                 <input value={exe} onChange={e => setExe(e.target.value)} placeholder="C:\Games\Game\game.exe"/>
                 <button onClick={pickExe}>Browse…</button></div>
-            <div className="field"><span className="field-label">Folder</span>
+            {!inPlace && <div className="field"><span className="field-label">Folder</span>
                 <input value={appDir} onChange={e => setAppDir(e.target.value)} placeholder="the app's whole folder"/>
-                <button onClick={async () => { const d = await Go.PickFolder("The app's folder"); if (d) setAppDir(d) }}>Browse…</button></div>
+                <button onClick={async () => { const d = await Go.PickFolder("The app's folder"); if (d) setAppDir(d) }}>Browse…</button></div>}
+            {inPlace && <div className="field"><span className="field-label">Options</span>
+                <input value={args} onChange={e => setArgs(e.target.value)} placeholder="arguments for the program (optional), such as --launch-product=valorant"/></div>}
             <div className="field"><span className="field-label">Name</span>
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="Game"/></div>
+            <p className="small muted">Then add the folders and registry keys the app keeps on C:, or use Hunt to find them.</p>
             <div className="hunt-actions">
-                <button className="primary" disabled={!!busy || !name}
-                        onClick={() => run('Copying ' + name, () => Go.CreatePackage(name, appDir, exe), 'Made ' + name).then(() => done(root + '\\' + name))}>
+                <button className="primary" disabled={!!busy || !name || (inPlace && !exe)}
+                        onClick={() => run(inPlace ? 'Making ' + name : 'Copying ' + name,
+                            () => inPlace ? Go.CreateInPlace(name, exe, args) : Go.CreatePackage(name, appDir, exe), 'Made ' + name)
+                            .then(ok => ok && done(root + '\\' + name))}>
                     Make package
                 </button>
             </div>
@@ -184,6 +223,8 @@ function NewApp({busy, run, done, root}) {
 function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
     const [link, setLink] = useState('')
     const [session, setSession] = useState('')
+    const [inPlace, setInPlace] = useState(false)
+    const [target, setTarget] = useState('')
     const [key, setKey] = useState('')
     const [removing, setRemoving] = useState(false)
     useEffect(() => setRemoving(false), [pkg.Dir])
@@ -251,6 +292,7 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                     <div key={i} className="field">
                         <span className={'pill' + (f.State === 1 ? ' ok' : '')}>{stateText[f.State]}</span>
                         <code className="hunt-path" title={f.Link + ' → ' + f.Data}>{pkg.Links[i]}</code>
+                        {pkg.InPlace && pkg.InPlace[i] && <span className="pill" title={'Uses ' + f.Data + ' where it is: never copied or deleted'}>in place</span>}
                         <SessionBox value={(pkg.Session[i] || []).join(', ')} disabled={!!busy}
                                     save={v => run('Saving', () => Go.SetSession(pkg.Dir, i, v), 'Saved')}/>
                         <button className="icon-btn danger" title="Stop linking this folder (its files stay in the package). To remove the whole app, use Remove app at the top." disabled={!!busy}
@@ -261,10 +303,18 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                     <input value={link} onChange={e => setLink(e.target.value)} placeholder="Where the app keeps a folder, such as %LOCALAPPDATA%\Game"/>
                     <button onClick={async () => { const d = await Go.PickFolder('A folder the app uses'); if (d) setLink(d) }}>Browse…</button>
                 </div>
+                <label className="watch"><input type="checkbox" checked={inPlace} onChange={e => setInPlace(e.target.checked)}/>
+                    Link it to a folder that already exists, such as on the game disk (nothing copied)</label>
+                {inPlace && <div className="field">
+                    <input value={target} onChange={e => setTarget(e.target.value)} placeholder="The existing folder, such as G:\Online Games\Riot Games"/>
+                    <button onClick={async () => { const d = await Go.PickFolder('The existing folder to use'); if (d) setTarget(d) }}>Browse…</button>
+                </div>}
                 <div className="field">
                     <input value={session} onChange={e => setSession(e.target.value)} placeholder="Subfolders to empty after each player (logins), comma-separated"/>
-                    <button className="primary" disabled={!!busy || !link}
-                            onClick={() => run('Adding folder', () => Go.AddFolder(pkg.Dir, link, session), 'Folder added').then(() => { setLink(''); setSession('') })}>Add folder</button>
+                    <button className="primary" disabled={!!busy || !link || (inPlace && !target)}
+                            onClick={() => run('Adding folder',
+                                () => inPlace ? Go.AddFolderInPlace(pkg.Dir, link, target, session) : Go.AddFolder(pkg.Dir, link, session), 'Folder added')
+                                .then(ok => { if (ok) { setLink(''); setSession(''); setTarget(''); setInPlace(false) } })}>Add folder</button>
                 </div>
             </div>
 
