@@ -26,9 +26,11 @@ updated straight from Roblox's servers.
 ## Build
 
 ```
-go test ./...
-go build -ldflags "-H windowsgui" -o build/bin/RapPortable-Launcher.exe ./cmd/launcher
+build.cmd   # go test, launcher -> assets/launcher.exe (embedded), wails build
 ```
+
+The manager (root package, Wails + React in frontend/) is a thin wrapper over
+`internal/manager`; it runs as administrator (build/windows/wails.exe.manifest).
 
 ## graphify
 

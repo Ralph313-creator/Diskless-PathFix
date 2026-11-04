@@ -140,6 +140,53 @@ func TestAddFolderRefusesDuplicateAndUnsafe(t *testing.T) {
 	}
 }
 
+func TestRemoveFolderUnlinksAndKeepsData(t *testing.T) {
+	p, _ := CreatePackage(t.TempDir(), "Game", "", "", fakeLauncher)
+	link := filepath.Join(t.TempDir(), "Saves")
+	os.MkdirAll(link, 0o755)
+	os.WriteFile(filepath.Join(link, "a.sav"), []byte("a"), 0o644)
+	if err := AddFolder(p, link, nil); err != nil {
+		t.Fatal(err)
+	}
+	data := p.Path(p.Folders[0].Data)
+	if err := p.Setup(""); err != nil {
+		t.Fatal(err)
+	}
+	if err := RemoveFolder(p, 0); err != nil {
+		t.Fatal(err)
+	}
+	back, _ := core.Load(p.Dir)
+	if len(back.Folders) != 0 {
+		t.Fatal("folder still in portable.json")
+	}
+	if st := core.LinkStatus(link, data); st != core.LinkRealFolder {
+		t.Fatalf("link path is %v, want the original folder back", st)
+	}
+	if b, _ := os.ReadFile(filepath.Join(data, "a.sav")); string(b) != "a" {
+		t.Fatal("the package's copy was deleted")
+	}
+	if err := RemoveFolder(back, 5); err == nil {
+		t.Fatal("removing a folder that isn't there should fail")
+	}
+}
+
+func TestAddRegistrySavesKeyNow(t *testing.T) {
+	p, _ := CreatePackage(t.TempDir(), "Game", "", "", fakeLauncher)
+	if err := AddRegistry(p, `HKCU\Software\Microsoft\Notepad`); err != nil {
+		t.Fatal(err)
+	}
+	back, _ := core.Load(p.Dir)
+	if len(back.Registry) != 1 {
+		t.Fatalf("registry = %v", back.Registry)
+	}
+	if err := AddRegistry(back, `hkcu\software\microsoft\notepad`); err == nil {
+		t.Fatal("same key added twice")
+	}
+	if err := AddRegistry(back, `HKCR\x`); err == nil {
+		t.Fatal("bad hive accepted")
+	}
+}
+
 func TestScanFindsPackages(t *testing.T) {
 	root := t.TempDir()
 	if _, err := CreateRoblox(root, false, fakeLauncher); err != nil {

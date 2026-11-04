@@ -120,6 +120,41 @@ func AddFolder(p *core.Package, link string, session []string) error {
 	return p.Save()
 }
 
+// RemoveFolder takes folder i out of the package and removes its link on
+// this PC (putting back what was there). The package's copy is kept.
+func RemoveFolder(p *core.Package, i int) error {
+	if i < 0 || i >= len(p.Folders) {
+		return fmt.Errorf("the package has no folder %d", i+1)
+	}
+	f := p.Folders[i]
+	if err := core.RemoveLink(p.LinkPath(f), p.Path(f.Data)); err != nil {
+		return err
+	}
+	p.Folders = append(p.Folders[:i:i], p.Folders[i+1:]...)
+	return p.Save()
+}
+
+// AddRegistry adds a registry key the app uses, and saves what is in it
+// now into the package.
+func AddRegistry(p *core.Package, key string) error {
+	key = strings.Trim(strings.TrimSpace(key), `\`)
+	for _, k := range p.Registry {
+		if strings.EqualFold(k, key) {
+			return fmt.Errorf("%s is already in the package", key)
+		}
+	}
+	next := *p
+	next.Registry = append(append([]string{}, p.Registry...), key)
+	if err := next.Validate(); err != nil {
+		return err
+	}
+	if err := core.SaveRegistry([]string{key}, p.Path(core.RegistryDir), p.Dir); err != nil {
+		return err
+	}
+	p.Registry = next.Registry
+	return p.Save()
+}
+
 // dataFor is where a link path's folder goes inside the package:
 // %LOCALAPPDATA%\Roblox -> Data\LocalAppData\Roblox, D:\Games\X -> Data\D\Games\X.
 func dataFor(link string) string {
