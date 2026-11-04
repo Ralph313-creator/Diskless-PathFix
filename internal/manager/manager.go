@@ -70,17 +70,30 @@ func CreateRoblox(root string, perUser bool, launcher []byte) (*core.Package, er
 }
 
 // CreatePackage makes root\name. With appDir, that folder is copied into
-// the package's App folder and exe (inside appDir) is what starts.
+// the package's App folder and linked from where it was installed, so the
+// app still finds itself at its default location; exe (inside appDir) is
+// what starts, through that link.
 func CreatePackage(root, name, appDir, exe string, launcher []byte) (*core.Package, error) {
 	if err := checkName(name); err != nil {
 		return nil, err
 	}
-	var rel string
+	var rel, link string
 	if appDir != "" {
+		appDir = filepath.Clean(appDir)
 		var err error
 		rel, err = filepath.Rel(appDir, exe)
 		if err != nil || strings.HasPrefix(rel, "..") || filepath.IsAbs(rel) {
 			return nil, fmt.Errorf("%s is not inside %s", exe, appDir)
+		}
+		if within(appDir, root) || core.SamePath(appDir, root) {
+			return nil, fmt.Errorf("%s is inside the portable apps folder; choose the installed app", appDir)
+		}
+		link = core.Portable(appDir)
+		if err := core.CheckLink(link); err != nil {
+			return nil, fmt.Errorf("the app's folder can't be linked: %w", err)
+		}
+		if err := linkedElsewhere(appDir); err != nil {
+			return nil, err
 		}
 	}
 	p, err := newPackage(root, name, launcher)
@@ -89,10 +102,12 @@ func CreatePackage(root, name, appDir, exe string, launcher []byte) (*core.Packa
 	}
 	if appDir != "" {
 		if err := Copy(appDir, filepath.Join(p.Dir, "App"), nil); err != nil {
+			os.RemoveAll(p.Dir) // just made: nothing of the user's is in it
 			return nil, err
 		}
 		p.Exe = `App\` + rel
-		p.AppSource = core.Portable(filepath.Clean(appDir))
+		p.AppSource = link
+		p.Folders = []core.Folder{{Link: link, Data: "App"}}
 		ApplyIcon(p) // only looks; a package without the app's icon still works
 	}
 	return p, p.Save()

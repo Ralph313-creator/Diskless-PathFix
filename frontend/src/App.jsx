@@ -1,6 +1,5 @@
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useState} from 'react'
 import * as Go from '../wailsjs/go/main/App'
-import {EventsOn} from '../wailsjs/runtime/runtime'
 import logo from './assets/logo.png'
 
 // AppIcon shows a launcher's icon, or an empty square when it has none.
@@ -16,7 +15,6 @@ const FolderIcon = () => <Icon d={<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 
 const KeyIcon = () => <Icon d={<><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3"/></>}/>
 const RefreshIcon = () => <Icon d={<><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></>}/>
 const XIcon = () => <Icon d={<path d="M18 6 6 18M6 6l12 12"/>}/>
-const SearchIcon = () => <Icon d={<><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></>}/>
 const LinkIcon = () => <Icon d={<><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></>}/>
 
 const SCHEDULES = [[0, 'Off'], [15, 'Every 15 minutes'], [30, 'Every 30 minutes'], [60, 'Every hour'], [360, 'Every 6 hours'], [1440 - 1, 'Once a day']]
@@ -30,10 +28,6 @@ export default function App() {
     const [busy, setBusy] = useState('')
     const [toast, setToast] = useState(null)
     const [creating, setCreating] = useState('')
-    const [hunt, setHunt] = useState(null) // {dir, state}
-    const huntDir = useRef('')
-
-    useEffect(() => EventsOn('hunt', st => setHunt({dir: huntDir.current, state: st})), [])
 
     const refresh = async () => {
         const list = (await Go.List()) || []
@@ -60,6 +54,7 @@ export default function App() {
     }
 
     const pkg = packages.find(p => p.Dir === selected)
+    const done = dir => { setCreating(''); setSelected(dir) }
 
     return (
         <div className="app">
@@ -85,30 +80,19 @@ export default function App() {
                     </div>
                     <div className="new-game" style={{flexDirection: 'column'}}>
                         <button className="primary" disabled={!!busy || !root} onClick={() => setCreating('roblox')}>Add Roblox</button>
-                        <button disabled={!!busy || !root} onClick={() => setCreating('riot')}>Add Riot</button>
                         <button disabled={!!busy || !root} onClick={() => setCreating('app')}>Add another app</button>
                     </div>
                 </div>
                 <div className="content">
-                    {creating === 'roblox' && <NewRoblox busy={busy} run={run} done={(dir) => { setCreating(''); setSelected(dir) }} root={root}/>}
-                    {creating === 'riot' && <NewRiot busy={busy} run={run} done={(dir) => { setCreating(''); setSelected(dir) }} root={root}/>}
-                    {creating === 'app' && <NewApp busy={busy} run={run} done={(dir) => { setCreating(''); setSelected(dir) }} root={root}/>}
+                    {creating === 'roblox' && <NewRoblox busy={busy} run={run} done={done} root={root}/>}
+                    {creating === 'app' && <NewApp busy={busy} run={run} done={done} root={root}/>}
                     {!creating && !pkg && (
                         <div className="empty">
                             <h2>No portable apps yet</h2>
                             <p className="muted">Choose the apps folder on the game disk, such as G:\Portable, then add Roblox or another app.</p>
                         </div>
                     )}
-                    {!creating && pkg && <Package pkg={pkg} busy={busy} run={run}
-                        hunt={hunt && hunt.dir === pkg.Dir ? hunt.state : null}
-                        startHunt={async () => {
-                            huntDir.current = pkg.Dir
-                            try {
-                                const exe = await Go.StartHunt(pkg.Dir)
-                                if (exe) setHunt({dir: pkg.Dir, state: {exe, running: true, programs: [], folders: [], live: 0}})
-                            } catch (e) { setToast({ok: false, text: String(e)}) }
-                        }}
-                        closeHunt={() => setHunt(null)}/>}
+                    {!creating && pkg && <Package pkg={pkg} busy={busy} run={run}/>}
                 </div>
             </div>
             <div className="footer">
@@ -152,37 +136,10 @@ function NewRoblox({busy, run, done, root}) {
     )
 }
 
-function NewRiot({busy, run, done, root}) {
-    const [dir, setDir] = useState('')
-    useEffect(() => { Go.FindRiot().then(d => { if (d) setDir(d) }) }, [])
-    return (
-        <div className="card">
-            <div className="card-head"><h2>Add Riot</h2></div>
-            <p className="muted">Riot Client and its games stay where they are on the game disk: nothing big is copied, and
-                Riot keeps updating them there. <code>{root}\Riot</code> gets a launcher that starts Riot Client, and Riot's
-                small folders on C: (<code>%ProgramData%\Riot Games</code> and <code>%LOCALAPPDATA%\Riot Games</code>), linked.
-                Customers' Riot logins (<code>Riot Client\Data</code>) are emptied when Riot closes.</p>
-            <div className="field"><span className="field-label">Riot</span>
-                <input value={dir} onChange={e => setDir(e.target.value)} placeholder="G:\Online Games\Riot Games"/>
-                <button onClick={async () => { const d = await Go.PickFolder('The Riot Games folder (with Riot Client in it)'); if (d) setDir(d) }}>Browse…</button></div>
-            <p className="small muted">Vanguard (VALORANT's anti-cheat) is a driver that loads at boot: it stays installed in
-                the client image. GameFix also links <code>%ProgramData%\Riot Games</code>; use one of the two for Riot on the floor PCs.</p>
-            <div className="hunt-actions">
-                <button className="primary" disabled={!!busy || !dir}
-                        onClick={() => run('Making Riot', () => Go.MakeRiot(dir), 'Made Riot').then(ok => ok && done(root + '\\Riot'))}>
-                    Make
-                </button>
-            </div>
-        </div>
-    )
-}
-
 function NewApp({busy, run, done, root}) {
     const [name, setName] = useState('')
     const [appDir, setAppDir] = useState('')
     const [exe, setExe] = useState('')
-    const [inPlace, setInPlace] = useState(false)
-    const [args, setArgs] = useState('')
     const pickExe = async () => {
         const f = await Go.PickExe()
         if (!f) return
@@ -193,25 +150,22 @@ function NewApp({busy, run, done, root}) {
     return (
         <div className="card">
             <div className="card-head"><h2>Add another app</h2></div>
-            <label className="watch"><input type="radio" checked={!inPlace} onChange={() => setInPlace(false)}/>
-                Copy the app into <code>{root}\{name || '<name>'}</code> (it is on C: or another PC's disk)</label>
-            <label className="watch"><input type="radio" checked={inPlace} onChange={() => setInPlace(true)}/>
-                Use it where it is installed, such as on the game disk (nothing copied, it keeps updating there)</label>
+            <p className="muted">The app's folder is copied into <code>{root}\{name || '<name>'}</code>, and its usual place
+                becomes a link to that copy. The app is started through its usual place, so it still thinks it is installed
+                there, and everything it writes lands in the package.</p>
             <div className="field"><span className="field-label">Program</span>
                 <input value={exe} onChange={e => setExe(e.target.value)} placeholder="C:\Games\Game\game.exe"/>
                 <button onClick={pickExe}>Browse…</button></div>
-            {!inPlace && <div className="field"><span className="field-label">Folder</span>
+            <div className="field"><span className="field-label">Folder</span>
                 <input value={appDir} onChange={e => setAppDir(e.target.value)} placeholder="the app's whole folder"/>
-                <button onClick={async () => { const d = await Go.PickFolder("The app's folder"); if (d) setAppDir(d) }}>Browse…</button></div>}
-            {inPlace && <div className="field"><span className="field-label">Options</span>
-                <input value={args} onChange={e => setArgs(e.target.value)} placeholder="arguments for the program (optional), such as --launch-product=valorant"/></div>}
+                <button onClick={async () => { const d = await Go.PickFolder("The app's folder"); if (d) setAppDir(d) }}>Browse…</button></div>
             <div className="field"><span className="field-label">Name</span>
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="Game"/></div>
-            <p className="small muted">Then add the folders and registry keys the app keeps on C:, or use Hunt to find them.</p>
+            <p className="small muted">Then add the other folders and registry keys the app keeps on C:, such as its
+                settings in %LOCALAPPDATA%.</p>
             <div className="hunt-actions">
-                <button className="primary" disabled={!!busy || !name || (inPlace && !exe)}
-                        onClick={() => run(inPlace ? 'Making ' + name : 'Copying ' + name,
-                            () => inPlace ? Go.CreateInPlace(name, exe, args) : Go.CreatePackage(name, appDir, exe), 'Made ' + name)
+                <button className="primary" disabled={!!busy || !name}
+                        onClick={() => run('Copying ' + name, () => Go.CreatePackage(name, appDir, exe), 'Made ' + name)
                             .then(ok => ok && done(root + '\\' + name))}>
                     Make package
                 </button>
@@ -220,11 +174,9 @@ function NewApp({busy, run, done, root}) {
     )
 }
 
-function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
+function Package({pkg, busy, run}) {
     const [link, setLink] = useState('')
     const [session, setSession] = useState('')
-    const [inPlace, setInPlace] = useState(false)
-    const [target, setTarget] = useState('')
     const [key, setKey] = useState('')
     const [removing, setRemoving] = useState(false)
     useEffect(() => setRemoving(false), [pkg.Dir])
@@ -279,20 +231,16 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                 </div>
             )}
 
-            {hunt && <HuntCard pkg={pkg} st={hunt} busy={busy} run={run} close={closeHunt}/>}
-
             <div className="card">
                 <div className="card-head"><LinkIcon/><span className="name">Folders</span><span className="spacer"/>
-                    <button disabled={!!busy || (hunt && hunt.running)} onClick={startHunt}
-                            title="Start the installed app and find the folders it uses"><SearchIcon/>Hunt…</button>
                     <button disabled={!!busy} onClick={() => run('Linking on this PC', () => Go.SetupHere(pkg.Dir))}>Link on this PC</button>
                     <button disabled={!!busy} onClick={() => run('Unlinking on this PC', () => Go.UnlinkHere(pkg.Dir))}>Unlink</button>
                 </div>
+                <p className="small muted">Each folder's usual place is a link to its copy in the package.</p>
                 {(pkg.Folders || []).map((f, i) => (
                     <div key={i} className="field">
                         <span className={'pill' + (f.State === 1 ? ' ok' : '')}>{stateText[f.State]}</span>
                         <code className="hunt-path" title={f.Link + ' → ' + f.Data}>{pkg.Links[i]}</code>
-                        {pkg.InPlace && pkg.InPlace[i] && <span className="pill" title={'Uses ' + f.Data + ' where it is: never copied or deleted'}>in place</span>}
                         <SessionBox value={(pkg.Session[i] || []).join(', ')} disabled={!!busy}
                                     save={v => run('Saving', () => Go.SetSession(pkg.Dir, i, v), 'Saved')}/>
                         <button className="icon-btn danger" title="Stop linking this folder (its files stay in the package). To remove the whole app, use Remove app at the top." disabled={!!busy}
@@ -303,18 +251,11 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                     <input value={link} onChange={e => setLink(e.target.value)} placeholder="Where the app keeps a folder, such as %LOCALAPPDATA%\Game"/>
                     <button onClick={async () => { const d = await Go.PickFolder('A folder the app uses'); if (d) setLink(d) }}>Browse…</button>
                 </div>
-                <label className="watch"><input type="checkbox" checked={inPlace} onChange={e => setInPlace(e.target.checked)}/>
-                    Link it to a folder that already exists, such as on the game disk (nothing copied)</label>
-                {inPlace && <div className="field">
-                    <input value={target} onChange={e => setTarget(e.target.value)} placeholder="The existing folder, such as G:\Online Games\Riot Games"/>
-                    <button onClick={async () => { const d = await Go.PickFolder('The existing folder to use'); if (d) setTarget(d) }}>Browse…</button>
-                </div>}
                 <div className="field">
                     <input value={session} onChange={e => setSession(e.target.value)} placeholder="Subfolders to empty after each player (logins), comma-separated"/>
-                    <button className="primary" disabled={!!busy || !link || (inPlace && !target)}
-                            onClick={() => run('Adding folder',
-                                () => inPlace ? Go.AddFolderInPlace(pkg.Dir, link, target, session) : Go.AddFolder(pkg.Dir, link, session), 'Folder added')
-                                .then(ok => { if (ok) { setLink(''); setSession(''); setTarget(''); setInPlace(false) } })}>Add folder</button>
+                    <button className="primary" disabled={!!busy || !link}
+                            onClick={() => run('Adding folder', () => Go.AddFolder(pkg.Dir, link, session), 'Folder added')
+                                .then(ok => { if (ok) { setLink(''); setSession('') } })}>Add folder</button>
                 </div>
             </div>
 
@@ -324,7 +265,7 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                 <div className="field">
                     <input value={key} onChange={e => setKey(e.target.value)} placeholder="HKCU\Software\Game"/>
                     <button className="primary" disabled={!!busy || !key}
-                            onClick={() => run('Saving key', () => Go.AddRegistry(pkg.Dir, key), 'Key saved').then(() => setKey(''))}>Add key</button>
+                            onClick={() => run('Saving key', () => Go.AddRegistry(pkg.Dir, key), 'Key saved').then(ok => ok && setKey(''))}>Add key</button>
                 </div>
             </div>
 
@@ -381,63 +322,6 @@ function SessionBox({value, disabled, save}) {
                title="Subfolders emptied after each player, such as LocalStorage (logins). Comma-separated."
                onChange={e => setV(e.target.value)} onBlur={commit}
                onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}/>
-    )
-}
-
-// HuntCard shows what a hunt finds, and adds the ticked folders.
-function HuntCard({pkg, st, busy, run, close}) {
-    const [ticked, setTicked] = useState({})
-    const [more, setMore] = useState(false)
-    const folders = st.folders || []
-    // Folders that are not noise and not added yet are ticked until unticked.
-    const isTicked = f => !f.added && (ticked[f.real] ?? !f.noise)
-    const main = folders.filter(f => !f.noise || f.added)
-    const noise = folders.filter(f => f.noise && !f.added)
-    const chosen = folders.filter(isTicked).map(f => f.real)
-    const exeName = (st.exe || '').split('\\').pop()
-
-    const row = f => (
-        <label key={f.real} className={'hunt-row' + (f.added ? ' added' : '')} title={f.example}>
-            <input type="checkbox" disabled={f.added} checked={f.added || isTicked(f)}
-                   onChange={e => setTicked({...ticked, [f.real]: e.target.checked})}/>
-            <span className="hunt-path">{f.path}</span>
-            {f.added && <span className="pill ok">added</span>}
-            {f.program && <span className="pill">program</span>}
-            {f.changes > 0 && <span className="pill">{f.changes} changes</span>}
-        </label>
-    )
-
-    return (
-        <div className="card hunt">
-            <div className="card-head"><SearchIcon/>
-                <span className="name">Hunt: {exeName}</span><span className="spacer"/>
-                {st.running
-                    ? <><span className="tag">{st.live} running</span><button onClick={() => Go.StopHunt()}>Stop</button></>
-                    : <button className="icon-btn" title="Close" onClick={close}><XIcon/></button>}
-            </div>
-            {st.running && <p className="small muted">Use the app the way players do: log in, change a setting, play a
-                little. Then close it (also from the tray). Hunting stops a few seconds after its last program ends.
-                Close other programs meanwhile: every change on the PC is counted.</p>}
-            {st.error && <p className="error-text">{st.error}</p>}
-            {st.programs && st.programs.length > 0 && <p className="small muted">Programs: {st.programs.join(', ')}</p>}
-            <div className="hunt-list">
-                {main.map(row)}
-                {main.length === 0 && <p className="small muted">{st.running ? 'Nothing found yet…' : 'Nothing found.'}</p>}
-                {more && noise.map(row)}
-            </div>
-            {noise.length > 0 && <button className="ghost hunt-more" onClick={() => setMore(!more)}>
-                {more ? 'Hide' : 'Show'} {noise.length} more (most likely Windows or other programs)</button>}
-            <div className="hunt-actions">
-                <button className="primary" disabled={!!busy || chosen.length === 0}
-                        onClick={() => run('Copying ' + chosen.length + ' folder(s) into the package',
-                            () => Go.AddHuntFolders(pkg.Dir, chosen), 'Added ' + chosen.length + ' folder(s)')
-                            .then(() => setTicked({}))}>
-                    Add {chosen.length} folder{chosen.length === 1 ? '' : 's'} to the package
-                </button>
-            </div>
-            <p className="small muted">The app's own program folder is already copied into the package when you made it.
-                Add the folders it keeps elsewhere (settings, saves). Their files are copied in now.</p>
-        </div>
     )
 }
 

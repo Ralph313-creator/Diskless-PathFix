@@ -123,6 +123,8 @@ func run(p *core.Package, self string, pass []string, logf func(string, ...any))
 	if err != nil {
 		return err
 	}
+	// Through the app's default location, so it never sees the package.
+	exe = p.StartPath(exe)
 	logf("start %s", exe)
 	res, err := core.Run(exe, append(append([]string{}, p.Args...), pass...), "", 0)
 	if err != nil {

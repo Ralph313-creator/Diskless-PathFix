@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 )
 
 // RegistryDir is the folder inside a package that holds saved .reg files.
@@ -68,6 +69,25 @@ func (p *Package) Unlink(launcher string) error {
 		}
 	}
 	return errors.Join(errs...)
+}
+
+// StartPath is the path to start exe (a program in the package) with: through
+// the link of the folder it is in when that link is made, so the app sees its
+// default location (such as C:\Program Files\Roblox\Versions\...) and never
+// the package; otherwise the package's own path.
+func (p *Package) StartPath(exe string) string {
+	best, bestLen := exe, -1
+	for _, f := range p.Folders {
+		data := p.DataPath(f)
+		rel, err := filepath.Rel(data, exe)
+		if err != nil || rel == "." || rel == ".." || strings.HasPrefix(rel, `..\`) || len(data) <= bestLen {
+			continue
+		}
+		if link := p.LinkPath(f); LinkStatus(link, data) == LinkOK {
+			best, bestLen = filepath.Join(link, rel), len(data)
+		}
+	}
+	return best
 }
 
 // FolderStatus is what is at one folder's link path now.

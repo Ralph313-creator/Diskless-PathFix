@@ -6,14 +6,6 @@ export function AddFolder(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddFolder'](arg1, arg2, arg3);
 }
 
-export function AddFolderInPlace(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['AddFolderInPlace'](arg1, arg2, arg3, arg4);
-}
-
-export function AddHuntFolders(arg1, arg2) {
-  return window['go']['main']['App']['AddHuntFolders'](arg1, arg2);
-}
-
 export function AddRegistry(arg1, arg2) {
   return window['go']['main']['App']['AddRegistry'](arg1, arg2);
 }
@@ -26,16 +18,8 @@ export function ChooseRoot() {
   return window['go']['main']['App']['ChooseRoot']();
 }
 
-export function CreateInPlace(arg1, arg2, arg3) {
-  return window['go']['main']['App']['CreateInPlace'](arg1, arg2, arg3);
-}
-
 export function CreatePackage(arg1, arg2, arg3) {
   return window['go']['main']['App']['CreatePackage'](arg1, arg2, arg3);
-}
-
-export function FindRiot() {
-  return window['go']['main']['App']['FindRiot']();
 }
 
 export function GetRoot() {
@@ -48,10 +32,6 @@ export function InUse(arg1) {
 
 export function List() {
   return window['go']['main']['App']['List']();
-}
-
-export function MakeRiot(arg1) {
-  return window['go']['main']['App']['MakeRiot'](arg1);
 }
 
 export function MakeRoblox(arg1) {
@@ -92,14 +72,6 @@ export function SetSession(arg1, arg2, arg3) {
 
 export function SetupHere(arg1) {
   return window['go']['main']['App']['SetupHere'](arg1);
-}
-
-export function StartHunt(arg1) {
-  return window['go']['main']['App']['StartHunt'](arg1);
-}
-
-export function StopHunt() {
-  return window['go']['main']['App']['StopHunt']();
 }
 
 export function UnlinkHere(arg1) {

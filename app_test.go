@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"testing"
 
@@ -30,42 +29,12 @@ func TestListShowsPackageWithCCBootLine(t *testing.T) {
 	}
 }
 
-func TestOnlyOneHuntAtATime(t *testing.T) {
-	root := t.TempDir()
-	p, err := manager.CreatePackage(root, "Game", "", "", []byte("MZ"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	a := &App{Root: root}
-	ping := filepath.Join(os.Getenv("SystemRoot"), "System32", "PING.EXE")
-	first, err := a.startHunt(p.Dir, ping)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := a.startHunt(p.Dir, ping); err == nil {
-		t.Error("a second hunt started while one was running")
-	}
-	if !slices.ContainsFunc(first.Excluded(), func(s string) bool { return strings.EqualFold(s, root) }) {
-		t.Errorf("excluded %v, want the packages folder %s", first.Excluded(), root)
-	}
-	a.StopHunt()
-	<-first.Done()
-	if h, err := a.startHunt(p.Dir, ping); err != nil {
-		t.Errorf("no new hunt after the first stopped: %v", err)
-	} else {
-		a.StopHunt()
-		<-h.Done()
-	}
-}
-
-func TestAddHuntFoldersAndSession(t *testing.T) {
+func TestAddFolderAndSession(t *testing.T) {
 	root := t.TempDir()
 	p, _ := manager.CreatePackage(root, "Game", "", "", []byte("MZ"))
 	a := &App{Root: root}
-	found := filepath.Join(t.TempDir(), "Saves")
-	n, err := a.AddHuntFolders(p.Dir, []string{found, found})
-	if err != nil || n != 1 {
-		t.Fatalf("AddHuntFolders = %d, %v; want 1 added", n, err)
+	if err := a.AddFolder(p.Dir, filepath.Join(t.TempDir(), "Saves"), ""); err != nil {
+		t.Fatal(err)
 	}
 	if err := a.SetSession(p.Dir, 0, "LocalStorage, logs"); err != nil {
 		t.Fatal(err)
@@ -122,29 +91,6 @@ func TestListShowsIconAndChosenIcon(t *testing.T) {
 	}
 	if v := a.List()[0]; v.OwnIcon || v.Icon != "" {
 		t.Fatal("still the chosen icon after Use app's icon (the app has none)")
-	}
-}
-
-func TestInPlaceAppAndFolderInList(t *testing.T) {
-	root := t.TempDir()
-	game := filepath.Join(t.TempDir(), "Riot Games")
-	exe := filepath.Join(game, "Riot Client", "RiotClientServices.exe")
-	os.MkdirAll(filepath.Dir(exe), 0o755)
-	os.WriteFile(exe, []byte("MZ"), 0o644)
-	a := &App{Root: root}
-	if err := a.createInPlace("Game", exe, "--launch-product=valorant  --launch-patchline=live", []byte("MZ")); err != nil {
-		t.Fatal(err)
-	}
-	dir := filepath.Join(root, "Game")
-	if err := a.AddFolderInPlace(dir, filepath.Join(t.TempDir(), "Riot Games"), game, ""); err != nil {
-		t.Fatal(err)
-	}
-	v := a.List()[0]
-	if len(v.InPlace) != 1 || !v.InPlace[0] {
-		t.Fatalf("InPlace = %v", v.InPlace)
-	}
-	if strings.Join(v.Args, "|") != "--launch-product=valorant|--launch-patchline=live" || !v.ExeInPlace {
-		t.Fatalf("args %v exe in place %v", v.Args, v.ExeInPlace)
 	}
 }
 

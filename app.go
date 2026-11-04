@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
 
@@ -18,7 +17,6 @@ import (
 	"golang.org/x/sys/windows/registry"
 
 	"raptech-portable/internal/core"
-	"raptech-portable/internal/hunt"
 	"raptech-portable/internal/icon"
 	"raptech-portable/internal/manager"
 )
@@ -28,9 +26,6 @@ type App struct {
 	ctx          context.Context
 	settingsPath string
 	Root         string `json:"root"`
-
-	huntMu sync.Mutex
-	hunt   *hunt.Hunter
 }
 
 func NewApp() *App { return &App{} }
@@ -80,9 +75,6 @@ type PackageView struct {
 	Links           []string // link paths as written in portable.json
 	Icon            string   // the launcher's icon as a data: URL, "" if none to show
 	OwnIcon         bool     // a chosen icon, not the app's
-	InPlace         []bool   // per folder: an existing folder used where it is
-	ExeInPlace      bool     // the app starts where it is installed, not from the package
-	Args            []string // arguments the launcher passes to the app
 }
 
 // List shows the packages in the root folder.
@@ -104,12 +96,9 @@ func (a *App) List() []PackageView {
 			if p, err := core.Load(info.Dir); err == nil {
 				v.OwnIcon = manager.HasOwnIcon(p)
 				v.Registry = p.Registry
-				v.ExeInPlace = p.Exe != "" && core.IsFull(p.Exe)
-				v.Args = p.Args
 				for _, f := range p.Folders {
 					v.Links = append(v.Links, f.Link)
 					v.Session = append(v.Session, f.Session)
-					v.InPlace = append(v.InPlace, p.InPlace(f))
 				}
 			}
 		}
@@ -294,58 +283,14 @@ func (a *App) RemoveApp(dir string) error {
 	return manager.RemovePackage(a.Root, p)
 }
 
-// FindRiot is where Riot Client is installed on this PC ("" if not found).
-func (a *App) FindRiot() string {
-	dir, _ := manager.FindRiot(a.Root)
-	return dir
-}
-
-// MakeRiot makes the Riot package for the Riot Games folder riotDir, used
-// in place (see manager.CreateRiot).
-func (a *App) MakeRiot(riotDir string) error {
-	if err := a.needRoot(); err != nil {
-		return err
-	}
-	l, err := a.launcher()
-	if err != nil {
-		return err
-	}
-	_, err = manager.CreateRiot(a.Root, riotDir, l)
-	return err
-}
-
-// CreateInPlace makes a package for an app that stays where it is
-// installed: exe starts with args (split at spaces); nothing is copied.
-func (a *App) CreateInPlace(name, exe, args string) error {
-	l, err := a.launcher()
-	if err != nil {
-		return err
-	}
-	return a.createInPlace(name, exe, args, l)
-}
-
-func (a *App) createInPlace(name, exe, args string, launcher []byte) error {
-	if err := a.needRoot(); err != nil {
-		return err
-	}
-	_, err := manager.CreateInPlace(a.Root, strings.TrimSpace(name), exe, strings.Fields(args), launcher)
-	return err
-}
-
-// AddFolderInPlace links link to target, an existing folder used where it
-// is (nothing copied); session as in AddFolder.
-func (a *App) AddFolderInPlace(dir, link, target, session string) error {
+// SetSession sets folder i's subfolders emptied after each player
+// (comma-separated).
+func (a *App) SetSession(dir string, i int, session string) error {
 	p, err := load(dir)
 	if err != nil {
 		return err
 	}
-	var subs []string
-	for _, s := range strings.Split(session, ",") {
-		if s = strings.TrimSpace(s); s != "" {
-			subs = append(subs, s)
-		}
-	}
-	return manager.AddFolderInPlace(p, link, target, subs)
+	return manager.SetSession(p, i, strings.Split(session, ","))
 }
 
 // ChangeIcon asks for a program, dll or .ico file and gives the app's

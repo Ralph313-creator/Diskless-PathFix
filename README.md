@@ -73,63 +73,20 @@ Runs as administrator. Choose the apps folder (default `G:\Portable`), then:
 
 - **Add Roblox**: makes the package and downloads Roblox into it. Pick whether the
   client image has Roblox installed for everyone (Program Files) or one user.
-- **Add another app**: copies the app's folder into the package. Then add the
-  folders it keeps elsewhere (their files are copied in, without the session
-  subfolders) and its registry keys.
+- **Add another app**: copies the app's folder into the package's `App` folder,
+  and its usual place (such as `C:\Games\My Game`) becomes a link to that copy.
+  The launcher starts the app **through its usual place**, so the app still thinks
+  it is installed there and never sees the package, and everything it writes
+  lands in the package. Then add the other folders it keeps on C: (their files are
+  copied in, without the session subfolders) and its registry keys.
 - Per app: **Update now**, **Automatic** updates, **Link on this PC** / **Unlink**,
   and the CCBoot line to copy. Each folder has a box for the subfolders emptied
   after each player (such as `LocalStorage`, where Roblox keeps logins).
+- A folder that is already a link made by another app's package is refused, with
+  that app's name, instead of being copied or taken over.
 
-### Apps and folders used in place (Riot)
-
-Some apps are already on the game disk, such as Riot in `G:\Online Games\Riot Games`.
-Copying them would duplicate many GB, and the app would update the copy while
-its own records point at the original. So a package can **use them where they
-are**:
-
-- **Add another app → Use it where it is installed**: nothing is copied; the
-  launcher starts the program from its own folder (with optional arguments).
-- **Add folder → Link it to a folder that already exists**: the link points to
-  that folder (tagged **in place**); nothing is copied.
-- Folders and programs used in place are never deleted by **Remove app**. They
-  must have the same drive letter on the floor PCs (the game disk's letter).
-- A folder that is already a link, such as one another app's package made, is
-  refused (with the app's name) instead of being copied or taken over.
-
-**Add Riot** does this for Riot: it finds Riot Client from Riot's own
-`%ProgramData%\Riot Games\RiotClientInstalls.json` (skipping copies inside the
-apps folder), starts it in place, and copies and links Riot's small folders on C:
-(`%ProgramData%\Riot Games`, `%LOCALAPPDATA%\Riot Games`). The login in
-`Riot Client\Data` is never copied and is emptied after each player. Vanguard is
-a boot driver and stays installed in the client image. GameFix also links
-`%ProgramData%\Riot Games`; use one of the two for Riot on the floor PCs.
-
-Don't copy Riot Client into a package with **Copy the app**: when the copy runs,
-Riot points `RiotClientInstalls.json` at it.
-
-### Hunt: find the folders an app uses
-
-Not sure where an app keeps its settings and saves? On the app's page click
-**Hunt…** and choose the **installed** program (not the launcher in the package).
-RapTech Portable starts it and, while it runs, finds:
-
-- the folders of every program it starts (and the ones those start), with the
-  files they load, marked **program**
-- the folders on the PC's drives where files are added, changed or deleted, with
-  the number of **changes**, such as `%LOCALAPPDATA%\Riot Games`
-
-Use the app the way players do (log in, change a setting, play a little), then
-close it. Hunting stops a few seconds after its last program ends, or click
-**Stop** (the app keeps running). Folders that most likely belong to Windows or
-other programs are hidden under **Show more** and not ticked; folders the package
-already has, and the folder the app was copied from, show as **added**. Tick the
-ones the app needs and click **Add folders to the package**: their files are
-copied in, and they are linked from then on.
-
-- Close other programs while hunting: every change on the PC is counted.
-- Close the app (also from the tray) before hunting. A launcher that is already
-  running only passes the start on to itself, so its programs are not found.
-- Hunting is ported from GameFix's hunt mode.
+On this PC, linking an app's folder renames the original to `<folder>.rp-backup`
+(never deleted); **Unlink** or **Remove app** puts it back.
 
 ## Build
 

@@ -85,6 +85,21 @@ func TestCreatePackageCopiesAppFolder(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(p.Dir, "My Game.exe")); err != nil {
 		t.Fatal("launcher not named after the app")
 	}
+	// The app's own folder is linked from where it was installed, so the
+	// app still finds itself at its default location.
+	if len(p.Folders) != 1 || p.Folders[0].Data != "App" || !core.SamePath(core.ExpandVars(p.Folders[0].Link, p.Dir), app) {
+		t.Fatalf("folders = %+v, want the app folder linked from %s", p.Folders, app)
+	}
+}
+
+func TestCreatePackageRefusesAppInsideTheAppsFolder(t *testing.T) {
+	root := t.TempDir()
+	app := filepath.Join(root, "Other", "App")
+	os.MkdirAll(app, 0o755)
+	os.WriteFile(filepath.Join(app, "game.exe"), []byte("x"), 0o644)
+	if _, err := CreatePackage(root, "Game", app, filepath.Join(app, "game.exe"), fakeLauncher); err == nil {
+		t.Fatal("an app inside the portable apps folder was accepted")
+	}
 }
 
 func TestCreatePackageRefusesBadNames(t *testing.T) {

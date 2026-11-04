@@ -60,6 +60,32 @@ func copyFile(t *testing.T, from, to string) {
 	io.Copy(out, in)
 }
 
+func TestLauncherStartsTheAppAtItsDefaultLocation(t *testing.T) {
+	root := t.TempDir()
+	pkg := filepath.Join(root, "pkg")
+	installed := filepath.Join(root, "pc", "Games", "My Game")
+	launcher := buildLauncher(t, pkg, "Game.exe")
+	copyFile(t, `C:\Windows\System32\cmd.exe`, filepath.Join(pkg, `App\game.exe`))
+	manifest := `{"name": "Game", "exe": "App\\game.exe",
+		"folders": [{"link": "` + strings.ReplaceAll(installed, `\`, `\\`) + `", "data": "App"}]}`
+	os.WriteFile(filepath.Join(pkg, "portable.json"), []byte(manifest), 0o644)
+
+	// The app writes into its working folder (its default location): through
+	// the link, that lands in the package.
+	cmd := exec.Command(launcher, "/c", "echo", "x>written.txt")
+	if b, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("launcher: %v\n%s", err, b)
+	}
+	logText, _ := os.ReadFile(filepath.Join(pkg, LogName))
+	want := "start " + filepath.Join(installed, "game.exe")
+	if !strings.Contains(strings.ToLower(string(logText)), strings.ToLower(want)) {
+		t.Fatalf("log does not show %q:\n%s", want, logText)
+	}
+	if _, err := os.Stat(filepath.Join(pkg, `App\written.txt`)); err != nil {
+		t.Fatal("the write at the default location did not land in the package")
+	}
+}
+
 func TestLauncherRunsPackageEndToEnd(t *testing.T) {
 	root := t.TempDir()
 	pkg := filepath.Join(root, "pkg")
