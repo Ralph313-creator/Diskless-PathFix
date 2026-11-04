@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 	"unsafe"
 
@@ -30,6 +31,27 @@ func SetProtocol(name, exe string) error {
 		set(base+`\DefaultIcon`, "", `"`+exe+`",0`),
 		set(base+`\shell\open\command`, "", `"`+exe+`" "%1"`),
 	)
+}
+
+// RemoveProtocol removes this user's handler for name, only when it starts
+// exe. Then the machine-wide one (HKLM) works again.
+func RemoveProtocol(name, exe string) error {
+	base := `Software\Classes\` + name
+	k, err := registry.OpenKey(registry.CURRENT_USER, base+`\shell\open\command`, registry.QUERY_VALUE)
+	if err != nil {
+		return nil
+	}
+	cmd, _, _ := k.GetStringValue("")
+	k.Close()
+	if !strings.HasPrefix(strings.ToLower(cmd), strings.ToLower(`"`+exe+`"`)) {
+		return nil
+	}
+	for _, sub := range []string{`\shell\open\command`, `\shell\open`, `\shell`, `\DefaultIcon`, ``} {
+		if err := registry.DeleteKey(registry.CURRENT_USER, base+sub); err != nil && !errors.Is(err, registry.ErrNotExist) {
+			return fmt.Errorf("remove protocol %s: %w", name, err)
+		}
+	}
+	return nil
 }
 
 // EmptyFolder deletes everything inside dir but keeps dir. A missing dir is

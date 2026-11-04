@@ -95,12 +95,42 @@ func TestUnlinkPutsOriginalBack(t *testing.T) {
 	if err := p.Setup(""); err != nil {
 		t.Fatal(err)
 	}
-	if err := p.Unlink(); err != nil {
+	if err := p.Unlink(""); err != nil {
 		t.Fatal(err)
 	}
 	if got := mustRead(t, filepath.Join(pc, `AppData\App\old.txt`)); got != "original install" {
 		t.Fatalf("original not back: %q", got)
 	}
+}
+
+func TestUnlinkRemovesOnlyOurProtocols(t *testing.T) {
+	p, _, _ := testPackage(t)
+	ours, theirs := "rp-test-ours", "rp-test-theirs"
+	for _, name := range []string{ours, theirs} {
+		path := `Software\Classes\` + name
+		t.Cleanup(func() { deleteTree(registry.CURRENT_USER, path) })
+	}
+	p.Protocols = []string{ours, theirs}
+	launcher := filepath.Join(p.Dir, "App.exe")
+	if err := p.Setup(launcher); err != nil {
+		t.Fatal(err)
+	}
+	// Something else (such as the app's own installer) took over "theirs".
+	if err := SetProtocol(theirs, `C:\Other\app.exe`); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.Unlink(launcher); err != nil {
+		t.Fatal(err)
+	}
+	if k, err := registry.OpenKey(registry.CURRENT_USER, `Software\Classes\`+ours, registry.QUERY_VALUE); err == nil {
+		k.Close()
+		t.Error("our protocol handler was left behind")
+	}
+	k, err := registry.OpenKey(registry.CURRENT_USER, `Software\Classes\`+theirs+`\shell\open\command`, registry.QUERY_VALUE)
+	if err != nil {
+		t.Fatal("another program's protocol handler was removed")
+	}
+	k.Close()
 }
 
 func TestStatusReportsEachFolder(t *testing.T) {

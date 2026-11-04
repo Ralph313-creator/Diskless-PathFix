@@ -81,7 +81,7 @@ func main() {
 	case "save":
 		err = core.SaveRegistry(p.Registry, p.Path(core.RegistryDir), p.Dir)
 	case "unlink":
-		err = p.Unlink()
+		err = p.Unlink(self)
 	case "status":
 		for _, s := range p.Status() {
 			fmt.Printf("%-12s %s -> %s\n", s.State, s.Link, s.Data)

@@ -51,11 +51,20 @@ func (p *Package) Finish() error {
 }
 
 // Unlink removes the package's links and puts back what was there before.
-func (p *Package) Unlink() error {
+// Protocol handlers are removed only while they still start launcher, so
+// one the app's own installer took over again is left alone.
+func (p *Package) Unlink(launcher string) error {
 	var errs []error
 	for _, f := range p.Folders {
 		if err := RemoveLink(p.LinkPath(f), p.Path(f.Data)); err != nil {
 			errs = append(errs, err)
+		}
+	}
+	if launcher != "" {
+		for _, proto := range p.Protocols {
+			if err := RemoveProtocol(proto, launcher); err != nil {
+				errs = append(errs, err)
+			}
 		}
 	}
 	return errors.Join(errs...)
