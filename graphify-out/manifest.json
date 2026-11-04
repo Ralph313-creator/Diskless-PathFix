@@ -18,10 +18,10 @@
     "semantic_hash": "a4fcfb6b9bf567cec32e4d244cc675a3"
   },
   "go.mod": {
-    "mtime": 1793799880.4202685,
-    "seen": 1793800364.9727106,
-    "ast_hash": "7f33fb65eeabf701cf4e8a8042cf00bd",
-    "semantic_hash": "7f33fb65eeabf701cf4e8a8042cf00bd"
+    "mtime": 1793800960.658813,
+    "seen": 1793801134.5678132,
+    "ast_hash": "8e2fa83ff90f5d40f0f78f5f4ffdd525",
+    "semantic_hash": ""
   },
   "internal/core/links.go": {
     "mtime": 1793799972.7874482,
@@ -108,9 +108,129 @@
     "semantic_hash": "975f59e65019ab809be31b35fa4c6272"
   },
   "CLAUDE.md": {
-    "mtime": 1793800383.0392675,
-    "seen": 1793800576.4326413,
-    "ast_hash": "b1bae6f846ffacbce37932e1085c869b",
+    "mtime": 1793801120.3762815,
+    "seen": 1793801134.5678618,
+    "ast_hash": "e5c31e7674d046aedcdfe29790d15ac5",
+    "semantic_hash": ""
+  },
+  "app.go": {
+    "mtime": 1793800905.8073776,
+    "seen": 1793801134.56777,
+    "ast_hash": "6f41ccbb3b49b228f9825e40deadf922",
+    "semantic_hash": ""
+  },
+  "app_test.go": {
+    "mtime": 1793801075.6164377,
+    "seen": 1793801134.567776,
+    "ast_hash": "08249745c8723b81b494bd37b5a943d5",
+    "semantic_hash": ""
+  },
+  "frontend/package.json": {
+    "mtime": 1793800870.045376,
+    "seen": 1793801134.567793,
+    "ast_hash": "e1d1bd99ada1f40fa0c525580222a47b",
+    "semantic_hash": ""
+  },
+  "frontend/src/App.jsx": {
+    "mtime": 1793800953.3091528,
+    "seen": 1793801134.567796,
+    "ast_hash": "0783aba3dad2375143d995fa52b7910f",
+    "semantic_hash": ""
+  },
+  "frontend/src/main.jsx": {
+    "mtime": 1793800870.0735633,
+    "seen": 1793801134.567798,
+    "ast_hash": "1551768e2be92ca2fd17c20365e6e99d",
+    "semantic_hash": ""
+  },
+  "frontend/vite.config.js": {
+    "mtime": 1793800870.045376,
+    "seen": 1793801134.5678,
+    "ast_hash": "8bbb6675d19b558e1173ca8206693631",
+    "semantic_hash": ""
+  },
+  "frontend/wailsjs/go/main/App.d.ts": {
+    "mtime": 1793801058.3779974,
+    "seen": 1793801134.567802,
+    "ast_hash": "dbcf88a42803c80d2732bff32153c9d4",
+    "semantic_hash": ""
+  },
+  "frontend/wailsjs/go/main/App.js": {
+    "mtime": 1793801058.3774858,
+    "seen": 1793801134.5678036,
+    "ast_hash": "11e74a3ea47788bf9f0c9e65c12750ee",
+    "semantic_hash": ""
+  },
+  "frontend/wailsjs/go/models.ts": {
+    "mtime": 1793801058.3785129,
+    "seen": 1793801134.5678055,
+    "ast_hash": "762c10cc0c63d812ab6c9995f32641b7",
+    "semantic_hash": ""
+  },
+  "frontend/wailsjs/runtime/package.json": {
+    "mtime": 1793801060.1959972,
+    "seen": 1793801134.5678072,
+    "ast_hash": "a79e9c39ebcda0fdeb14a44939bc489e",
+    "semantic_hash": ""
+  },
+  "frontend/wailsjs/runtime/runtime.d.ts": {
+    "mtime": 1793801060.1959972,
+    "seen": 1793801134.567809,
+    "ast_hash": "dcd9fca4af1912f552547c22f315c25e",
+    "semantic_hash": ""
+  },
+  "frontend/wailsjs/runtime/runtime.js": {
+    "mtime": 1793801060.1959972,
+    "seen": 1793801134.5678108,
+    "ast_hash": "efc7f0ddc7f96e446ad0252df27b477f",
+    "semantic_hash": ""
+  },
+  "internal/manager/manager.go": {
+    "mtime": 1793800851.7644439,
+    "seen": 1793801134.567845,
+    "ast_hash": "ede88ef905b69a1115d94707399cf811",
+    "semantic_hash": ""
+  },
+  "internal/manager/manager_test.go": {
+    "mtime": 1793800832.6951766,
+    "seen": 1793801134.5678473,
+    "ast_hash": "4810c4091e6a6ccd696d1f548ff63467",
+    "semantic_hash": ""
+  },
+  "internal/manager/schedule.go": {
+    "mtime": 1793800789.1025121,
+    "seen": 1793801134.5678492,
+    "ast_hash": "cb6ffd0717889dc06b533dc927020631",
+    "semantic_hash": ""
+  },
+  "internal/manager/schedule_test.go": {
+    "mtime": 1793800771.9707687,
+    "seen": 1793801134.567851,
+    "ast_hash": "7255f2ca7c3be1b2c8198cdc42282b01",
+    "semantic_hash": ""
+  },
+  "main.go": {
+    "mtime": 1793800905.7265913,
+    "seen": 1793801134.5678577,
+    "ast_hash": "689fdc776df2bd08fe823e0bf6421b94",
+    "semantic_hash": ""
+  },
+  "wails.json": {
+    "mtime": 1793800905.866927,
+    "seen": 1793801134.5678596,
+    "ast_hash": "b76893db37842d09e3b1c5ef6eca3716",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1793801113.673792,
+    "seen": 1793801134.5678635,
+    "ast_hash": "7d5fae03d364b2a0770516e012da17ab",
+    "semantic_hash": ""
+  },
+  "frontend/index.html": {
+    "mtime": 1793800870.1091971,
+    "seen": 1793801134.5678656,
+    "ast_hash": "7c8c0d3d885ac69ea648925b569f6675",
     "semantic_hash": ""
   }
 }

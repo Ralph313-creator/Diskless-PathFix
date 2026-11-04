@@ -1,126 +1,197 @@
 # Graph Report - RapTech-Portable  (2026-11-04)
 
 ## Corpus Check
-- 19 files · ~10,928 words
+- 38 files · ~19,053 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 1 file(s) not represented in the graph (top: (none) 1)
+- Unclassified: 5 file(s) not represented in the graph (top: (none) 2, .cmd 1, .md5 1)
 
 ## Summary
-- 196 nodes · 561 edges · 12 communities (11 shown, 1 thin omitted)
-- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 86 edges (avg confidence: 0.85)
+- 446 nodes · 1082 edges · 72 communities (14 shown, 58 thin omitted)
+- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 110 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `717c3d39`
+- Built from commit: `5e716185`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - update.go
-- manifest_test.go
-- fakeRoblox
-- registry.go
+- Package
+- update_test.go
+- App.jsx
 - testing.T
-- .Path
+- App
 - Updater
-- paths.go
-- main_test.go
+- runtime/package.json
 - raptech-portable
-- links.go
+- wails.json
 - RapTech Portable
+- runtime.js
+- runtime.d.ts
+- PackageView
+- RapTech Portable
+- EventsOnMultiple
+- BrowserOpenURL
+- CanResolveFilePaths
+- CheckNotificationAuthorization
+- CleanupNotifications
+- ClipboardGetText
+- ClipboardSetText
+- EventsOff
+- EventsOffAll
+- Hide
+- IsNotificationAvailable
+- LogDebug
+- LogError
+- LogFatal
+- LogInfo
+- LogPrint
+- LogTrace
+- LogWarning
+- OnFileDrop
+- Quit
+- RegisterNotificationCategory
+- RemoveAllDeliveredNotifications
+- RemoveDeliveredNotification
+- RemoveNotification
+- RemoveNotificationCategory
+- RemovePendingNotification
+- RequestNotificationAuthorization
+- ResolveFilePaths
+- ScreenGetAll
+- SendNotification
+- SendNotificationWithActions
+- Show
+- WindowCenter
+- WindowFullscreen
+- WindowGetPosition
+- WindowGetSize
+- WindowIsFullscreen
+- WindowIsMaximised
+- WindowIsMinimised
+- WindowIsNormal
+- WindowMinimise
+- WindowReload
+- WindowReloadApp
+- WindowSetAlwaysOnTop
+- WindowSetBackgroundColour
+- WindowSetDarkTheme
+- WindowSetLightTheme
+- WindowSetMaxSize
+- WindowSetPosition
+- WindowSetSize
+- WindowSetSystemDefaultTheme
+- WindowSetTitle
+- WindowShow
+- WindowUnfullscreen
+- WindowUnmaximise
+- WindowUnminimise
 
 ## God Nodes (most connected - your core abstractions)
-1. `MakeLink()` - 12 edges
-2. `mustWrite()` - 12 edges
-3. `SaveRegistry()` - 12 edges
-4. `Updater` - 12 edges
-5. `main()` - 11 edges
-6. `LinkStatus()` - 11 edges
-7. `mustRead()` - 11 edges
-8. `Package` - 11 edges
-9. `testPackage()` - 9 edges
-10. `Run()` - 9 edges
+1. `App` - 24 edges
+2. `Package` - 20 edges
+3. `Load()` - 14 edges
+4. `SaveRegistry()` - 13 edges
+5. `LinkStatus()` - 12 edges
+6. `MakeLink()` - 12 edges
+7. `mustWrite()` - 12 edges
+8. `CreatePackage()` - 12 edges
+9. `AddFolder()` - 12 edges
+10. `Updater` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `main()` --calls--> `attachConsole()`  [INFERRED]
-  cmd/launcher/main.go → cmd/launcher/win.go
+- `load()` --references--> `Package`  [EXTRACTED]
+  app.go → internal/core/manifest.go
+- `load()` --calls--> `Load()`  [EXTRACTED]
+  app.go → internal/core/manifest.go
+- `main()` --calls--> `Load()`  [EXTRACTED]
+  cmd/launcher/main.go → internal/core/manifest.go
 - `main()` --calls--> `SaveRegistry()`  [EXTRACTED]
   cmd/launcher/main.go → internal/core/registry.go
-- `setup()` --calls--> `runElevated()`  [INFERRED]
-  cmd/launcher/main.go → cmd/launcher/win.go
-- `run()` --calls--> `Run()`  [EXTRACTED]
-  cmd/launcher/main.go → internal/core/run.go
-- `update()` --calls--> `SaveRegistry()`  [EXTRACTED]
-  cmd/launcher/main.go → internal/core/registry.go
+- `setup()` --references--> `Package`  [EXTRACTED]
+  cmd/launcher/main.go → internal/core/manifest.go
 
 ## Import Cycles
 - None detected.
 
-## Communities (12 total, 1 thin omitted)
+## Communities (72 total, 58 thin omitted)
 
 ### Community 0 - "update.go"
-Cohesion: 0.12
-Nodes (12): attachConsole(), imagePath(), otherInstances(), runElevated(), jobAccounting, Result, activeProcesses(), Run() (+4 more)
+Cohesion: 0.13
+Nodes (18): parseArgs(), buildLauncher(), copyFile(), TestLauncherRunsPackageEndToEnd(), TestParseArgs(), jobAccounting, CheckLink(), hasPrefixFold() (+10 more)
 
-### Community 1 - "manifest_test.go"
-Cohesion: 0.15
-Nodes (18): fail(), main(), openLog(), run(), setup(), update(), Manifest, Update (+10 more)
+### Community 1 - "Package"
+Cohesion: 0.06
+Nodes (46): TestListShowsPackageWithCCBootLine(), Folder, LinkState, Manifest, Created(), Package, Update, hiddenPart() (+38 more)
 
-### Community 2 - "fakeRoblox"
-Cohesion: 0.21
-Nodes (13): Created(), Prune(), assertOnly(), fakeRoblox(), read(), standardPkgs(), TestPruneKeepsNewestAndCurrent(), TestUpdateInstallsLatestVersion() (+5 more)
+### Community 2 - "update_test.go"
+Cohesion: 0.20
+Nodes (11): assertOnly(), fakeRoblox(), read(), standardPkgs(), TestPruneKeepsNewestAndCurrent(), TestUpdateInstallsLatestVersion(), TestUpdateRefusesBadDownloads(), TestUpdateReplacesBrokenVersionFolder() (+3 more)
 
-### Community 3 - "registry.go"
-Cohesion: 0.22
-Nodes (17): fromUTF16(), keyExists(), LoadRegistry(), RegFileName(), replaceFold(), rewriteReg(), runReg(), SaveRegistry() (+9 more)
+### Community 3 - "App.jsx"
+Cohesion: 0.07
+Nodes (38): dependencies, react, react-dom, devDependencies, @types/react, @types/react-dom, vite, @vitejs/plugin-react (+30 more)
 
 ### Community 4 - "testing.T"
-Cohesion: 0.27
-Nodes (21): LinkStatus(), MakeLink(), RemoveLink(), mustRead(), mustWrite(), TestLinkStatusMissing(), TestMakeLinkCreatesMissingTarget(), TestMakeLinkMovesRealFolderAside() (+13 more)
+Cohesion: 0.10
+Nodes (47): TestListWithoutRootIsEmpty(), isReparse(), LinkStatus(), makeJunction(), MakeLink(), RemoveLink(), mustRead(), mustWrite() (+39 more)
 
-### Community 5 - ".Path"
-Cohesion: 0.20
-Nodes (6): Folder, FolderStatus, EmptyFolder(), RemoveProtocol(), SetProtocol(), TestSetProtocolPointsAtLauncher()
+### Community 5 - "App"
+Cohesion: 0.09
+Nodes (11): lastLines(), load(), NewApp(), RemoveSchedule(), ScheduleOn(), schtasks(), SetSchedule(), TestScheduleCreateQueryRemove() (+3 more)
 
 ### Community 6 - "Updater"
-Cohesion: 0.22
-Nodes (7): cleanLeftovers(), complete(), extract(), lock(), writeEntry(), pkgEntry, Updater
+Cohesion: 0.08
+Nodes (25): fail(), main(), openLog(), run(), setup(), update(), attachConsole(), imagePath() (+17 more)
 
-### Community 7 - "paths.go"
+### Community 8 - "runtime/package.json"
+Cohesion: 0.12
+Nodes (15): author, bugs, url, description, homepage, keywords, license, main (+7 more)
+
+### Community 10 - "wails.json"
 Cohesion: 0.18
-Nodes (15): CheckData(), CheckLink(), ExpandVars(), hasPrefixFold(), IsUNC(), normPath(), Portable(), protected() (+7 more)
-
-### Community 8 - "main_test.go"
-Cohesion: 0.28
-Nodes (6): parseArgs(), buildLauncher(), copyFile(), TestLauncherRunsPackageEndToEnd(), TestParseArgs(), options
-
-### Community 10 - "links.go"
-Cohesion: 0.22
-Nodes (3): LinkState, isReparse(), makeJunction()
+Nodes (10): author, email, name, frontend:build, frontend:dev:serverUrl, frontend:dev:watcher, frontend:install, name (+2 more)
 
 ### Community 11 - "RapTech Portable"
 Cohesion: 0.40
 Nodes (4): Build, graphify, RapTech Portable, Rules
 
+### Community 12 - "runtime.js"
+Cohesion: 0.20
+Nodes (8): Environment(), InitializeNotifications(), OnFileDropOff(), RemoveAllPendingNotifications(), WindowHide(), WindowMaximise(), WindowSetMinSize(), WindowToggleMaximise()
+
+### Community 13 - "runtime.d.ts"
+Cohesion: 0.25
+Nodes (7): EnvironmentInfo, NotificationAction, NotificationCategory, NotificationOptions, Position, Screen, Size
+
+### Community 15 - "RapTech Portable"
+Cohesion: 0.33
+Nodes (5): Build, Diskless: where updates stick, RapTech Portable, The manager (RapTech-Portable.exe), What the launcher does
+
+### Community 16 - "EventsOnMultiple"
+Cohesion: 0.67
+Nodes (3): EventsOn(), EventsOnce(), EventsOnMultiple()
+
 ## Knowledge Gaps
-- **1 isolated node(s):** `raptech-portable`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 18 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 isolated node(s):** `@types/react`, `@types/react-dom`, `raptech-portable`
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 99 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Updater` connect `Updater` to `update.go`, `manifest_test.go`, `fakeRoblox`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
-- **Are the 9 inferred relationships involving `MakeLink()` (e.g. with `.Setup()` and `IsUNC()`) actually correct?**
-  _`MakeLink()` has 9 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `raptech-portable` to the rest of the system?**
-  _1 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `App` connect `App` to `update.go`, `Package`, `Updater`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **What connects `@types/react`, `@types/react-dom`, `raptech-portable` to the rest of the system?**
+  _3 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `update.go` be split into smaller, more focused modules?**
-  _Cohesion score 0.11829268292682926 - nodes in this community are weakly interconnected._
-- **Why does `Package` connect `manifest_test.go` to `update.go`, `testing.T`, `.Path`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
-- **Are the 4 inferred relationships involving `mustWrite()` (e.g. with `TestFinishSavesRegistryAndEmptiesSession()` and `TestSetupLinksAndLoadsRegistry()`) actually correct?**
-  _`mustWrite()` has 4 INFERRED edges - model-reasoned connections that need verification._
-- **Why does `fakeRoblox()` connect `fakeRoblox` to `update.go`, `testing.T`, `Updater`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _Cohesion score 0.12825166364186327 - nodes in this community are weakly interconnected._
+- **Why does `NewApp()` connect `App` to `update.go`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Should `Package` be split into smaller, more focused modules?**
+  _Cohesion score 0.05576441102756892 - nodes in this community are weakly interconnected._
+- **Why does `Updater` connect `Updater` to `update.go`, `update_test.go`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Should `App.jsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.06976744186046512 - nodes in this community are weakly interconnected._
