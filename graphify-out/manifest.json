@@ -1,0 +1,110 @@
+{
+  "cmd/launcher/main.go": {
+    "mtime": 1793800313.042807,
+    "seen": 1793800364.9726992,
+    "ast_hash": "48c8b6209e1aa6e7d60d0007dd90ce9b",
+    "semantic_hash": "48c8b6209e1aa6e7d60d0007dd90ce9b"
+  },
+  "cmd/launcher/main_test.go": {
+    "mtime": 1793800247.7614439,
+    "seen": 1793800364.9727054,
+    "ast_hash": "f6d875a0eed8db669f189b6e7d78a1b5",
+    "semantic_hash": "f6d875a0eed8db669f189b6e7d78a1b5"
+  },
+  "cmd/launcher/win.go": {
+    "mtime": 1793800287.615379,
+    "seen": 1793800364.9727085,
+    "ast_hash": "a4fcfb6b9bf567cec32e4d244cc675a3",
+    "semantic_hash": "a4fcfb6b9bf567cec32e4d244cc675a3"
+  },
+  "go.mod": {
+    "mtime": 1793799880.4202685,
+    "seen": 1793800364.9727106,
+    "ast_hash": "7f33fb65eeabf701cf4e8a8042cf00bd",
+    "semantic_hash": "7f33fb65eeabf701cf4e8a8042cf00bd"
+  },
+  "internal/core/links.go": {
+    "mtime": 1793799972.7874482,
+    "seen": 1793800364.972713,
+    "ast_hash": "7f4109d0f5aabd8d77ed351996f5f099",
+    "semantic_hash": "7f4109d0f5aabd8d77ed351996f5f099"
+  },
+  "internal/core/links_test.go": {
+    "mtime": 1793799909.0563161,
+    "seen": 1793800364.972715,
+    "ast_hash": "7bc693b83fe3133d67544bebfc561bf3",
+    "semantic_hash": "7bc693b83fe3133d67544bebfc561bf3"
+  },
+  "internal/core/manifest.go": {
+    "mtime": 1793799877.6042645,
+    "seen": 1793800364.9727168,
+    "ast_hash": "8ffb510818104953390030002d9d399e",
+    "semantic_hash": "8ffb510818104953390030002d9d399e"
+  },
+  "internal/core/manifest_test.go": {
+    "mtime": 1793799972.7874482,
+    "seen": 1793800364.9727185,
+    "ast_hash": "5567477cf261a0a8916ecda00767ebf9",
+    "semantic_hash": "5567477cf261a0a8916ecda00767ebf9"
+  },
+  "internal/core/package.go": {
+    "mtime": 1793800115.5701745,
+    "seen": 1793800364.9727204,
+    "ast_hash": "5db7a3e8d7c885f6e48204139f9e1c48",
+    "semantic_hash": "5db7a3e8d7c885f6e48204139f9e1c48"
+  },
+  "internal/core/package_test.go": {
+    "mtime": 1793800129.5238125,
+    "seen": 1793800364.9727223,
+    "ast_hash": "84216cf9bc9de4b407ad968d50f204c5",
+    "semantic_hash": "84216cf9bc9de4b407ad968d50f204c5"
+  },
+  "internal/core/paths.go": {
+    "mtime": 1793799877.527848,
+    "seen": 1793800364.972724,
+    "ast_hash": "3f89c0f001d1be1678cfede406df1845",
+    "semantic_hash": "3f89c0f001d1be1678cfede406df1845"
+  },
+  "internal/core/paths_test.go": {
+    "mtime": 1793799972.7874482,
+    "seen": 1793800364.972726,
+    "ast_hash": "dd307cb3bfafaa7f454fd9a1bb2233f7",
+    "semantic_hash": "dd307cb3bfafaa7f454fd9a1bb2233f7"
+  },
+  "internal/core/registry.go": {
+    "mtime": 1793800021.1553154,
+    "seen": 1793800364.9727278,
+    "ast_hash": "58fd6def376e870af96d3418c256bd91",
+    "semantic_hash": "58fd6def376e870af96d3418c256bd91"
+  },
+  "internal/core/registry_test.go": {
+    "mtime": 1793800021.28339,
+    "seen": 1793800364.9727297,
+    "ast_hash": "37d7d606f61620110095e1e28907e97e",
+    "semantic_hash": "37d7d606f61620110095e1e28907e97e"
+  },
+  "internal/core/run.go": {
+    "mtime": 1793800067.872871,
+    "seen": 1793800364.972731,
+    "ast_hash": "d0ef2444578a4b20d498a1c6814dfe16",
+    "semantic_hash": "d0ef2444578a4b20d498a1c6814dfe16"
+  },
+  "internal/core/run_test.go": {
+    "mtime": 1793800043.4143317,
+    "seen": 1793800364.972733,
+    "ast_hash": "6d057353c2124ce56d409e3599ec1dc9",
+    "semantic_hash": "6d057353c2124ce56d409e3599ec1dc9"
+  },
+  "internal/roblox/update.go": {
+    "mtime": 1793800211.0411367,
+    "seen": 1793800364.9727347,
+    "ast_hash": "a2ff1549c44b99607f5e328cc0d848a4",
+    "semantic_hash": "a2ff1549c44b99607f5e328cc0d848a4"
+  },
+  "internal/roblox/update_test.go": {
+    "mtime": 1793800157.7771587,
+    "seen": 1793800364.9727364,
+    "ast_hash": "975f59e65019ab809be31b35fa4c6272",
+    "semantic_hash": "975f59e65019ab809be31b35fa4c6272"
+  }
+}
