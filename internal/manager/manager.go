@@ -93,6 +93,7 @@ func CreatePackage(root, name, appDir, exe string, launcher []byte) (*core.Packa
 		}
 		p.Exe = `App\` + rel
 		p.AppSource = core.Portable(filepath.Clean(appDir))
+		ApplyIcon(p) // only looks; a package without the app's icon still works
 	}
 	return p, p.Save()
 }

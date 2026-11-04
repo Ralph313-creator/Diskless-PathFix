@@ -40,6 +40,11 @@ G:\Portable\Roblox\
 
 Everything is logged to `RapPortable.log` in the package.
 
+The launcher carries the app's own icon: the manager copies the app exe's icon
+into it when the package is made, after **Update now** (Roblox has no exe before
+its first download), and at start for any launcher still without one. A launcher
+that is running is skipped and gets it next time.
+
 ## Diskless: where updates stick
 
 Floor PCs throw away what they write to the game disk at restart. So an update

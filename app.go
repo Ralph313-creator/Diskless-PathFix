@@ -45,6 +45,9 @@ func (a *App) startup(ctx context.Context) {
 			a.Root = `G:\Portable`
 		}
 	}
+	if a.Root != "" {
+		go manager.FixIcons(a.Root) // launchers made before their app was there
+	}
 }
 
 func (a *App) save() error {
@@ -203,8 +206,18 @@ func (a *App) AddRegistry(dir, key string) error {
 	return manager.AddRegistry(p, key)
 }
 
-// UpdateNow runs the package's update and returns what it logged.
-func (a *App) UpdateNow(dir string) (string, error) { return a.runLauncher(dir, "--update") }
+// UpdateNow runs the package's update and returns what it logged. The
+// launcher then gets the app's icon (Roblox has none before its first
+// download).
+func (a *App) UpdateNow(dir string) (string, error) {
+	out, err := a.runLauncher(dir, "--update")
+	if err == nil {
+		if p, lerr := load(dir); lerr == nil {
+			manager.ApplyIcon(p) // only looks; skipped while the launcher runs
+		}
+	}
+	return out, err
+}
 
 // SetupHere links the package on this PC.
 func (a *App) SetupHere(dir string) (string, error) { return a.runLauncher(dir, "--setup") }
