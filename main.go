@@ -31,6 +31,7 @@ func main() {
 	}
 	app := NewApp()
 	gf := gamefix.NewApp()
+	app.gameFixMain = gf.GetMainFolder // hunt never suggests it
 	err := wails.Run(&options.App{
 		Title:            "RapTech Portable",
 		Width:            1040,

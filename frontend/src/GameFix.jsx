@@ -1,8 +1,8 @@
 import {useEffect, useRef, useState} from 'react'
 import {
-    AddFolder, AddGame, AddHuntFolders, BrowseFolder, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
+    AddFolder, AddGame, BrowseFolder, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
     GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, SaveFolders,
-    SetWatch, StartHunt, StopHunt, UninstallService
+    SetWatch, UninstallService
 } from '../wailsjs/go/gamefix/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
 import logo from './assets/logo.png'
@@ -80,7 +80,6 @@ export default function GameFixTab({tabs, hidden}) {
     const [edits, setEdits] = useState({}) // unsaved fields: {game: {folder: {source, link}}}
     const [service, setService] = useState('') // state of the Windows service; see serviceState in service.go
     const [serviceBusy, setServiceBusy] = useState(false)
-    const [hunt, setHunt] = useState(null) // the last hunt mode run; see HuntState in hunt.go
     const toastTimer = useRef()
 
     const game = games.find(g => g.name === selected) ?? games[0]
@@ -109,14 +108,12 @@ export default function GameFixTab({tabs, hidden}) {
             if (error) fail(`Copying ${folder === GAME_ITSELF ? game : folder}: ${error}`)
             refresh()
         })
-        const offHunt = EventsOn('gamefix-hunt', setHunt)
         const checkService = () => GetServiceState().then(setService)
         checkService()
         const serviceTimer = setInterval(checkService, 5000)
         return () => {
             offProgress()
             offWatch()
-            offHunt()
             clearInterval(serviceTimer)
         }
     }, [])
@@ -244,25 +241,6 @@ export default function GameFixTab({tabs, hidden}) {
         await refresh()
     }
 
-    const startHunt = async (g) => {
-        try {
-            const exe = await StartHunt(g.name)
-            if (exe) notify('ok', `Hunting: ${exe.split('\\').pop()} is starting. Play the game as players do, then close it.`)
-        } catch (err) {
-            fail(err)
-        }
-    }
-
-    const addHuntFolders = async (g, paths) => {
-        try {
-            const n = await AddHuntFolders(g.name, paths)
-            notify('ok', `Added ${n} folder${n === 1 ? '' : 's'} to ${g.name}. Check their link paths, then Copy and Enable them.`)
-        } catch (err) {
-            fail(err)
-        }
-        await refresh()
-    }
-
     const removeFolder = async (g, f) => {
         const question = f.name === GAME_ITSELF
             ? `Remove "${g.name}"?\n\nThis deletes the copied game files in ${g.folder}` +
@@ -348,11 +326,6 @@ export default function GameFixTab({tabs, hidden}) {
                                     <div className="muted small">{game.folder}</div>
                                 </div>
                                 <div className="actions">
-                                    <button onClick={() => startHunt(game)} disabled={hunt?.running}
-                                            title={'Hunt mode: choose the game\'s program. RapTech Portable starts it, and while it runs,\n' +
-                                                'finds every folder it uses, to add them to the game.'}>
-                                        <Icon name="search"/> Hunt
-                                    </button>
                                     <button className="primary" onClick={() => addFolder(game)} disabled={busy}>
                                         <Icon name="plus"/> Add folder
                                     </button>
@@ -362,16 +335,11 @@ export default function GameFixTab({tabs, hidden}) {
                                 </div>
                             </div>
 
-                            {hunt?.game === game.name && (
-                                <HuntPanel key={hunt.id} hunt={hunt} onStop={StopHunt}
-                                           onAdd={paths => addHuntFolders(game, paths)} onClose={() => setHunt(null)}/>
-                            )}
-
                             {game.folders.length === 0 ? (
                                 <div className="empty">
                                     <p>No folders yet.</p>
                                     <p className="muted">Click “Add folder” and choose where the game keeps its files,
-                                        such as its save or config folder. Or click “Hunt” to find them while the game runs.</p>
+                                        such as its save or config folder. Or find them with the Hunt tab while the game runs.</p>
                                 </div>
                             ) : game.folders.map(f => (
                                 <section className="card" key={f.name}>
@@ -459,66 +427,6 @@ export default function GameFixTab({tabs, hidden}) {
     )
 }
 
-// HuntPanel shows what hunt mode found, to pick the folders to add to the game.
-function HuntPanel({hunt, onStop, onAdd, onClose}) {
-    const [ticked, setTicked] = useState({}) // path -> ticked, where the user changed it
-    const [showNoise, setShowNoise] = useState(false)
-    const isTicked = f => !f.added && (ticked[f.real] ?? !f.noise)
-    const chosen = hunt.folders.filter(isTicked)
-    const found = hunt.folders.filter(f => !f.noise)
-    const noise = hunt.folders.filter(f => f.noise)
-    const exeName = hunt.exe.split('\\').pop()
-
-    const row = f => (
-        <label key={f.real} className={'hunt-row' + (f.added ? ' added' : '')} title={f.example}>
-            <input type="checkbox" checked={isTicked(f)} disabled={f.added}
-                   onChange={e => setTicked(t => ({...t, [f.real]: e.target.checked}))}/>
-            <span className="hunt-path">{f.path}</span>
-            {f.program && <span className="pill">program</span>}
-            {f.changes > 0 && <span className="pill">{f.changes.toLocaleString()} change{f.changes === 1 ? '' : 's'}</span>}
-            {f.added && <span className="pill ok">in the game</span>}
-        </label>
-    )
-
-    return (
-        <section className="card hunt">
-            <div className="card-head">
-                <Icon name="search"/>
-                <span className="name">Hunt mode: {exeName}</span>
-                <span className={'pill' + (hunt.running ? ' ok' : '')}>
-                    {hunt.running ? (hunt.live > 0 ? `${hunt.live} running` : 'Starting…') : 'Done'}
-                </span>
-                <span className="spacer"/>
-                {hunt.running
-                    ? <button onClick={onStop} title="Stop hunting. The game keeps running.">Stop</button>
-                    : <IconButton icon="close" title="Close" onClick={onClose}/>}
-            </div>
-            <div className="muted small">
-                {hunt.running
-                    ? 'Play the game as players do: log in, change a setting, start a match. Then close it, or click Stop. ' +
-                    'Close the game and its launcher before hunting, also from the tray, or they are not found.'
-                    : `Found ${found.length} folder${found.length === 1 ? '' : 's'}. Tick the ones the game needs on the clients.`}
-                {hunt.programs.length > 0 && <> Programs: {hunt.programs.join(', ')}.</>}
-            </div>
-            {hunt.error && <div className="error-text">{hunt.error}</div>}
-            <div className="hunt-list">
-                {found.map(row)}
-                {found.length === 0 && <div className="muted small">Nothing found yet.</div>}
-                {noise.length > 0 && (
-                    <button className="ghost hunt-more" onClick={() => setShowNoise(s => !s)}>
-                        {showNoise ? 'Hide' : 'Show'} {noise.length} more, most likely Windows or other programs
-                    </button>
-                )}
-                {showNoise && noise.map(row)}
-            </div>
-            <div className="hunt-actions">
-                <button className="primary" disabled={chosen.length === 0} onClick={() => onAdd(chosen.map(f => f.real))}>
-                    <Icon name="plus"/> Add {chosen.length} folder{chosen.length === 1 ? '' : 's'} to the game
-                </button>
-            </div>
-        </section>
-    )
-}
 
 function Toast({toast, onClose}) {
     return (

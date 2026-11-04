@@ -31,6 +31,8 @@ type App struct {
 
 	huntMu sync.Mutex
 	hunt   *hunt.Hunter
+	// gameFixMain is the GameFix tab's main folder, never suggested by hunt.
+	gameFixMain func() string
 }
 
 func NewApp() *App { return &App{} }

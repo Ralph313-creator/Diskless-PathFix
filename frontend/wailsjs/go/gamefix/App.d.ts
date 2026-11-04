@@ -19,6 +19,8 @@ export function CopyFolder(arg1:string,arg2:string):Promise<string>;
 
 export function DeleteGame(arg1:string):Promise<void>;
 
+export function GameSources(arg1:string):Promise<Array<string>>;
+
 export function GetMainFolder():Promise<string>;
 
 export function GetServiceState():Promise<string>;
@@ -35,10 +37,6 @@ export function SaveFolders(arg1:string,arg2:Record<string, gamefix.FolderSettin
 
 export function SetWatch(arg1:string,arg2:string,arg3:boolean):Promise<void>;
 
-export function StartHunt(arg1:string):Promise<string>;
-
 export function Startup(arg1:context.Context):Promise<void>;
-
-export function StopHunt():Promise<void>;
 
 export function UninstallService():Promise<void>;

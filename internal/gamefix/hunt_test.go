@@ -1,42 +1,32 @@
 package gamefix
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
 
-// The hunting itself (programs followed, changed folders found, noise, Stop
-// leaving the game running) is tested in internal/hunt. These test what
-// GameFix adds: one hunt at a time, and how found folders join a game.
+// Hunting is the Hunt tab's (internal/hunt and the main app). These test
+// what GameFix adds: how found folders join a game, and which folders a
+// game already has, to mark them in the Hunt tab.
 
-func TestOnlyOneHuntAtATime(t *testing.T) {
+func TestGameSourcesListsWhatAGameHas(t *testing.T) {
 	a := newTestApp(t, t.TempDir())
 	a.AddGame("Game")
-	ping := filepath.Join(os.Getenv("SystemRoot"), "System32", "PING.EXE")
-	first, err := a.newHunter("Game", ping)
-	if err != nil {
+	saves := makeSource(t, "Saves")
+	if err := a.AddFolder("Game", saves); err != nil {
 		t.Fatal(err)
 	}
-	if err := a.runHunt("Game", first); err != nil {
-		t.Fatal(err)
+	got, err := a.GameSources("Game")
+	if err != nil || len(got) != 1 || !strings.EqualFold(got[0], saves) {
+		t.Fatalf("GameSources = %v, %v; want [%s]", got, err, saves)
 	}
-	second, _ := a.newHunter("Game", ping)
-	if err := a.runHunt("Game", second); err == nil || !strings.Contains(err.Error(), "Game") {
-		t.Errorf("a second hunt started while one was running (err %v)", err)
+	if _, err := a.GameSources("Missing"); err == nil {
+		t.Error("a game that does not exist was accepted")
 	}
-	a.StopHunt()
-	<-first.Done()
-	// The hunter writes folders with their full names, not ADMINI~1, so
-	// compare the folders themselves.
-	got, err1 := os.Stat(first.Excluded()[0])
-	want, err2 := os.Stat(a.settings.MainFolder)
-	if err1 != nil || err2 != nil || !os.SameFile(got, want) {
-		t.Errorf("excluded %v, want the main folder %s first", first.Excluded(), a.settings.MainFolder)
-	}
-	if _, err := a.newHunter("Game", `C:\Games\notes.txt`); err == nil {
-		t.Error("hunting a file that is not a program should fail")
+	empty, err := a.GameSources(func() string { a.AddGame("Empty"); return "Empty" }())
+	if err != nil || empty == nil || len(empty) != 0 {
+		t.Fatalf("GameSources of a game without folders = %#v, %v; want an empty list", empty, err)
 	}
 }
 

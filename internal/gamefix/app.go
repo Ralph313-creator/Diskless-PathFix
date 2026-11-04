@@ -17,8 +17,6 @@ import (
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	"raptech-portable/internal/hunt"
 )
 
 // Game is one game folder inside the main folder: <main folder>\<game name>.
@@ -61,9 +59,7 @@ type App struct {
 	copyMu  sync.Mutex
 	watches map[string]*watch // see watchKey
 
-	huntMu   sync.Mutex
-	hunt     *hunt.Hunter // the last hunt mode run; see StartHunt
-	huntGame string       // the game it is for
+	huntMu sync.Mutex
 
 	service bool        // running as the Windows service, not the app
 	log     *log.Logger // where the service writes what happened; nil in the app

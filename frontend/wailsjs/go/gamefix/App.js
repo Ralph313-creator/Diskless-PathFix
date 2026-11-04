@@ -34,6 +34,10 @@ export function DeleteGame(arg1) {
   return window['go']['gamefix']['App']['DeleteGame'](arg1);
 }
 
+export function GameSources(arg1) {
+  return window['go']['gamefix']['App']['GameSources'](arg1);
+}
+
 export function GetMainFolder() {
   return window['go']['gamefix']['App']['GetMainFolder']();
 }
@@ -66,16 +70,8 @@ export function SetWatch(arg1, arg2, arg3) {
   return window['go']['gamefix']['App']['SetWatch'](arg1, arg2, arg3);
 }
 
-export function StartHunt(arg1) {
-  return window['go']['gamefix']['App']['StartHunt'](arg1);
-}
-
 export function Startup(arg1) {
   return window['go']['gamefix']['App']['Startup'](arg1);
-}
-
-export function StopHunt() {
-  return window['go']['gamefix']['App']['StopHunt']();
 }
 
 export function UninstallService() {

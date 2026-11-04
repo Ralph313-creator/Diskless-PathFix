@@ -17,6 +17,8 @@ export function CreatePackage(arg1:string,arg2:string,arg3:string):Promise<void>
 
 export function GetRoot():Promise<string>;
 
+export function HuntAdded(arg1:string):Promise<Array<string>>;
+
 export function InUse(arg1:string):Promise<manager.Use>;
 
 export function List():Promise<Array<main.PackageView>>;
@@ -41,7 +43,7 @@ export function SetSession(arg1:string,arg2:number,arg3:string):Promise<void>;
 
 export function SetupHere(arg1:string):Promise<string>;
 
-export function StartHunt(arg1:string):Promise<string>;
+export function StartHunt():Promise<string>;
 
 export function StopHunt():Promise<void>;
 

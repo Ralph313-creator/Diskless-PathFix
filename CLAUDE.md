@@ -11,7 +11,7 @@ updated straight from Roblox's servers.
 - `internal/roblox` — downloads the newest Roblox Player version (MD5 checked,
   package map like Bloxstrap), prunes old versions.
 - `cmd/launcher` — the exe copied into each package and renamed after the app.
-- `internal/hunt` — hunt mode (shared by both tabs). `internal/gamefix` — the GameFix tab,
+- `internal/hunt` — hunt mode, the Hunt tab (one global tool; results go to a portable app or a GameFix game). `internal/gamefix` — the GameFix tab,
   ported from `D:\Project\Diskless-GameFix`; its own settings file
   (`RapTech-GameFix.json`) and service (`RapTechGameFixWatch`), never the
   standalone GameFix's.

@@ -6,100 +6,31 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	"raptech-portable/internal/hunt"
 )
 
-// Hunt mode finds the folders a game uses. The hunting itself (following
-// the game's programs, watching the drives for changes, telling noise
-// apart) is internal/hunt, shared with the Portable tab; this file ties it
-// to a game in the main folder.
+// Hunt mode is the Hunt tab, one tool for the whole program. This file is
+// what it needs from GameFix: the folders a game already has, and adding
+// the folders it found to a game.
 
-// HuntState is sent to the window as "gamefix-hunt" events while hunting,
-// and when it stops: what internal/hunt found, and for which game.
-type HuntState struct {
-	hunt.State
-	Game string `json:"game"`
-}
-
-// StartHunt asks for the program that starts a game, starts it, and finds
-// the folders it uses until it ends or StopHunt is called. It returns the
-// program, or "" if the dialog was cancelled.
-func (a *App) StartHunt(game string) (string, error) {
-	exe, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title:   "Choose the program that starts " + game,
-		Filters: []runtime.FileFilter{{DisplayName: "Programs (*.exe)", Pattern: "*.exe"}},
-	})
-	if err != nil || exe == "" {
-		return "", err
-	}
-	h, err := a.newHunter(game, exe)
-	if err != nil {
-		return "", err
-	}
-	return exe, a.runHunt(game, h)
-}
-
-// StopHunt stops hunting. The game keeps running.
-func (a *App) StopHunt() {
-	a.huntMu.Lock()
-	h := a.hunt
-	a.huntMu.Unlock()
-	if h != nil {
-		h.Stop()
-	}
-}
-
-// newHunter makes a hunt of a game's program, which runHunt starts. The
-// main folder and this program's own folder are never suggested; the
-// sources the game already has show as added.
-func (a *App) newHunter(game, exe string) (*hunt.Hunter, error) {
+// GameSources lists the folders on this PC that a game's folders are copied
+// from, to mark them in the Hunt tab. Never nil.
+func (a *App) GameSources(game string) ([]string, error) {
 	a.mu.Lock()
+	defer a.mu.Unlock()
 	gameFolder, err := a.gameFolder(game)
-	mainFolder := a.settings.MainFolder
-	a.mu.Unlock()
 	if err != nil {
 		return nil, err
 	}
-	var exclude []string
-	if mainFolder != "" {
-		exclude = append(exclude, mainFolder)
+	if !isDir(gameFolder) {
+		return nil, fmt.Errorf("there is no game %q", game)
 	}
-	if self, err := os.Executable(); err == nil {
-		exclude = append(exclude, filepath.Dir(self))
-	}
-	added := func() []string {
-		a.mu.Lock()
-		defer a.mu.Unlock()
-		var sources []string
-		for _, f := range a.folders(gameFolder) {
-			if f.Source != "" {
-				sources = append(sources, expandVars(f.Source))
-			}
-		}
-		return sources
-	}
-	name := filepath.Base(gameFolder)
-	emit := func(st hunt.State) {
-		if a.ctx != nil { // nil in tests
-			runtime.EventsEmit(a.ctx, "gamefix-hunt", HuntState{State: st, Game: name})
+	sources := []string{}
+	for _, f := range a.folders(gameFolder) {
+		if f.Source != "" {
+			sources = append(sources, expandVars(f.Source))
 		}
 	}
-	return hunt.New(exe, exclude, added, emit)
-}
-
-// runHunt starts h for game, unless another hunt is running.
-func (a *App) runHunt(game string, h *hunt.Hunter) error {
-	a.huntMu.Lock()
-	defer a.huntMu.Unlock()
-	if a.hunt != nil && a.hunt.Running() {
-		return errors.New("hunt mode is already running for " + a.huntGame + ". Stop it first")
-	}
-	a.hunt, a.huntGame = h, game
-	h.Start()
-	return nil
+	return sources, nil
 }
 
 // AddHuntFolders adds folders found by hunt mode to a game, and returns how

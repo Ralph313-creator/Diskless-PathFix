@@ -30,6 +30,10 @@ export function GetRoot() {
   return window['go']['main']['App']['GetRoot']();
 }
 
+export function HuntAdded(arg1) {
+  return window['go']['main']['App']['HuntAdded'](arg1);
+}
+
 export function InUse(arg1) {
   return window['go']['main']['App']['InUse'](arg1);
 }
@@ -78,8 +82,8 @@ export function SetupHere(arg1) {
   return window['go']['main']['App']['SetupHere'](arg1);
 }
 
-export function StartHunt(arg1) {
-  return window['go']['main']['App']['StartHunt'](arg1);
+export function StartHunt() {
+  return window['go']['main']['App']['StartHunt']();
 }
 
 export function StopHunt() {
