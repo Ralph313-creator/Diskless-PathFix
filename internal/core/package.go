@@ -1,0 +1,79 @@
+package core
+
+import (
+	"errors"
+	"fmt"
+	"path/filepath"
+)
+
+// RegistryDir is the folder inside a package that holds saved .reg files.
+const RegistryDir = "Registry"
+
+// Setup makes this PC use the package: links each folder, loads the saved
+// registry, and points the protocols at launcher (skipped when ""). It does
+// as much as it can and returns every problem.
+func (p *Package) Setup(launcher string) error {
+	var errs []error
+	for _, f := range p.Folders {
+		if err := MakeLink(p.LinkPath(f), p.Path(f.Data)); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if err := LoadRegistry(p.Registry, p.Path(RegistryDir), p.Dir); err != nil {
+		errs = append(errs, err)
+	}
+	if launcher != "" {
+		for _, proto := range p.Protocols {
+			if err := SetProtocol(proto, launcher); err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// Finish runs after the app has closed: saves the registry into the package
+// and empties the session folders, so a login never reaches the next
+// customer.
+func (p *Package) Finish() error {
+	var errs []error
+	if err := SaveRegistry(p.Registry, p.Path(RegistryDir), p.Dir); err != nil {
+		errs = append(errs, err)
+	}
+	for _, f := range p.Folders {
+		for _, s := range f.Session {
+			if err := EmptyFolder(filepath.Join(p.Path(f.Data), s)); err != nil {
+				errs = append(errs, fmt.Errorf("empty %s: %w", s, err))
+			}
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// Unlink removes the package's links and puts back what was there before.
+func (p *Package) Unlink() error {
+	var errs []error
+	for _, f := range p.Folders {
+		if err := RemoveLink(p.LinkPath(f), p.Path(f.Data)); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// FolderStatus is what is at one folder's link path now.
+type FolderStatus struct {
+	Link  string
+	Data  string
+	State LinkState
+}
+
+// Status reports each folder's link.
+func (p *Package) Status() []FolderStatus {
+	var out []FolderStatus
+	for _, f := range p.Folders {
+		link, data := p.LinkPath(f), p.Path(f.Data)
+		out = append(out, FolderStatus{Link: link, Data: data, State: LinkStatus(link, data)})
+	}
+	return out
+}
