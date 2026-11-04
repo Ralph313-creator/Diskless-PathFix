@@ -1,17 +1,17 @@
 # Graph Report - RapTech-Portable  (2026-11-04)
 
 ## Corpus Check
-- 51 files · ~28,440 words
+- 51 files · ~34,103 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: (none) 2, .cmd 1, .md5 1)
 
 ## Summary
-- 586 nodes · 1639 edges · 80 communities (19 shown, 61 thin omitted)
-- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 185 edges (avg confidence: 0.85)
+- 610 nodes · 1744 edges · 82 communities (21 shown, 61 thin omitted)
+- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 210 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b64d0aab`
+- Built from commit: `d857cb8d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -50,7 +50,7 @@
 - LogTrace
 - LogWarning
 - OnFileDrop
-- CreatePackage
+- Package
 - RegisterNotificationCategory
 - RemoveAllDeliveredNotifications
 - RemovePackage
@@ -71,7 +71,7 @@
 - WindowIsMaximised
 - WindowIsMinimised
 - WindowIsNormal
-- Package
+- CreateRoblox
 - WindowReload
 - WindowReloadApp
 - WindowSetAlwaysOnTop
@@ -87,26 +87,28 @@
 - WindowUnfullscreen
 - WindowUnmaximise
 - WindowUnminimise
-- Scan
+- Info
 - main.go
-- .startHunt
+- CreatePackage
 - InitializeNotifications
 - OnFileDropOff
 - RemoveAllPendingNotifications
 - WindowHide
 - WindowMaximise
+- load
+- CheckLink
 
 ## God Nodes (most connected - your core abstractions)
-1. `App` - 33 edges
-2. `Package` - 27 edges
-3. `Hunter` - 25 edges
-4. `CreatePackage()` - 22 edges
+1. `App` - 36 edges
+2. `Package` - 30 edges
+3. `CreatePackage()` - 26 edges
+4. `Hunter` - 25 edges
 5. `Load()` - 20 edges
 6. `AddFolder()` - 17 edges
-7. `RemovePackage()` - 14 edges
-8. `MakeLink()` - 13 edges
-9. `SaveRegistry()` - 13 edges
-10. `load()` - 12 edges
+7. `load()` - 15 edges
+8. `RemovePackage()` - 14 edges
+9. `Package()` - 13 edges
+10. `MakeLink()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `App` --references--> `Hunter`  [EXTRACTED]
@@ -115,39 +117,35 @@
   app.go → internal/core/manifest.go
 - `load()` --calls--> `Load()`  [EXTRACTED]
   app.go → internal/core/manifest.go
-- `TestListShowsPackageWithCCBootLine()` --calls--> `CreateRoblox()`  [EXTRACTED]
+- `TestAddHuntFoldersAndSession()` --calls--> `CreatePackage()`  [EXTRACTED]
   app_test.go → internal/manager/manager.go
-- `TestOnlyOneHuntAtATime()` --calls--> `CreatePackage()`  [EXTRACTED]
+- `TestRemoveAppDeletesPackageEvenWithBrokenManifest()` --calls--> `CreatePackage()`  [EXTRACTED]
   app_test.go → internal/manager/manager.go
 
 ## Import Cycles
 - None detected.
 
-## Communities (80 total, 61 thin omitted)
+## Communities (82 total, 61 thin omitted)
 
 ### Community 1 - "manager/icon_test.go"
 Cohesion: 0.11
-Nodes (23): parseArgs(), buildLauncher(), copyFile(), TestLauncherRunsPackageEndToEnd(), TestParseArgs(), group, Copy(), groupCount() (+15 more)
+Nodes (36): group, Copy(), groupCount(), groupNames(), load(), loadICO(), loadPE(), Read() (+28 more)
 
 ### Community 2 - "update_test.go"
-Cohesion: 0.22
-Nodes (11): assertOnly(), fakeRoblox(), read(), standardPkgs(), TestPruneKeepsNewestAndCurrent(), TestUpdateInstallsLatestVersion(), TestUpdateRefusesBadDownloads(), TestUpdateReplacesBrokenVersionFolder() (+3 more)
+Cohesion: 0.16
+Nodes (13): Created(), Prune(), assertOnly(), fakeRoblox(), read(), standardPkgs(), TestPruneKeepsNewestAndCurrent(), TestUpdateInstallsLatestVersion() (+5 more)
 
 ### Community 3 - "App.jsx"
-Cohesion: 0.07
-Nodes (43): dependencies, react, react-dom, devDependencies, @types/react, @types/react-dom, vite, @vitejs/plugin-react (+35 more)
+Cohesion: 0.06
+Nodes (44): dependencies, react, react-dom, devDependencies, @types/react, @types/react-dom, vite, @vitejs/plugin-react (+36 more)
 
 ### Community 4 - "testing.T"
-Cohesion: 0.06
-Nodes (58): TestListWithoutRootIsEmpty(), Folder, LinkState, isReparse(), LinkStatus(), makeJunction(), MakeLink(), RemoveLink() (+50 more)
-
-### Community 5 - "App"
-Cohesion: 0.12
-Nodes (7): lastLines(), load(), TestAddHuntFoldersAndSession(), TestRemoveAppDeletesPackageEvenWithBrokenManifest(), SetSession(), ApplyIcon(), App
+Cohesion: 0.08
+Nodes (51): TestListWithoutRootIsEmpty(), buildLauncher(), copyFile(), TestLauncherRunsPackageEndToEnd(), TestParseArgs(), isReparse(), LinkStatus(), makeJunction() (+43 more)
 
 ### Community 6 - "Updater"
-Cohesion: 0.10
-Nodes (23): fail(), main(), openLog(), run(), setup(), update(), attachConsole(), imagePath() (+15 more)
+Cohesion: 0.08
+Nodes (29): fail(), main(), openLog(), parseArgs(), run(), setup(), update(), attachConsole() (+21 more)
 
 ### Community 8 - "runtime/package.json"
 Cohesion: 0.12
@@ -179,47 +177,59 @@ Nodes (6): Build, Diskless: where updates stick, Hunt: find the folders an app u
 
 ### Community 26 - "Hunter"
 Cohesion: 0.07
-Nodes (30): find, Folder, process, State, activeProcesses(), Hunter, New(), folderIn() (+22 more)
+Nodes (28): find, Folder, process, State, Hunter, New(), folderIn(), huntFor() (+20 more)
 
-### Community 35 - "CreatePackage"
-Cohesion: 0.12
-Nodes (25): CheckLink(), ExpandVars(), hasPrefixFold(), normPath(), Portable(), protected(), SamePath(), TestCheckLinkRefusesSystemAndUserFolders() (+17 more)
+### Community 35 - "Package"
+Cohesion: 0.15
+Nodes (17): Folder, Package, hiddenPart(), TestResolveExeMissing(), TestResolveExePicksNewestVersionFolder(), ExpandVars(), SamePath(), TestExpandVarsReplacesPkgAndEnv() (+9 more)
 
 ### Community 38 - "RemovePackage"
 Cohesion: 0.14
-Nodes (22): LauncherName(), closePrograms(), Use, imagePath(), InUse(), RemovePackage(), removeServices(), serviceExe() (+14 more)
+Nodes (22): closePrograms(), Use, imagePath(), InUse(), RemovePackage(), removeServices(), serviceExe(), newTestPackage() (+14 more)
 
 ### Community 52 - "Load"
-Cohesion: 0.20
-Nodes (9): Load(), TestLoadReadsManifest(), TestLoadRefusesUnsafeManifests(), TestSaveThenLoadKeepsManifest(), writeManifest(), CheckData(), TestCheckDataStaysInsidePackage(), AddRegistry() (+1 more)
+Cohesion: 0.24
+Nodes (5): inPackages(), Manifest, Load(), TestSaveThenLoadKeepsManifest(), TestAddFolderImportsExistingAndSaves()
 
-### Community 56 - "Package"
-Cohesion: 0.25
-Nodes (10): Manifest, Package, checkName(), CreateRoblox(), newPackage(), hasLink(), sessionHas(), TestCreateRefusesExistingPackage() (+2 more)
+### Community 56 - "CreateRoblox"
+Cohesion: 0.33
+Nodes (7): TestListShowsPackageWithCCBootLine(), CreateRoblox(), hasLink(), sessionHas(), TestCreateRefusesExistingPackage(), TestCreateRobloxMachineWide(), TestCreateRobloxPerUserKeepsVersionsInsideLocalAppData()
 
-### Community 72 - "Scan"
-Cohesion: 0.29
-Nodes (7): TestListShowsPackageWithCCBootLine(), Update, Info, lastLine(), Scan(), TestScanFindsPackages(), PackageView
+### Community 72 - "Info"
+Cohesion: 0.33
+Nodes (5): LinkState, Update, FolderStatus, Info, PackageView
+
+### Community 74 - "CreatePackage"
+Cohesion: 0.18
+Nodes (10): TestOnlyOneHuntAtATime(), checkName(), Copy(), CreatePackage(), newPackage(), RemoveFolder(), TestAddFolderRefusesDuplicateAndUnsafe(), TestCreatePackageCopiesAppFolder() (+2 more)
+
+### Community 80 - "load"
+Cohesion: 0.14
+Nodes (9): load(), TestAddHuntFoldersAndSession(), TestListShowsIconAndChosenIcon(), TestRemoveAppDeletesPackageEvenWithBrokenManifest(), PNG(), SetSession(), TestSetSessionSavesSubfolders(), AddRegistry() (+1 more)
+
+### Community 81 - "CheckLink"
+Cohesion: 0.22
+Nodes (9): CheckLink(), hasPrefixFold(), IsUNC(), normPath(), Portable(), protected(), TestCheckLinkRefusesSystemAndUserFolders(), TestIsUNC() (+1 more)
 
 ## Knowledge Gaps
 - **3 isolated node(s):** `@types/react`, `@types/react-dom`, `raptech-portable`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 118 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 122 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **61 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `App` connect `App` to `app.go`, `manager/icon_test.go`, `CreatePackage`, `Updater`, `RemovePackage`, `Scan`, `main.go`, `.startHunt`, `Load`, `Hunter`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `App` connect `App` to `app.go`, `manager/icon_test.go`, `Updater`, `RemovePackage`, `main.go`, `CreatePackage`, `load`, `Load`, `Hunter`?**
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
 - **What connects `@types/react`, `@types/react-dom`, `raptech-portable` to the rest of the system?**
   _3 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `manager/icon_test.go` be split into smaller, more focused modules?**
-  _Cohesion score 0.10606060606060606 - nodes in this community are weakly interconnected._
-- **Why does `Hunter` connect `Hunter` to `app.go`, `.startHunt`, `testing.T`, `App`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+  _Cohesion score 0.11295681063122924 - nodes in this community are weakly interconnected._
+- **Why does `Hunter` connect `Hunter` to `app.go`, `update_test.go`, `Load`, `App`?**
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.0673758865248227 - nodes in this community are weakly interconnected._
-- **Why does `Package` connect `Package` to `app.go`, `CreatePackage`, `testing.T`, `App`, `Updater`, `RemovePackage`, `Load`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _Cohesion score 0.06448979591836734 - nodes in this community are weakly interconnected._
+- **Why does `Package` connect `Package` to `app.go`, `manager/icon_test.go`, `testing.T`, `Updater`, `RemovePackage`, `CreatePackage`, `load`, `Load`, `CreateRoblox`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Should `testing.T` be split into smaller, more focused modules?**
-  _Cohesion score 0.06317907444668008 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08182349503214495 - nodes in this community are weakly interconnected._

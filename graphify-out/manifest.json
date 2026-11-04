@@ -114,15 +114,15 @@
     "semantic_hash": ""
   },
   "app.go": {
-    "mtime": 1793803374.9930058,
-    "seen": 1793803440.0486805,
-    "ast_hash": "5775d3b1b5622684754de9414239fd3c",
+    "mtime": 1793805997.2794342,
+    "seen": 1793806124.8333006,
+    "ast_hash": "283f7b570475c9541f95c51daf20ea8b",
     "semantic_hash": ""
   },
   "app_test.go": {
-    "mtime": 1793803363.5400314,
-    "seen": 1793803440.0486932,
-    "ast_hash": "8ff660c41bd59008720c84c0de3a5636",
+    "mtime": 1793805970.7891614,
+    "seen": 1793806124.8333154,
+    "ast_hash": "73bcec755aa1938c65ac6a28b69b81a7",
     "semantic_hash": ""
   },
   "frontend/package.json": {
@@ -132,9 +132,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1793803402.7066662,
-    "seen": 1793803440.0487096,
-    "ast_hash": "44c2657c88a550e3c25b9dede549f913",
+    "mtime": 1793806063.0829291,
+    "seen": 1793806124.833333,
+    "ast_hash": "657f8565fc0f58364a11128a643df833",
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {
@@ -150,38 +150,38 @@
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/main/App.d.ts": {
-    "mtime": 1793803425.2282565,
-    "seen": 1793803440.0487177,
-    "ast_hash": "4a30b6888c829ee5cd32b0263ec20358",
+    "mtime": 1793806085.1877956,
+    "seen": 1793806124.8333426,
+    "ast_hash": "594a77d55cd937d90656e8449dd2d5df",
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/main/App.js": {
-    "mtime": 1793803425.2282565,
-    "seen": 1793803440.0487201,
-    "ast_hash": "836d6cf75d3e6cc75aeb6112620d0a21",
+    "mtime": 1793806085.1872816,
+    "seen": 1793806124.8333452,
+    "ast_hash": "f612c029944a5f3aaa63f8da77acf2de",
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/models.ts": {
-    "mtime": 1793803425.229293,
-    "seen": 1793803440.0487227,
-    "ast_hash": "50c51ec9f9cc70cc33675a22d46e1a76",
+    "mtime": 1793806085.188309,
+    "seen": 1793806124.8333478,
+    "ast_hash": "4236d38f0bb07dd938ae513f9ec2fcf5",
     "semantic_hash": ""
   },
   "frontend/wailsjs/runtime/package.json": {
-    "mtime": 1793803427.5519078,
-    "seen": 1793803440.048725,
+    "mtime": 1793806087.697939,
+    "seen": 1793806124.8333507,
     "ast_hash": "a79e9c39ebcda0fdeb14a44939bc489e",
     "semantic_hash": ""
   },
   "frontend/wailsjs/runtime/runtime.d.ts": {
-    "mtime": 1793803427.5529406,
-    "seen": 1793803440.0487273,
+    "mtime": 1793806087.697939,
+    "seen": 1793806124.8333533,
     "ast_hash": "dcd9fca4af1912f552547c22f315c25e",
     "semantic_hash": ""
   },
   "frontend/wailsjs/runtime/runtime.js": {
-    "mtime": 1793803427.5529406,
-    "seen": 1793803440.0487294,
+    "mtime": 1793806087.6989427,
+    "seen": 1793806124.8333554,
     "ast_hash": "efc7f0ddc7f96e446ad0252df27b477f",
     "semantic_hash": ""
   },
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793802865.4534554,
-    "seen": 1793802867.8957396,
-    "ast_hash": "024690e83d19ad2535d1bc38b598da80",
+    "mtime": 1793806121.533976,
+    "seen": 1793806124.8334537,
+    "ast_hash": "cc0cbac9f415014b389dddc962211fa2",
     "semantic_hash": ""
   },
   "frontend/index.html": {
@@ -276,27 +276,27 @@
     "semantic_hash": ""
   },
   "internal/icon/icon.go": {
-    "mtime": 1793802705.0867438,
-    "seen": 1793802867.895706,
-    "ast_hash": "8902a1634d6a1e238d72b989eb738880",
+    "mtime": 1793805954.9940162,
+    "seen": 1793806124.833407,
+    "ast_hash": "9769ab75b3d29a52d59275abef0cce70",
     "semantic_hash": ""
   },
   "internal/icon/icon_test.go": {
-    "mtime": 1793802658.7370272,
-    "seen": 1793802867.8957078,
-    "ast_hash": "eb49c7b6dbca091ee151aa40e5ea246c",
+    "mtime": 1793805946.8069088,
+    "seen": 1793806124.8334093,
+    "ast_hash": "0a5bc3c151330a3ac8c4cc590f37435e",
     "semantic_hash": ""
   },
   "internal/manager/icon.go": {
-    "mtime": 1793802772.0431209,
-    "seen": 1793802867.8957148,
-    "ast_hash": "7d6af7dba52f9a5a40aeeebdcd3a126b",
+    "mtime": 1793805930.640663,
+    "seen": 1793806124.8334172,
+    "ast_hash": "d3b1176498f20e31f64d7378d4bfa9ea",
     "semantic_hash": ""
   },
   "internal/manager/icon_test.go": {
-    "mtime": 1793802754.5739648,
-    "seen": 1793802867.895717,
-    "ast_hash": "928d10864227b4dc6a5ab76a7cfa758c",
+    "mtime": 1793805896.884177,
+    "seen": 1793806124.8334198,
+    "ast_hash": "17bd2662b1febafcef406e7e73db8000",
     "semantic_hash": ""
   },
   "internal/manager/remove.go": {
@@ -309,6 +309,12 @@
     "mtime": 1793803363.7136848,
     "seen": 1793803440.0487957,
     "ast_hash": "a5d748b328894dac8c39ca54a288257c",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/logo.png": {
+    "mtime": 1793806046.637009,
+    "seen": 1793806124.833459,
+    "ast_hash": "e96b0706a31b7a876ade4b9233c23e70",
     "semantic_hash": ""
   }
 }
