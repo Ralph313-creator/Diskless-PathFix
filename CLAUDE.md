@@ -18,7 +18,8 @@ updated straight from Roblox's servers.
 
 ## Rules
 
-- Local git only. Never add a remote or push unless asked. No Claude
+- Remote: private GitHub repo Ralph313-creator/RapTech-Portable (origin). Push only
+  when asked. No Claude
   co-author line in commits.
 - Test first (TDD). `go test ./...` must stay green; registry tests use
   `HKCU\Software\RapPortableTest` and clean up.
