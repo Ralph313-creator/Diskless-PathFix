@@ -108,15 +108,15 @@
     "semantic_hash": "975f59e65019ab809be31b35fa4c6272"
   },
   "CLAUDE.md": {
-    "mtime": 1793812095.8222816,
-    "seen": 1793812370.1909978,
-    "ast_hash": "f1fea86e78f79c57096b0526f8d27e54",
+    "mtime": 1793812912.6664119,
+    "seen": 1793812917.540829,
+    "ast_hash": "024f644c34ee668f9c97609cbcca3595",
     "semantic_hash": ""
   },
   "app.go": {
-    "mtime": 1793811616.1818335,
-    "seen": 1793812370.1908407,
-    "ast_hash": "5f279cbad8f3d3f2025c880ce1f98623",
+    "mtime": 1793812704.5129025,
+    "seen": 1793812917.5406587,
+    "ast_hash": "5a173c4b152d4ea8380ce378b3344aa4",
     "semantic_hash": ""
   },
   "app_test.go": {
@@ -132,9 +132,9 @@
     "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1793811941.1953726,
-    "seen": 1793812370.1908689,
-    "ast_hash": "326e5dd66cbb7dac78d810818f899dab",
+    "mtime": 1793812832.234618,
+    "seen": 1793812917.5406883,
+    "ast_hash": "c1b9661f35f7e1857fae7eecded548da",
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {
@@ -150,38 +150,38 @@
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/main/App.d.ts": {
-    "mtime": 1793812352.735143,
-    "seen": 1793812370.190883,
-    "ast_hash": "594a77d55cd937d90656e8449dd2d5df",
+    "mtime": 1793812891.595173,
+    "seen": 1793812917.540705,
+    "ast_hash": "2249a90a21b62ac00ab529b519bdc1f7",
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/main/App.js": {
-    "mtime": 1793812352.735143,
-    "seen": 1793812370.190885,
-    "ast_hash": "f612c029944a5f3aaa63f8da77acf2de",
+    "mtime": 1793812891.595173,
+    "seen": 1793812917.540707,
+    "ast_hash": "15f1643c6cabb3ce4a0ed999babec523",
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/models.ts": {
-    "mtime": 1793812352.737191,
-    "seen": 1793812370.1908872,
+    "mtime": 1793812891.5967107,
+    "seen": 1793812917.5407093,
     "ast_hash": "3e24d940bfee7e05102c7cc0319397b7",
     "semantic_hash": ""
   },
   "frontend/wailsjs/runtime/package.json": {
-    "mtime": 1793812354.625436,
-    "seen": 1793812370.1908891,
+    "mtime": 1793812893.939558,
+    "seen": 1793812917.5407114,
     "ast_hash": "a79e9c39ebcda0fdeb14a44939bc489e",
     "semantic_hash": ""
   },
   "frontend/wailsjs/runtime/runtime.d.ts": {
-    "mtime": 1793812354.625436,
-    "seen": 1793812370.1908913,
+    "mtime": 1793812893.9400685,
+    "seen": 1793812917.5407135,
     "ast_hash": "dcd9fca4af1912f552547c22f315c25e",
     "semantic_hash": ""
   },
   "frontend/wailsjs/runtime/runtime.js": {
-    "mtime": 1793812354.625951,
-    "seen": 1793812370.1908934,
+    "mtime": 1793812893.9400685,
+    "seen": 1793812917.5407155,
     "ast_hash": "efc7f0ddc7f96e446ad0252df27b477f",
     "semantic_hash": ""
   },
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "main.go": {
-    "mtime": 1793811877.844236,
-    "seen": 1793812370.1909933,
-    "ast_hash": "976120df50df13d58ce93191a75e05ac",
+    "mtime": 1793812797.7686298,
+    "seen": 1793812917.5408247,
+    "ast_hash": "246c8911cff549b3e7a832c355ea8f47",
     "semantic_hash": ""
   },
   "wails.json": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793812076.8201332,
-    "seen": 1793812370.1909997,
-    "ast_hash": "586c0159b1f4ed79e153fb8bca8c877e",
+    "mtime": 1793812912.5389092,
+    "seen": 1793812917.540831,
+    "ast_hash": "7b8f4b113f611cff8f3beee1d67414a9",
     "semantic_hash": ""
   },
   "frontend/index.html": {
@@ -294,33 +294,33 @@
     "semantic_hash": ""
   },
   "app_hunt.go": {
-    "mtime": 1793812077.0871089,
-    "seen": 1793812370.190847,
-    "ast_hash": "d8d7028576e765f28c41e89bc3141255",
+    "mtime": 1793812722.0892413,
+    "seen": 1793812917.5406656,
+    "ast_hash": "542e77b2ef473b22f22a752dd4dc31f3",
     "semantic_hash": ""
   },
   "frontend/src/GameFix.jsx": {
-    "mtime": 1793811910.072987,
-    "seen": 1793812370.190871,
-    "ast_hash": "e4304871134c8e24a66cc6ca9b4bbed5",
+    "mtime": 1793812841.3608694,
+    "seen": 1793812917.5406907,
+    "ast_hash": "c51e4a424bab11d35d96f75caf2cf771",
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/gamefix/App.d.ts": {
-    "mtime": 1793812352.735654,
-    "seen": 1793812370.1908786,
-    "ast_hash": "1139ff141eca3ba66445ffd3743fc1f9",
+    "mtime": 1793812891.5956848,
+    "seen": 1793812917.5407004,
+    "ast_hash": "d666b569a2bfaa95290b1de5690a72c2",
     "semantic_hash": ""
   },
   "frontend/wailsjs/go/gamefix/App.js": {
-    "mtime": 1793812352.735654,
-    "seen": 1793812370.1908808,
-    "ast_hash": "e705ba40acdc8ac78ff49c39d75014a9",
+    "mtime": 1793812891.595677,
+    "seen": 1793812917.540703,
+    "ast_hash": "ec1bc50872bb05551d0f04496ed15cb2",
     "semantic_hash": ""
   },
   "internal/gamefix/app.go": {
-    "mtime": 1793811854.4474168,
-    "seen": 1793812370.1909294,
-    "ast_hash": "91cb4c911498dd848636b475b12a2c76",
+    "mtime": 1793812774.776502,
+    "seen": 1793812917.540752,
+    "ast_hash": "12966faf05edc35faf6a22bb99a02534",
     "semantic_hash": ""
   },
   "internal/gamefix/app_test.go": {
@@ -330,15 +330,15 @@
     "semantic_hash": ""
   },
   "internal/gamefix/hunt.go": {
-    "mtime": 1793811744.1831613,
-    "seen": 1793812370.190933,
-    "ast_hash": "94e7a878b27432a973c2f34b117eecfb",
+    "mtime": 1793812774.751134,
+    "seen": 1793812917.5407565,
+    "ast_hash": "d6048dfe73e7d78197055a66859edb9b",
     "semantic_hash": ""
   },
   "internal/gamefix/hunt_test.go": {
-    "mtime": 1793811776.4451694,
-    "seen": 1793812370.1909344,
-    "ast_hash": "58cad436483a6f5a026797b72ae447a2",
+    "mtime": 1793812765.8558238,
+    "seen": 1793812917.5407586,
+    "ast_hash": "41b5daceff83a0381af858bafeb464d4",
     "semantic_hash": ""
   },
   "internal/gamefix/linkbat.go": {
@@ -417,6 +417,18 @@
     "mtime": 1793811579.3425486,
     "seen": 1793812370.1909676,
     "ast_hash": "a6315ea5fb3167493098d99e64f1ef8c",
+    "semantic_hash": ""
+  },
+  "app_hunt_test.go": {
+    "mtime": 1793812686.7089577,
+    "seen": 1793812917.540669,
+    "ast_hash": "95d0f012ffa5d105c3392c53b09f8d71",
+    "semantic_hash": ""
+  },
+  "frontend/src/Hunt.jsx": {
+    "mtime": 1793812872.625351,
+    "seen": 1793812917.5406928,
+    "ast_hash": "d157a378f30e6aa65a3bf37fabbe76a0",
     "semantic_hash": ""
   }
 }
