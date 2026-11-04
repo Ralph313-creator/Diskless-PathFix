@@ -179,8 +179,15 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
     const [link, setLink] = useState('')
     const [session, setSession] = useState('')
     const [key, setKey] = useState('')
+    const [removing, setRemoving] = useState(false)
+    useEffect(() => setRemoving(false), [pkg.Dir])
+    const removeButton = <button className="danger-btn" disabled={!!busy} onClick={() => setRemoving(true)}><XIcon/>Remove app</button>
     if (pkg.Error) {
-        return <div className="card"><h2>{pkg.Name}</h2><p className="error-text">{pkg.Error}</p></div>
+        return <>
+            <div className="card"><div className="card-head"><h2>{pkg.Name}</h2><span className="spacer"/>{removeButton}</div>
+                <p className="error-text">{pkg.Error}</p></div>
+            {removing && <RemoveCard pkg={pkg} busy={busy} run={run} cancel={() => setRemoving(false)}/>}
+        </>
     }
     return (
         <>
@@ -191,8 +198,11 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                 </div>
                 <div className="actions">
                     <button onClick={() => Go.Open(pkg.Dir)}><FolderIcon/>Open</button>
+                    {removeButton}
                 </div>
             </div>
+
+            {removing && <RemoveCard pkg={pkg} busy={busy} run={run} cancel={() => setRemoving(false)}/>}
 
             {pkg.Update && (
                 <div className="card">
@@ -227,7 +237,7 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                         <code className="hunt-path" title={f.Link + ' → ' + f.Data}>{pkg.Links[i]}</code>
                         <SessionBox value={(pkg.Session[i] || []).join(', ')} disabled={!!busy}
                                     save={v => run('Saving', () => Go.SetSession(pkg.Dir, i, v), 'Saved')}/>
-                        <button className="icon-btn danger" title="Take out of the package (keeps its copy)" disabled={!!busy}
+                        <button className="icon-btn danger" title="Stop linking this folder (its files stay in the package). To remove the whole app, use Remove app at the top." disabled={!!busy}
                                 onClick={() => run('Removing folder', () => Go.RemoveFolder(pkg.Dir, i), 'Folder taken out')}><XIcon/></button>
                     </div>
                 ))}
@@ -262,6 +272,35 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
                 </div>
             </div>
         </>
+    )
+}
+
+// RemoveCard asks before removing an app, showing what will be closed.
+function RemoveCard({pkg, busy, run, cancel}) {
+    const [use, setUse] = useState(null)
+    useEffect(() => { Go.InUse(pkg.Dir).then(setUse) }, [pkg.Dir])
+    const programs = (use && use.Programs) || []
+    const services = (use && use.Services) || []
+    return (
+        <div className="card danger">
+            <div className="card-head"><span className="name">Remove {pkg.Name}?</span></div>
+            <p>This deletes <code>{pkg.Dir}</code> with everything in it, removes its links and Play-button
+                handler on this PC (the original folders come back), and turns off its automatic updates.</p>
+            {use === null && <p className="small muted">Looking for programs that use it…</p>}
+            {services.length > 0 && <p className="small">Windows services installed from it will be stopped and
+                unregistered: <b>{services.join(', ')}</b>. The app installs them again when it is set up from its own installer.</p>}
+            {programs.length > 0 && <p className="small">Running from it, will be closed:
+                <b> {[...new Set(programs.map(p => p.Name))].join(', ')}</b></p>}
+            <p className="small muted">Floor PCs that link it keep a dead link until they restart; remove its line from
+                C:\CCBoot\Cmd\public.txt too.</p>
+            <div className="hunt-actions">
+                <button onClick={cancel} disabled={!!busy}>Cancel</button>
+                <button className="danger-btn solid" disabled={!!busy || use === null}
+                        onClick={() => run('Removing ' + pkg.Name, () => Go.RemoveApp(pkg.Dir), 'Removed ' + pkg.Name)}>
+                    {programs.length + services.length > 0 ? 'Close them and remove' : 'Remove'}
+                </button>
+            </div>
+        </div>
     )
 }
 

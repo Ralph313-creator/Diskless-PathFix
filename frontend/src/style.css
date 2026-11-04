@@ -201,3 +201,8 @@ select {
 }
 label.watch input[type=radio] { width: auto; flex: none; }
 input.session { flex: 0 1 220px; font-size: 12px; padding: 3px 8px; }
+button.danger-btn { color: #fca5a5; }
+button.danger-btn:hover:not(:disabled) { border-color: var(--error); }
+button.danger-btn.solid { background: var(--error); border-color: var(--error); color: #fff; }
+.card.danger { border-color: rgba(239, 68, 68, .5); }
+.hunt-actions { gap: 8px; }

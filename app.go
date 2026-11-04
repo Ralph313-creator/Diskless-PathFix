@@ -263,5 +263,22 @@ func (a *App) SetSchedule(dir string, minutes int) error {
 	return manager.SetSchedule(p.Name, filepath.Join(dir, manager.LauncherName(p.Name)), time.Duration(minutes)*time.Minute)
 }
 
+// InUse lists the programs running from the app's package and the Windows
+// services installed from it, which RemoveApp stops.
+func (a *App) InUse(dir string) manager.Use {
+	return manager.InUse(&core.Package{Dir: dir})
+}
+
+// RemoveApp removes the app: stops its services and programs, removes its
+// links, protocol handlers and update task, and deletes its folder. A
+// package whose portable.json is broken can be removed too.
+func (a *App) RemoveApp(dir string) error {
+	p, err := load(dir)
+	if err != nil {
+		p = &core.Package{Dir: dir, Manifest: core.Manifest{Name: filepath.Base(dir)}}
+	}
+	return manager.RemovePackage(a.Root, p)
+}
+
 // Open shows a folder in Explorer.
 func (a *App) Open(dir string) { exec.Command("explorer.exe", dir).Start() }

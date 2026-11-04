@@ -76,6 +76,28 @@ func TestAddHuntFoldersAndSession(t *testing.T) {
 	}
 }
 
+func TestRemoveAppDeletesPackageEvenWithBrokenManifest(t *testing.T) {
+	root := t.TempDir()
+	good, _ := manager.CreatePackage(root, "Good", "", "", []byte("MZ"))
+	bad, _ := manager.CreatePackage(root, "Bad", "", "", []byte("MZ"))
+	os.WriteFile(filepath.Join(bad.Dir, "portable.json"), []byte("{broken"), 0o644)
+	a := &App{Root: root}
+	if use := a.InUse(good.Dir); len(use.Programs) != 0 {
+		t.Fatalf("InUse = %+v", use)
+	}
+	for _, dir := range []string{good.Dir, bad.Dir} {
+		if err := a.RemoveApp(dir); err != nil {
+			t.Fatalf("RemoveApp(%s): %v", dir, err)
+		}
+		if _, err := os.Stat(dir); !os.IsNotExist(err) {
+			t.Fatalf("%s still there", dir)
+		}
+	}
+	if len(a.List()) != 0 {
+		t.Fatal("removed apps are still listed")
+	}
+}
+
 func TestListWithoutRootIsEmpty(t *testing.T) {
 	if got := (&App{}).List(); got != nil {
 		t.Fatalf("got %v", got)

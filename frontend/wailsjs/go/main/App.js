@@ -26,6 +26,10 @@ export function GetRoot() {
   return window['go']['main']['App']['GetRoot']();
 }
 
+export function InUse(arg1) {
+  return window['go']['main']['App']['InUse'](arg1);
+}
+
 export function List() {
   return window['go']['main']['App']['List']();
 }
@@ -44,6 +48,10 @@ export function PickExe() {
 
 export function PickFolder(arg1) {
   return window['go']['main']['App']['PickFolder'](arg1);
+}
+
+export function RemoveApp(arg1) {
+  return window['go']['main']['App']['RemoveApp'](arg1);
 }
 
 export function RemoveFolder(arg1, arg2) {
