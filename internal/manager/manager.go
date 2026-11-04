@@ -92,6 +92,7 @@ func CreatePackage(root, name, appDir, exe string, launcher []byte) (*core.Packa
 			return nil, err
 		}
 		p.Exe = `App\` + rel
+		p.AppSource = core.Portable(filepath.Clean(appDir))
 	}
 	return p, p.Save()
 }

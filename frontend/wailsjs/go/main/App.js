@@ -6,6 +6,10 @@ export function AddFolder(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddFolder'](arg1, arg2, arg3);
 }
 
+export function AddHuntFolders(arg1, arg2) {
+  return window['go']['main']['App']['AddHuntFolders'](arg1, arg2);
+}
+
 export function AddRegistry(arg1, arg2) {
   return window['go']['main']['App']['AddRegistry'](arg1, arg2);
 }
@@ -54,8 +58,20 @@ export function SetSchedule(arg1, arg2) {
   return window['go']['main']['App']['SetSchedule'](arg1, arg2);
 }
 
+export function SetSession(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SetSession'](arg1, arg2, arg3);
+}
+
 export function SetupHere(arg1) {
   return window['go']['main']['App']['SetupHere'](arg1);
+}
+
+export function StartHunt(arg1) {
+  return window['go']['main']['App']['StartHunt'](arg1);
+}
+
+export function StopHunt() {
+  return window['go']['main']['App']['StopHunt']();
 }
 
 export function UnlinkHere(arg1) {

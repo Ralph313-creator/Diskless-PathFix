@@ -200,3 +200,4 @@ select {
     border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px;
 }
 label.watch input[type=radio] { width: auto; flex: none; }
+input.session { flex: 0 1 220px; font-size: 12px; padding: 3px 8px; }

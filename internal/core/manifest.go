@@ -34,6 +34,9 @@ type Manifest struct {
 	// from a browser start the app through the package.
 	Protocols []string `json:"protocols,omitempty"`
 	Update    *Update  `json:"update,omitempty"`
+	// AppSource is the folder the app was copied from into App\, for
+	// information (hunt shows it as already added). Never written to.
+	AppSource string `json:"appSource,omitempty"`
 }
 
 // Folder is one folder the app uses.

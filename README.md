@@ -64,7 +64,32 @@ Runs as administrator. Choose the apps folder (default `G:\Portable`), then:
   folders it keeps elsewhere (their files are copied in, without the session
   subfolders) and its registry keys.
 - Per app: **Update now**, **Automatic** updates, **Link on this PC** / **Unlink**,
-  and the CCBoot line to copy.
+  and the CCBoot line to copy. Each folder has a box for the subfolders emptied
+  after each player (such as `LocalStorage`, where Roblox keeps logins).
+
+### Hunt: find the folders an app uses
+
+Not sure where an app keeps its settings and saves? On the app's page click
+**Hunt…** and choose the **installed** program (not the launcher in the package).
+RapTech Portable starts it and, while it runs, finds:
+
+- the folders of every program it starts (and the ones those start), with the
+  files they load, marked **program**
+- the folders on the PC's drives where files are added, changed or deleted, with
+  the number of **changes**, such as `%LOCALAPPDATA%\Riot Games`
+
+Use the app the way players do (log in, change a setting, play a little), then
+close it. Hunting stops a few seconds after its last program ends, or click
+**Stop** (the app keeps running). Folders that most likely belong to Windows or
+other programs are hidden under **Show more** and not ticked; folders the package
+already has, and the folder the app was copied from, show as **added**. Tick the
+ones the app needs and click **Add folders to the package**: their files are
+copied in, and they are linked from then on.
+
+- Close other programs while hunting: every change on the PC is counted.
+- Close the app (also from the tray) before hunting. A launcher that is already
+  running only passes the start on to itself, so its programs are not found.
+- Hunting is ported from GameFix's hunt mode.
 
 ## Build
 
