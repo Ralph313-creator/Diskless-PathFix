@@ -14,6 +14,10 @@ export function AddRegistry(arg1, arg2) {
   return window['go']['main']['App']['AddRegistry'](arg1, arg2);
 }
 
+export function ChangeIcon(arg1) {
+  return window['go']['main']['App']['ChangeIcon'](arg1);
+}
+
 export function ChooseRoot() {
   return window['go']['main']['App']['ChooseRoot']();
 }
@@ -88,4 +92,8 @@ export function UnlinkHere(arg1) {
 
 export function UpdateNow(arg1) {
   return window['go']['main']['App']['UpdateNow'](arg1);
+}
+
+export function UseAppIcon(arg1) {
+  return window['go']['main']['App']['UseAppIcon'](arg1);
 }

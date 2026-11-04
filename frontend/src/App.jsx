@@ -1,6 +1,12 @@
 import {useEffect, useRef, useState} from 'react'
 import * as Go from '../wailsjs/go/main/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
+import logo from './assets/logo.png'
+
+// AppIcon shows a launcher's icon, or an empty square when it has none.
+const AppIcon = ({src, size}) => src
+    ? <img className="app-icon" src={src} width={size} height={size} alt=""/>
+    : <span className="app-icon none" style={{width: size, height: size}}/>
 
 const Icon = ({d}) => (
     <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -55,7 +61,7 @@ export default function App() {
     return (
         <div className="app">
             <div className="topbar">
-                <div className="brand"><LinkIcon/><h1>RapTech Portable</h1></div>
+                <div className="brand"><img src={logo} alt=""/><h1>RapTech Portable</h1></div>
                 <div className="main-folder">
                     <span>Apps folder</span>
                     <span className="path">{root || 'not chosen'}</span>
@@ -69,7 +75,7 @@ export default function App() {
                         {packages.map(p => (
                             <button key={p.Dir} className={'game-item' + (p.Dir === selected ? ' active' : '')}
                                     onClick={() => { setSelected(p.Dir); setCreating('') }}>
-                                <span className="game-name">{p.Name}</span>
+                                <span className="title-with-icon"><AppIcon src={p.Icon} size={18}/><span className="game-name">{p.Name}</span></span>
                                 <span className="count">{p.Error ? 'error' : p.Version ? p.Version.replace('version-', '').slice(0, 6) : ''}</span>
                             </button>
                         ))}
@@ -192,14 +198,24 @@ function Package({pkg, busy, run, hunt, startHunt, closeHunt}) {
     return (
         <>
             <div className="game-head">
-                <div>
-                    <h2>{pkg.Name}</h2>
-                    <p className="small muted">{pkg.Dir}</p>
+                <div className="title-with-icon">
+                    <AppIcon src={pkg.Icon} size={40}/>
+                    <div>
+                        <h2>{pkg.Name}</h2>
+                        <p className="small muted">{pkg.Dir}</p>
+                    </div>
                 </div>
                 <div className="actions">
                     <button onClick={() => Go.Open(pkg.Dir)}><FolderIcon/>Open</button>
                     {removeButton}
                 </div>
+            </div>
+            <div className="field icon-row">
+                <span className="small muted">{pkg.OwnIcon ? 'Launcher icon: chosen' : pkg.Icon ? "Launcher icon: the app's own" : 'Launcher icon: none yet (the app has none, or is not downloaded yet)'}</span>
+                <span className="spacer"/>
+                <button disabled={!!busy} title="Take the icon from a program, dll or .ico file"
+                        onClick={() => run('Changing icon', async () => { if (await Go.ChangeIcon(pkg.Dir)) return 'Icon changed' })}>Change icon…</button>
+                {pkg.OwnIcon && <button disabled={!!busy} onClick={() => run('Changing icon', () => Go.UseAppIcon(pkg.Dir), "Back to the app's icon")}>Use app's icon</button>}
             </div>
 
             {removing && <RemoveCard pkg={pkg} busy={busy} run={run} cancel={() => setRemoving(false)}/>}

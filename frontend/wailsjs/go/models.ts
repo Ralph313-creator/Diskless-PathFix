@@ -15,6 +15,8 @@ export namespace main {
 	    Registry: string[];
 	    Session: string[][];
 	    Links: string[];
+	    Icon: string;
+	    OwnIcon: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new PackageView(source);
@@ -35,6 +37,8 @@ export namespace main {
 	        this.Registry = source["Registry"];
 	        this.Session = source["Session"];
 	        this.Links = source["Links"];
+	        this.Icon = source["Icon"];
+	        this.OwnIcon = source["OwnIcon"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

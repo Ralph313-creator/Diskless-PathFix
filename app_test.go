@@ -98,6 +98,33 @@ func TestRemoveAppDeletesPackageEvenWithBrokenManifest(t *testing.T) {
 	}
 }
 
+func TestListShowsIconAndChosenIcon(t *testing.T) {
+	root := t.TempDir()
+	self, _ := os.Executable()
+	launcher, _ := os.ReadFile(self) // a real exe without an icon
+	p, err := manager.CreatePackage(root, "Game", "", "", launcher)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := &App{Root: root}
+	if v := a.List()[0]; v.Icon != "" || v.OwnIcon {
+		t.Fatalf("before: icon %q own %v, want none", v.Icon[:min(20, len(v.Icon))], v.OwnIcon)
+	}
+	if err := a.changeIcon(p.Dir, filepath.Join(os.Getenv("SystemRoot"), "explorer.exe")); err != nil {
+		t.Fatal(err)
+	}
+	v := a.List()[0]
+	if !strings.HasPrefix(v.Icon, "data:image/png;base64,") || !v.OwnIcon {
+		t.Fatalf("after: icon %q own %v", v.Icon[:min(30, len(v.Icon))], v.OwnIcon)
+	}
+	if err := a.UseAppIcon(p.Dir); err != nil {
+		t.Fatal(err)
+	}
+	if v := a.List()[0]; v.OwnIcon || v.Icon != "" {
+		t.Fatal("still the chosen icon after Use app's icon (the app has none)")
+	}
+}
+
 func TestListWithoutRootIsEmpty(t *testing.T) {
 	if got := (&App{}).List(); got != nil {
 		t.Fatalf("got %v", got)

@@ -206,3 +206,7 @@ button.danger-btn:hover:not(:disabled) { border-color: var(--error); }
 button.danger-btn.solid { background: var(--error); border-color: var(--error); color: #fff; }
 .card.danger { border-color: rgba(239, 68, 68, .5); }
 .hunt-actions { gap: 8px; }
+.title-with-icon { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.app-icon { flex-shrink: 0; object-fit: contain; }
+.app-icon.none { display: inline-block; border-radius: 4px; border: 1px dashed var(--border); }
+.icon-row { margin-top: -4px; }

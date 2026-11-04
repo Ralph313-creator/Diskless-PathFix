@@ -2,6 +2,7 @@ package manager
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -81,6 +82,67 @@ func TestFixIconsOnlyFillsMissingOnes(t *testing.T) {
 	}
 	if n := FixIcons(root); n != 0 {
 		t.Fatalf("fixed %d the second time, want 0 (it already has one)", n)
+	}
+}
+
+func TestChosenIconStaysAfterUpdates(t *testing.T) {
+	app := filepath.Join(t.TempDir(), "Game")
+	copyTo(t, filepath.Join(os.Getenv("SystemRoot"), "regedit.exe"), filepath.Join(app, "game.exe"))
+	p, err := CreatePackage(t.TempDir(), "Game", app, filepath.Join(app, "game.exe"), realLauncher(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	launcher := filepath.Join(p.Dir, "Game.exe")
+	if err := SetIcon(p, iconSource); err != nil {
+		t.Fatal(err)
+	}
+	if !sameIcon(t, launcher, iconSource) || !HasOwnIcon(p) {
+		t.Fatal("the chosen icon was not given to the launcher")
+	}
+	// What Update now does afterwards must keep the chosen icon.
+	if err := ApplyIcon(p); err != nil {
+		t.Fatal(err)
+	}
+	if !sameIcon(t, launcher, iconSource) {
+		t.Fatal("the chosen icon was replaced by the app's")
+	}
+	// Back to the app's own icon.
+	if err := UseAppIcon(p); err != nil {
+		t.Fatal(err)
+	}
+	if HasOwnIcon(p) || !sameIcon(t, launcher, filepath.Join(app, "game.exe")) {
+		t.Fatal("the launcher did not go back to the app's icon")
+	}
+}
+
+func TestUseAppIconWhenAppHasNoneClearsIt(t *testing.T) {
+	app := filepath.Join(t.TempDir(), "Game")
+	// C:\Windows\notepad.exe has no icon of its own on Windows 10.
+	copyTo(t, filepath.Join(os.Getenv("SystemRoot"), "notepad.exe"), filepath.Join(app, "game.exe"))
+	p, err := CreatePackage(t.TempDir(), "Game", app, filepath.Join(app, "game.exe"), realLauncher(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := SetIcon(p, iconSource); err != nil {
+		t.Fatal(err)
+	}
+	if err := UseAppIcon(p); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := icon.Read(filepath.Join(p.Dir, "Game.exe")); !errors.Is(err, icon.ErrNoIcon) {
+		t.Fatalf("the launcher kept the chosen icon (err %v), want no icon like the app", err)
+	}
+}
+
+func TestSetIconRefusesFileWithoutIcon(t *testing.T) {
+	p, _ := CreatePackage(t.TempDir(), "Game", "", "", realLauncher(t))
+	txt := filepath.Join(t.TempDir(), "x.txt")
+	os.WriteFile(txt, []byte("hi"), 0o644)
+	if err := SetIcon(p, txt); err == nil {
+		t.Fatal("a text file was accepted as an icon")
+	}
+	if HasOwnIcon(p) {
+		t.Fatal("an icon was saved anyway")
 	}
 }
 

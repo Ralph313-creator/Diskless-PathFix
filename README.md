@@ -45,6 +45,14 @@ into it when the package is made, after **Update now** (Roblox has no exe before
 its first download), and at start for any launcher still without one. A launcher
 that is running is skipped and gets it next time.
 
+**Change icon…** on an app's page takes the icon from any program, dll or `.ico`
+file instead. It is kept in the package as `icon.ico`, so updates keep it;
+**Use app's icon** goes back to the app's own.
+
+The manager's own icon is drawn by `build\appicon.ps1` into `build\appicon.png`;
+after changing it, delete `build\windows\icon.ico` so `wails build` makes a new one,
+and copy the PNG to `frontend\src\assets\logo.png` (the logo in the window).
+
 ## Diskless: where updates stick
 
 Floor PCs throw away what they write to the game disk at restart. So an update

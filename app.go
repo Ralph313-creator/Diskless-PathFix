@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,6 +19,7 @@ import (
 
 	"raptech-portable/internal/core"
 	"raptech-portable/internal/hunt"
+	"raptech-portable/internal/icon"
 	"raptech-portable/internal/manager"
 )
 
@@ -76,6 +78,8 @@ type PackageView struct {
 	Registry        []string
 	Session         [][]string
 	Links           []string // link paths as written in portable.json
+	Icon            string   // the launcher's icon as a data: URL, "" if none to show
+	OwnIcon         bool     // a chosen icon, not the app's
 }
 
 // List shows the packages in the root folder.
@@ -91,7 +95,11 @@ func (a *App) List() []PackageView {
 				v.ScheduleMinutes = int(every / time.Minute)
 			}
 			v.CCBoot = fmt.Sprintf(`run -winlogon "%s" --setup`, info.Launcher)
+			if png, err := icon.PNG(info.Launcher); err == nil {
+				v.Icon = "data:image/png;base64," + base64.StdEncoding.EncodeToString(png)
+			}
 			if p, err := core.Load(info.Dir); err == nil {
+				v.OwnIcon = manager.HasOwnIcon(p)
 				v.Registry = p.Registry
 				for _, f := range p.Folders {
 					v.Links = append(v.Links, f.Link)
@@ -278,6 +286,40 @@ func (a *App) RemoveApp(dir string) error {
 		p = &core.Package{Dir: dir, Manifest: core.Manifest{Name: filepath.Base(dir)}}
 	}
 	return manager.RemovePackage(a.Root, p)
+}
+
+// ChangeIcon asks for a program, dll or .ico file and gives the app's
+// launcher its icon. It returns false when the dialog was cancelled.
+func (a *App) ChangeIcon(dir string) (bool, error) {
+	start := ""
+	if p, err := load(dir); err == nil && p.AppSource != "" {
+		start = core.ExpandVars(p.AppSource, p.Dir)
+	}
+	from, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Take the icon from", DefaultDirectory: start,
+		Filters: []runtime.FileFilter{{DisplayName: "Icons and programs (*.ico, *.exe, *.dll)", Pattern: "*.ico;*.exe;*.dll"}},
+	})
+	if err != nil || from == "" {
+		return false, err
+	}
+	return true, a.changeIcon(dir, from)
+}
+
+func (a *App) changeIcon(dir, from string) error {
+	p, err := load(dir)
+	if err != nil {
+		return err
+	}
+	return manager.SetIcon(p, from)
+}
+
+// UseAppIcon gives the launcher the app's own icon again.
+func (a *App) UseAppIcon(dir string) error {
+	p, err := load(dir)
+	if err != nil {
+		return err
+	}
+	return manager.UseAppIcon(p)
 }
 
 // Open shows a folder in Explorer.

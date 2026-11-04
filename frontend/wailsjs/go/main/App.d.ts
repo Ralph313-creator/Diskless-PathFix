@@ -9,6 +9,8 @@ export function AddHuntFolders(arg1:string,arg2:Array<string>):Promise<number>;
 
 export function AddRegistry(arg1:string,arg2:string):Promise<void>;
 
+export function ChangeIcon(arg1:string):Promise<boolean>;
+
 export function ChooseRoot():Promise<string>;
 
 export function CreatePackage(arg1:string,arg2:string,arg3:string):Promise<void>;
@@ -46,3 +48,5 @@ export function StopHunt():Promise<void>;
 export function UnlinkHere(arg1:string):Promise<string>;
 
 export function UpdateNow(arg1:string):Promise<string>;
+
+export function UseAppIcon(arg1:string):Promise<void>;
