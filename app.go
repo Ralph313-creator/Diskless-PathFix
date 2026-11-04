@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 
 	"raptech-portable/internal/core"
+	"raptech-portable/internal/hunt"
 	"raptech-portable/internal/icon"
 	"raptech-portable/internal/manager"
 )
@@ -26,6 +28,9 @@ type App struct {
 	ctx          context.Context
 	settingsPath string
 	Root         string `json:"root"`
+
+	huntMu sync.Mutex
+	hunt   *hunt.Hunter
 }
 
 func NewApp() *App { return &App{} }

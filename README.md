@@ -88,6 +88,34 @@ Runs as administrator. Choose the apps folder (default `G:\Portable`), then:
 On this PC, linking an app's folder renames the original to `<folder>.rp-backup`
 (never deleted); **Unlink** or **Remove app** puts it back.
 
+### Hunt: find the folders an app uses
+
+On an app's page click **Hunt…** and choose the **installed** program. RapTech
+Portable starts it and, while it runs, finds the folders of every program it
+starts (marked **program**) and the folders where files change (with the number
+of **changes**), such as `%LOCALAPPDATA%\Riot Games`. Use the app the way players
+do, then close it; hunting stops a few seconds after its last program ends, or
+click **Stop** (the app keeps running). Likely Windows or other programs' folders
+are hidden under **Show more**; folders the package already has show as **added**.
+Tick the ones the app needs and add them: their files are copied in and linked.
+Close other programs while hunting: every change on the PC is counted.
+
+## GameFix tab
+
+The **GameFix** tab is the GameFix app (`D:\Project\Diskless-GameFix`), ported:
+copy each game's folders into a main folder (one folder per game), then clients
+run `GameFix.bat` from the main folder's share to link them, or
+`GameFix Copy.bat` to get their own copy. **Enable** keeps a folder's copy up to
+date whenever its source changes, and the **RapTech GameFix Watch** service does
+that while RapTech Portable is closed. It has hunt mode too (the same hunter as
+the Portable apps tab).
+
+It never touches the standalone GameFix: its settings are
+`RapTech-GameFix.json` next to `RapTech-Portable.exe`, and its service is
+`RapTechGameFixWatch` (not `GameFixWatch`). The first start writes no
+`GameFix.bat`, and a `GameFix.bat` or `GameFix Copy.bat` it did not make is
+set aside as `GameFix.bat.before-raptech` before it writes its own.
+
 ## Build
 
 ```

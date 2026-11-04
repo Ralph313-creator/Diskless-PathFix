@@ -5,6 +5,8 @@ import {main} from '../models';
 
 export function AddFolder(arg1:string,arg2:string,arg3:string):Promise<void>;
 
+export function AddHuntFolders(arg1:string,arg2:Array<string>):Promise<number>;
+
 export function AddRegistry(arg1:string,arg2:string):Promise<void>;
 
 export function ChangeIcon(arg1:string):Promise<boolean>;
@@ -38,6 +40,10 @@ export function SetSchedule(arg1:string,arg2:number):Promise<void>;
 export function SetSession(arg1:string,arg2:number,arg3:string):Promise<void>;
 
 export function SetupHere(arg1:string):Promise<string>;
+
+export function StartHunt(arg1:string):Promise<string>;
+
+export function StopHunt():Promise<void>;
 
 export function UnlinkHere(arg1:string):Promise<string>;
 

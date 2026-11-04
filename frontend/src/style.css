@@ -210,3 +210,11 @@ button.danger-btn.solid { background: var(--error); border-color: var(--error); 
 .app-icon { flex-shrink: 0; object-fit: contain; }
 .app-icon.none { display: inline-block; border-radius: 4px; border: 1px dashed var(--border); }
 .icon-row { margin-top: -4px; }
+
+/* Tabs: Portable apps and GameFix */
+.tabs { display: flex; gap: 4px; margin-right: auto; margin-left: 12px; }
+.tab { background: none; border-color: transparent; color: var(--muted); padding: 5px 12px; }
+.tab:hover:not(:disabled) { color: var(--text); background: var(--panel-2); border-color: transparent; }
+.tab.active { color: var(--text); background: var(--panel-2); border-color: var(--border); }
+.welcome .tabs { position: absolute; top: 12px; left: 12px; margin: 0; }
+.welcome-logo { width: 88px; height: 88px; }

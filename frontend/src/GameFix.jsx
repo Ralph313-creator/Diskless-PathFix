@@ -1,0 +1,530 @@
+import {useEffect, useRef, useState} from 'react'
+import {
+    AddFolder, AddGame, AddHuntFolders, BrowseFolder, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
+    GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, SaveFolders,
+    SetWatch, StartHunt, StopHunt, UninstallService
+} from '../wailsjs/go/gamefix/App'
+import {EventsOn} from '../wailsjs/runtime/runtime'
+import logo from './assets/logo.png'
+
+const GAME_ITSELF = '.' // folder copied straight into the game folder; see GameItself in linkbat.go
+
+function formatSize(bytes) {
+    const units = ['B', 'KB', 'MB', 'GB', 'TB']
+    let i = 0
+    while (bytes >= 1024 && i < units.length - 1) {
+        bytes /= 1024
+        i++
+    }
+    return `${bytes.toFixed(i === 0 ? 0 : 1)} ${units[i]}`
+}
+
+const folderName = (game, folder) => folder.name === GAME_ITSELF ? game.name : folder.name
+const copyPath = (game, folder) => folder.name === GAME_ITSELF ? game.folder : game.folder + '\\' + folder.name
+
+const ICONS = {
+    plus: 'M12 5v14M5 12h14',
+    folder: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+    open: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
+    trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3',
+    close: 'M6 6l12 12M18 6L6 18',
+    search: 'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14M20 20l-4-4',
+}
+
+function Icon({name}) {
+    return (
+        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+             strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d={ICONS[name]}/>
+        </svg>
+    )
+}
+
+function IconButton({icon, title, className = '', ...props}) {
+    return (
+        <button className={'icon-btn ' + className} title={title} aria-label={title} {...props}>
+            <Icon name={icon}/>
+        </button>
+    )
+}
+
+// PathField is a path that saves when you leave it or press Enter.
+function PathField({label, value, placeholder, hint, onChange, onCommit, onBrowse}) {
+    return (
+        <div className="field">
+            <span className="field-label">{label}</span>
+            <input
+                value={value}
+                placeholder={placeholder}
+                title={hint}
+                spellCheck={false}
+                onChange={e => onChange(e.target.value)}
+                onBlur={onCommit}
+                onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+            />
+            {onBrowse && <button className="ghost" onClick={onBrowse}>Browse</button>}
+        </div>
+    )
+}
+
+// GameFixTab is the GameFix app, ported: copy game folders into a main folder
+// for clients to link (GameFix.bat) or copy (GameFix Copy.bat).
+export default function GameFixTab({tabs, hidden}) {
+    const [mainFolder, setMainFolder] = useState('')
+    const [loaded, setLoaded] = useState(false)
+    const [games, setGames] = useState([])
+    const [selected, setSelected] = useState('')
+    const [newName, setNewName] = useState('')
+    const [copying, setCopying] = useState(null) // {game, folder, file, done, total} while a copy runs
+    const [toast, setToast] = useState(null) // {kind: 'ok' | 'error', text}
+    const [edits, setEdits] = useState({}) // unsaved fields: {game: {folder: {source, link}}}
+    const [service, setService] = useState('') // state of the Windows service; see serviceState in service.go
+    const [serviceBusy, setServiceBusy] = useState(false)
+    const [hunt, setHunt] = useState(null) // the last hunt mode run; see HuntState in hunt.go
+    const toastTimer = useRef()
+
+    const game = games.find(g => g.name === selected) ?? games[0]
+
+    const notify = (kind, text) => {
+        clearTimeout(toastTimer.current)
+        setToast({kind, text})
+        if (kind === 'ok') toastTimer.current = setTimeout(() => setToast(null), 4000)
+    }
+    const fail = (err) => notify('error', String(err))
+
+    const refresh = async () => {
+        try {
+            setGames(await ListGames())
+        } catch (err) {
+            fail(err)
+        }
+    }
+
+    useEffect(() => {
+        GetMainFolder().then(setMainFolder).then(refresh).finally(() => setLoaded(true))
+        const offProgress = EventsOn('copy-progress', setCopying)
+        // A watched folder was copied again because its source changed.
+        const offWatch = EventsOn('watch-copied', ({game, folder, error}) => {
+            setCopying(null)
+            if (error) fail(`Copying ${folder === GAME_ITSELF ? game : folder}: ${error}`)
+            refresh()
+        })
+        const offHunt = EventsOn('gamefix-hunt', setHunt)
+        const checkService = () => GetServiceState().then(setService)
+        checkService()
+        const serviceTimer = setInterval(checkService, 5000)
+        return () => {
+            offProgress()
+            offWatch()
+            offHunt()
+            clearInterval(serviceTimer)
+        }
+    }, [])
+
+    const toggleService = async () => {
+        const installed = service !== 'not installed'
+        if (installed && !confirm('Uninstall the RapTech GameFix service?\n\nEnabled folders are then only copied while RapTech Portable is open.')) return
+        setServiceBusy(true)
+        try {
+            await (installed ? UninstallService() : InstallService())
+            notify('ok', installed
+                ? 'Service uninstalled. Enabled folders are copied while RapTech Portable is open.'
+                : 'Service installed. Enabled folders are now copied even when RapTech Portable is closed.')
+        } catch (err) {
+            fail(err)
+        }
+        setService(await GetServiceState())
+        setServiceBusy(false)
+    }
+
+    const valueOf = (g, f, field) => edits[g.name]?.[f.name]?.[field] ?? f[field]
+    const setField = (g, f, field, value) => setEdits(e => ({
+        ...e,
+        [g.name]: {...e[g.name], [f.name]: {...e[g.name]?.[f.name], [field]: value}},
+    }))
+    const isDirty = (g) => g.folders.some(f => valueOf(g, f, 'source') !== f.source || valueOf(g, f, 'link') !== f.link)
+
+    // save saves every edited field of a game, and reports whether it worked.
+    const save = async (g, override = {}) => {
+        const folders = Object.fromEntries(g.folders.map(f => [f.name, {
+            source: override[f.name]?.source ?? valueOf(g, f, 'source'),
+            link: override[f.name]?.link ?? valueOf(g, f, 'link'),
+        }]))
+        try {
+            await SaveFolders(g.name, folders)
+            setEdits(e => {
+                const {[g.name]: _, ...rest} = e
+                return rest
+            })
+            await refresh()
+            return true
+        } catch (err) {
+            fail(err)
+            return false
+        }
+    }
+    const commit = (g) => isDirty(g) && save(g)
+
+    const chooseMain = async () => {
+        try {
+            const path = await ChooseMainFolder()
+            if (path) {
+                setMainFolder(path)
+                await refresh()
+            }
+        } catch (err) {
+            fail(err)
+        }
+    }
+
+    const addGame = async (e) => {
+        e.preventDefault()
+        try {
+            const g = await AddGame(newName)
+            setNewName('')
+            setSelected(g.name)
+            await refresh()
+        } catch (err) {
+            fail(err)
+        }
+    }
+
+    const deleteGame = async (g) => {
+        if (!confirm(`Delete "${g.name}"?\n\nThis permanently deletes ${g.folder} and everything in it.`)) return
+        try {
+            await DeleteGame(g.name)
+            notify('ok', `Deleted ${g.name}`)
+        } catch (err) {
+            fail(err)
+        }
+        await refresh()
+    }
+
+    const addFolder = async (g) => {
+        const from = await ChooseFolder(g.name)
+        if (!from) return
+        try {
+            await AddFolder(g.name, from)
+            notify('ok', 'Folder added. Click Copy to copy it into the main folder.')
+        } catch (err) {
+            fail(err)
+        }
+        await refresh()
+    }
+
+    const copyFolder = async (g, f) => {
+        if (isDirty(g) && !await save(g)) return
+        setCopying({game: g.name, folder: f.name, file: '', done: 0, total: 0})
+        try {
+            await CopyFolder(g.name, f.name)
+            notify('ok', `Copied ${folderName(g, f)}`)
+        } catch (err) {
+            fail(err)
+        }
+        setCopying(null)
+        await refresh()
+    }
+
+    const toggleWatch = async (g, f) => {
+        if (isDirty(g) && !await save(g)) return
+        try {
+            await SetWatch(g.name, f.name, !f.watch)
+            const name = folderName(g, f)
+            if (f.watch) {
+                notify('ok', `${name} is off. It is not in GameFix.bat or GameFix Copy.bat, and clients don't get it.`)
+            } else if (!valueOf(g, f, 'source')) {
+                notify('ok', `${name} is on. Clients get it once it is copied. Set its source to copy it.`)
+            } else {
+                notify('ok', `${name} is on. Clients get it, and it is copied again whenever its source changes` +
+                    (service === 'running' ? ', even when RapTech Portable is closed.' : ', while RapTech Portable is open. Install the service to keep copying it when GameFix is closed.'))
+            }
+        } catch (err) {
+            fail(err)
+        }
+        await refresh()
+    }
+
+    const startHunt = async (g) => {
+        try {
+            const exe = await StartHunt(g.name)
+            if (exe) notify('ok', `Hunting: ${exe.split('\\').pop()} is starting. Play the game as players do, then close it.`)
+        } catch (err) {
+            fail(err)
+        }
+    }
+
+    const addHuntFolders = async (g, paths) => {
+        try {
+            const n = await AddHuntFolders(g.name, paths)
+            notify('ok', `Added ${n} folder${n === 1 ? '' : 's'} to ${g.name}. Check their link paths, then Copy and Enable them.`)
+        } catch (err) {
+            fail(err)
+        }
+        await refresh()
+    }
+
+    const removeFolder = async (g, f) => {
+        const question = f.name === GAME_ITSELF
+            ? `Remove "${g.name}"?\n\nThis deletes the copied game files in ${g.folder}` +
+            (g.folders.length > 1 ? ', but keeps the copies of its other folders.' : '.') + ' The source is not touched.'
+            : `Remove "${f.name}"?\n\nThis deletes its copy in ${copyPath(g, f)}. The source is not touched.`
+        if (!confirm(question)) return
+        try {
+            await RemoveFolder(g.name, f.name)
+        } catch (err) {
+            fail(err)
+        }
+        await refresh()
+    }
+
+    const browse = async (g, f, field, title) => {
+        const path = await BrowseFolder(title, valueOf(g, f, field))
+        if (path) await save(g, {[f.name]: {[field]: path}})
+    }
+
+    if (!loaded) return null
+
+    if (!mainFolder) {
+        return (
+            <div className="welcome" style={hidden ? {display: 'none'} : undefined}>
+                {tabs}
+                <img className="welcome-logo" src={logo} alt=""/>
+                <h1>GameFix</h1>
+                <p>Choose a main folder to keep the game files in, such as <code>D:\GameFix</code>.</p>
+                <button className="primary big" onClick={chooseMain}>Choose main folder</button>
+                {toast && <Toast toast={toast} onClose={() => setToast(null)}/>}
+            </div>
+        )
+    }
+
+    const busy = !!copying
+    const percent = copying?.total > 0 ? Math.min(100, copying.done / copying.total * 100) : 0
+
+    return (
+        <div className="app" style={hidden ? {display: 'none'} : undefined}>
+            <header className="topbar">
+                <h1 className="brand"><img src={logo} alt=""/>RapTech Portable</h1>
+                {tabs}
+                <div className="main-folder" title="Main folder">
+                    <Icon name="folder"/>
+                    <span className="path">{mainFolder}</span>
+                    <button className="ghost" onClick={chooseMain} disabled={busy}>Change</button>
+                    <IconButton icon="open" title="Open main folder" onClick={() => OpenFolder(mainFolder)}/>
+                </div>
+            </header>
+
+            <div className="body">
+                <aside className="sidebar">
+                    <div className="sidebar-title">Games</div>
+                    <nav className="game-list">
+                        {games.map(g => (
+                            <button
+                                key={g.name}
+                                className={'game-item' + (g === game ? ' active' : '')}
+                                onClick={() => setSelected(g.name)}
+                            >
+                                <span className="game-name">{g.name}</span>
+                                <span className="count">{g.folders.filter(f => f.copied).length}/{g.folders.length}</span>
+                            </button>
+                        ))}
+                    </nav>
+                    <form className="new-game" onSubmit={addGame}>
+                        <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="New game name"/>
+                        <IconButton icon="plus" title="Add game" type="submit" className="primary" disabled={!newName.trim()}/>
+                    </form>
+                </aside>
+
+                <main className="content">
+                    {!game ? (
+                        <div className="empty">
+                            <p>No games yet.</p>
+                            <p className="muted">Type a game name at the bottom left and press Enter.</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="game-head">
+                                <div>
+                                    <h2>{game.name}</h2>
+                                    <div className="muted small">{game.folder}</div>
+                                </div>
+                                <div className="actions">
+                                    <button onClick={() => startHunt(game)} disabled={hunt?.running}
+                                            title={'Hunt mode: choose the game\'s program. RapTech Portable starts it, and while it runs,\n' +
+                                                'finds every folder it uses, to add them to the game.'}>
+                                        <Icon name="search"/> Hunt
+                                    </button>
+                                    <button className="primary" onClick={() => addFolder(game)} disabled={busy}>
+                                        <Icon name="plus"/> Add folder
+                                    </button>
+                                    <IconButton icon="open" title="Open game folder" onClick={() => OpenFolder(game.folder)}/>
+                                    <IconButton icon="trash" title="Delete game" className="danger"
+                                                onClick={() => deleteGame(game)} disabled={busy}/>
+                                </div>
+                            </div>
+
+                            {hunt?.game === game.name && (
+                                <HuntPanel key={hunt.id} hunt={hunt} onStop={StopHunt}
+                                           onAdd={paths => addHuntFolders(game, paths)} onClose={() => setHunt(null)}/>
+                            )}
+
+                            {game.folders.length === 0 ? (
+                                <div className="empty">
+                                    <p>No folders yet.</p>
+                                    <p className="muted">Click “Add folder” and choose where the game keeps its files,
+                                        such as its save or config folder. Or click “Hunt” to find them while the game runs.</p>
+                                </div>
+                            ) : game.folders.map(f => (
+                                <section className="card" key={f.name}>
+                                    <div className="card-head">
+                                        <Icon name="folder"/>
+                                        <span className="name">{folderName(game, f)}</span>
+                                        {f.name === GAME_ITSELF && <span className="tag">game folder</span>}
+                                        <span className={'pill' + (f.copied ? ' ok' : '')}>{f.copied ? 'Copied' : 'Not copied'}</span>
+                                        <span className="spacer"/>
+                                        <label className={'watch' + (f.watch ? ' on' : '')}
+                                               title={'On: clients get this folder (GameFix.bat and GameFix Copy.bat),\n' +
+                                                   'and it is copied again whenever its source changes: while GameFix is open,\n' +
+                                                   'or all the time if the service is installed.\n' +
+                                                   'Off: clients don\'t get it.'}>
+                                            <input type="checkbox" checked={f.watch} onChange={() => toggleWatch(game, f)}/>
+                                            Enable
+                                        </label>
+                                        <button className={f.copied ? '' : 'primary'} onClick={() => copyFolder(game, f)} disabled={busy}>
+                                            {f.copied ? 'Copy again' : 'Copy'}
+                                        </button>
+                                        <IconButton icon="open" title="Open copy" onClick={() => OpenFolder(copyPath(game, f))}
+                                                    disabled={!f.copied}/>
+                                        <IconButton icon="trash" title="Remove folder" className="danger"
+                                                    onClick={() => removeFolder(game, f)} disabled={busy}/>
+                                    </div>
+
+                                    {copying?.game === game.name && copying?.folder === f.name ? (
+                                        <div className="progress">
+                                            <div className="bar"><div style={{width: `${percent}%`}}/></div>
+                                            <div className="progress-text">
+                                                <span className="file">{copying.file || 'Starting…'}</span>
+                                                <span>{formatSize(copying.done)}{copying.total > 0 && ` / ${formatSize(copying.total)}`}</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <PathField
+                                                label="Source"
+                                                value={valueOf(game, f, 'source')}
+                                                placeholder="Where to copy it from"
+                                                hint="User folders become variables such as %USERPROFILE% or %APPDATA%."
+                                                onChange={v => setField(game, f, 'source', v)}
+                                                onCommit={() => commit(game)}
+                                                onBrowse={() => browse(game, f, 'source', 'Choose the source folder')}
+                                            />
+                                            <PathField
+                                                label="Link"
+                                                value={valueOf(game, f, 'link')}
+                                                placeholder="Where clients get it, e.g. C:\Games\Game or %USERPROFILE%\Documents\Game"
+                                                hint={'Where clients get this folder: GameFix.bat links it there,\n' +
+                                                    'and GameFix Copy.bat copies it there.\n' +
+                                                    'User folders become variables such as %USERPROFILE% or %APPDATA%,\n' +
+                                                    'so it works for whoever is logged on to the client.'}
+                                                onChange={v => setField(game, f, 'link', v)}
+                                                onCommit={() => commit(game)}
+                                                onBrowse={() => browse(game, f, 'link', 'Choose the link path')}
+                                            />
+                                        </>
+                                    )}
+                                </section>
+                            ))}
+                        </>
+                    )}
+                </main>
+            </div>
+
+            <footer className="footer">
+                <span>
+                    On each client, run <b>GameFix.bat</b> from the main folder's network share.
+                    It replaces the folder at each link path with a link to the copy.
+                    Or run <b>GameFix Copy.bat</b> to give the client its own copy instead.
+                </span>
+                <span className="service" title={'The GameFix service copies the enabled folders\n' +
+                    'whenever their source changes, even when this app is closed.'}>
+                    <span className={'dot ' + (service === 'running' ? 'ok' : '')}/>
+                    Service: {service === 'running' ? 'watching' : service || '…'}
+                    <button className="ghost" onClick={toggleService} disabled={serviceBusy || !service}>
+                        {service === 'not installed' ? 'Install' : 'Uninstall'}
+                    </button>
+                </span>
+            </footer>
+
+            {toast && <Toast toast={toast} onClose={() => setToast(null)}/>}
+        </div>
+    )
+}
+
+// HuntPanel shows what hunt mode found, to pick the folders to add to the game.
+function HuntPanel({hunt, onStop, onAdd, onClose}) {
+    const [ticked, setTicked] = useState({}) // path -> ticked, where the user changed it
+    const [showNoise, setShowNoise] = useState(false)
+    const isTicked = f => !f.added && (ticked[f.real] ?? !f.noise)
+    const chosen = hunt.folders.filter(isTicked)
+    const found = hunt.folders.filter(f => !f.noise)
+    const noise = hunt.folders.filter(f => f.noise)
+    const exeName = hunt.exe.split('\\').pop()
+
+    const row = f => (
+        <label key={f.real} className={'hunt-row' + (f.added ? ' added' : '')} title={f.example}>
+            <input type="checkbox" checked={isTicked(f)} disabled={f.added}
+                   onChange={e => setTicked(t => ({...t, [f.real]: e.target.checked}))}/>
+            <span className="hunt-path">{f.path}</span>
+            {f.program && <span className="pill">program</span>}
+            {f.changes > 0 && <span className="pill">{f.changes.toLocaleString()} change{f.changes === 1 ? '' : 's'}</span>}
+            {f.added && <span className="pill ok">in the game</span>}
+        </label>
+    )
+
+    return (
+        <section className="card hunt">
+            <div className="card-head">
+                <Icon name="search"/>
+                <span className="name">Hunt mode: {exeName}</span>
+                <span className={'pill' + (hunt.running ? ' ok' : '')}>
+                    {hunt.running ? (hunt.live > 0 ? `${hunt.live} running` : 'Starting…') : 'Done'}
+                </span>
+                <span className="spacer"/>
+                {hunt.running
+                    ? <button onClick={onStop} title="Stop hunting. The game keeps running.">Stop</button>
+                    : <IconButton icon="close" title="Close" onClick={onClose}/>}
+            </div>
+            <div className="muted small">
+                {hunt.running
+                    ? 'Play the game as players do: log in, change a setting, start a match. Then close it, or click Stop. ' +
+                    'Close the game and its launcher before hunting, also from the tray, or they are not found.'
+                    : `Found ${found.length} folder${found.length === 1 ? '' : 's'}. Tick the ones the game needs on the clients.`}
+                {hunt.programs.length > 0 && <> Programs: {hunt.programs.join(', ')}.</>}
+            </div>
+            {hunt.error && <div className="error-text">{hunt.error}</div>}
+            <div className="hunt-list">
+                {found.map(row)}
+                {found.length === 0 && <div className="muted small">Nothing found yet.</div>}
+                {noise.length > 0 && (
+                    <button className="ghost hunt-more" onClick={() => setShowNoise(s => !s)}>
+                        {showNoise ? 'Hide' : 'Show'} {noise.length} more, most likely Windows or other programs
+                    </button>
+                )}
+                {showNoise && noise.map(row)}
+            </div>
+            <div className="hunt-actions">
+                <button className="primary" disabled={chosen.length === 0} onClick={() => onAdd(chosen.map(f => f.real))}>
+                    <Icon name="plus"/> Add {chosen.length} folder{chosen.length === 1 ? '' : 's'} to the game
+                </button>
+            </div>
+        </section>
+    )
+}
+
+function Toast({toast, onClose}) {
+    return (
+        <div className={'toast ' + toast.kind} role="status">
+            <span>{toast.text}</span>
+            <IconButton icon="close" title="Close" onClick={onClose}/>
+        </div>
+    )
+}
