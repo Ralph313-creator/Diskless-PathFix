@@ -35,6 +35,21 @@ func TestAddToCCBootAddsTheLineOnce(t *testing.T) {
 	}
 }
 
+func TestRemoveFromCCBoot(t *testing.T) {
+	a := newTestApp(t, filepath.Join(t.TempDir(), "GameFix"))
+	os.WriteFile(a.ccbootScript, []byte("#run -startup command\r\n"), 0o644)
+	if _, err := a.AddToCCBoot(); err != nil {
+		t.Fatal(err)
+	}
+	c, err := a.RemoveFromCCBoot()
+	if err != nil || c.Added {
+		t.Fatalf("%+v, %v; want removed", c, err)
+	}
+	if b, _ := os.ReadFile(a.ccbootScript); string(b) != "#run -startup command\r\n" {
+		t.Fatalf("script = %q, want only the comment left", b)
+	}
+}
+
 func TestCCBootWithoutCCBoot(t *testing.T) {
 	a := newTestApp(t, filepath.Join(t.TempDir(), "GameFix"))
 	a.ccbootScript = filepath.Join(t.TempDir(), `CCBoot\Cmd\public.txt`)

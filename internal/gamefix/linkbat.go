@@ -267,7 +267,6 @@ func makeBat(links []batLink) string {
 	}
 	line("echo.")
 	line("echo Done: %OK% linked, %FAILED% failed.")
-	line("pause")
 	line("exit /b %FAILED%")
 	line("")
 	line(`rem :link "<link path>" "<folder>"`)
@@ -303,7 +302,11 @@ func makeBat(links []batLink) string {
 }
 
 // startBat writes the start of both scripts: what the script does, then
-// asking for administrator rights, with why they are needed.
+// getting administrator rights (whyAdmin says why), then running :main,
+// which the caller writes next. CCBoot runs GameFix.bat on every client
+// when a customer logs on, so the script never waits for a key, and what
+// it did is kept next to it in <script name>.log (G:\GameFix\GameFix.log),
+// to read on the client.
 func startBat(line func(string), about []string, whyAdmin string) {
 	line("@echo off")
 	for _, s := range about {
@@ -312,13 +315,32 @@ func startBat(line func(string), about []string, whyAdmin string) {
 	line("chcp 65001 >nul")
 	line("")
 	line(whyAdmin)
-	line("net session >nul 2>&1")
-	line("if not errorlevel 1 goto admin")
+	line("rem fltmc only works with them. (net session also needs the Server service, often off on diskless PCs.)")
+	line("fltmc >nul 2>&1 && goto admin")
+	line("rem Ask once: started again with them, it has \"elevated\" and never asks again.")
+	line(`if /i "%~1"=="elevated" goto noadmin`)
 	line(`set "SELF=%~f0"`)
-	line(`powershell -NoProfile -Command "Start-Process -FilePath $env:SELF -Verb RunAs"`)
+	line(`powershell -NoProfile -Command "Start-Process -FilePath $env:SELF -ArgumentList 'elevated' -Verb RunAs"`)
+	line("if errorlevel 1 goto noadmin")
 	line("exit /b")
-	line(":admin")
+	line(":noadmin")
+	line(`(echo [FAILED] %DATE% %TIME% %COMPUTERNAME% %USERNAME%: no administrator rights, so nothing was done.>"%~dpn0.log") 2>nul`)
+	line("echo [FAILED] No administrator rights, so nothing was done.")
+	line("timeout /t 30 >nul 2>&1")
+	line("exit /b 1")
 	line("")
+	line(":admin")
+	line(`set "LOG=%~dpn0.log"`)
+	line(`(echo.>"%LOG%") 2>nul || set "LOG=%TEMP%\%~n0.log"`)
+	line(`call :main %* >"%LOG%" 2>&1`)
+	line("set RESULT=%errorlevel%")
+	line(`type "%LOG%"`)
+	line("rem The window closes by itself; a failure stays on screen longer.")
+	line("if %RESULT%==0 (timeout /t 5 >nul 2>&1) else (timeout /t 30 >nul 2>&1)")
+	line("exit /b %RESULT%")
+	line("")
+	line(":main")
+	line("echo %DATE% %TIME% on %COMPUTERNAME% as %USERNAME%")
 }
 
 // makeCopyBat writes a script like makeBat's, but instead of a link it
@@ -345,7 +367,6 @@ func makeCopyBat(links []batLink) string {
 	}
 	line("echo.")
 	line("echo Done: %OK% copied, %FAILED% failed.")
-	line("pause")
 	line("exit /b %FAILED%")
 	line("")
 	line(`rem :copy "<link path>" "<folder>"`)

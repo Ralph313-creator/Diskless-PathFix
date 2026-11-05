@@ -100,9 +100,11 @@ func (a *App) load() {
 	}
 	if changed {
 		a.save()
-		if !firstStart {
-			a.writeBat()
-		}
+	}
+	// Rewritten at every start, so a newer script reaches the clients. A
+	// GameFix.bat this tab did not make is set aside, never overwritten.
+	if !firstStart {
+		a.writeBat()
 	}
 }
 

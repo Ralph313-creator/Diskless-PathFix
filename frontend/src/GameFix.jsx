@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from 'react'
 import {
     AddFolder, AddGame, AddToCCBoot, BrowseFolder, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
-    GetCCBoot, GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, SaveFolders,
+    GetCCBoot, GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, RemoveFromCCBoot, SaveFolders,
     SetWatch, UninstallService
 } from '../wailsjs/go/gamefix/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
@@ -140,11 +140,17 @@ export default function GameFixTab({tabs, hidden}) {
         setServiceBusy(false)
     }
 
-    const addToCCBoot = async () => {
+    // toggleCCBoot adds GameFix.bat's line to CCBoot's script, or takes it out.
+    const toggleCCBoot = async () => {
         setCCBootBusy(true)
         try {
-            const c = await AddToCCBoot()
-            notify('ok', `Added to ${c.script}: ${c.line}. Each client now runs GameFix.bat when it starts.`)
+            if (ccboot.added) {
+                const c = await RemoveFromCCBoot()
+                notify('ok', `Removed from ${c.script}. Clients no longer run GameFix.bat when they start.`)
+            } else {
+                const c = await AddToCCBoot()
+                notify('ok', `Added to ${c.script}: ${c.line}. Each client now runs GameFix.bat when it starts.`)
+            }
         } catch (err) {
             fail(err)
         }
@@ -436,9 +442,9 @@ export default function GameFixTab({tabs, hidden}) {
                         (ccboot.added ? ccboot.script + ' has:\n' : 'Adds this line to ' + ccboot.script + ',\nso each client runs GameFix.bat when it starts:\n') + ccboot.line}>
                         <span className={'dot ' + (ccboot.added ? 'ok' : '')}/>
                         CCBoot: {ccboot.added ? 'runs GameFix.bat at start' : ccboot.error ? 'not found' : 'not added'}
-                        {!ccboot.added && (
-                            <button className="ghost" onClick={addToCCBoot} disabled={ccbootBusy || !!ccboot.error}>Add</button>
-                        )}
+                        <button className="ghost" onClick={toggleCCBoot} disabled={ccbootBusy || (!!ccboot.error && !ccboot.added)}>
+                            {ccboot.added ? 'Remove' : 'Add'}
+                        </button>
                     </span>
                 )}
                 <span className="service" title={'The GameFix service copies the enabled folders\n' +

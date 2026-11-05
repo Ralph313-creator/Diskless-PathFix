@@ -35,6 +35,17 @@ func (a *App) AddToCCBoot() (CCBoot, error) {
 	return a.ccbootState(main), err
 }
 
+// RemoveFromCCBoot takes GameFix.bat's line out of CCBoot's script, so
+// clients no longer run it when they start.
+func (a *App) RemoveFromCCBoot() (CCBoot, error) {
+	main := a.GetMainFolder()
+	if main == "" {
+		return a.ccbootState(main), errors.New("choose a main folder first")
+	}
+	_, err := ccboot.RemoveRun(a.ccbootScript, filepath.Join(main, BatName))
+	return a.ccbootState(main), err
+}
+
 func (a *App) ccbootState(main string) CCBoot {
 	c := CCBoot{Script: a.ccbootScript}
 	if main == "" {

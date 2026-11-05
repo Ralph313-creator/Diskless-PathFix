@@ -290,6 +290,32 @@ func TestFolderNamedLikeGame(t *testing.T) {
 	}
 }
 
+// TestBatsRunWithNobodyThere: CCBoot runs GameFix.bat on every client when
+// a customer logs on (run -startup in public.txt), so the scripts must work
+// with nobody at the keyboard.
+func TestBatsRunWithNobodyThere(t *testing.T) {
+	links := []batLink{{Link: `C:\ProgramData\Riot Games`, Source: `Riot\Riot Games`}}
+	for name, body := range map[string]string{BatName: makeBat(links), CopyBatName: makeCopyBat(links)} {
+		for _, line := range strings.Split(body, "\r\n") {
+			if strings.EqualFold(strings.TrimSpace(line), "pause") {
+				t.Errorf("%s waits for a key, so its window stays open on the customer's screen", name)
+			}
+			if strings.Contains(strings.ToLower(line), "net session") && !strings.HasPrefix(line, "rem ") {
+				// It fails when the Server service is off, as on many
+				// diskless images: then the script asks for administrator
+				// rights again and again and never links anything.
+				t.Errorf("%s checks for administrator rights with net session: %s", name, line)
+			}
+		}
+		if !strings.Contains(body, "fltmc >nul 2>&1") {
+			t.Errorf("%s does not check for administrator rights with fltmc", name)
+		}
+		if !strings.Contains(body, `-ArgumentList 'elevated'`) || !strings.Contains(body, `if /i "%~1"=="elevated" goto noadmin`) {
+			t.Errorf("%s can ask for administrator rights more than once", name)
+		}
+	}
+}
+
 // TestBatMakesLinks runs a real GameFix.bat. mklink needs administrator
 // rights, so it is skipped otherwise.
 func TestBatMakesLinks(t *testing.T) {
@@ -360,6 +386,11 @@ func TestBatMakesLinks(t *testing.T) {
 	if got, err := os.ReadFile(filepath.Join(client, "Game", "New", "save.dat")); err != nil || string(got) != "New" {
 		t.Errorf("the game folder link does not point to the game folder: %q, %v", got, err)
 	}
+	// What happened stays readable on the client after the window closes.
+	log, err := os.ReadFile(filepath.Join(root, "main", "GameFix.log"))
+	if err != nil || !strings.Contains(string(log), "[OK]") || !strings.Contains(string(log), "[FAILED]") {
+		t.Errorf("GameFix.log = %q, %v; want the [OK] and [FAILED] lines", log, err)
+	}
 }
 
 // TestCopyBatCopies runs a real GameFix Copy.bat. It asks for administrator
@@ -417,6 +448,10 @@ func TestCopyBatCopies(t *testing.T) {
 	}
 	if _, err := os.Lstat(filepath.Join(client, "Missing")); !os.IsNotExist(err) {
 		t.Error("a folder was made for a missing folder")
+	}
+	log, err := os.ReadFile(filepath.Join(root, "main", "GameFix Copy.log"))
+	if err != nil || !strings.Contains(string(log), "[OK]") || !strings.Contains(string(log), "[FAILED]") {
+		t.Errorf("GameFix Copy.log = %q, %v; want the [OK] and [FAILED] lines", log, err)
 	}
 }
 

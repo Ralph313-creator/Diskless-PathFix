@@ -37,6 +37,8 @@ export function OpenFolder(arg1:string):Promise<void>;
 
 export function RemoveFolder(arg1:string,arg2:string):Promise<void>;
 
+export function RemoveFromCCBoot():Promise<gamefix.CCBoot>;
+
 export function SaveFolders(arg1:string,arg2:Record<string, gamefix.FolderSettings>):Promise<string>;
 
 export function SetWatch(arg1:string,arg2:string,arg3:boolean):Promise<void>;

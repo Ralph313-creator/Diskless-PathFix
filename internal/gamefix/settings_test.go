@@ -65,6 +65,26 @@ func TestFirstStartWritesNoBat(t *testing.T) {
 	}
 }
 
+// TestStartRewritesAnOutdatedBat: GameFix.bat made by an older version of the
+// tab (such as one that waits for a key) is rewritten when the tab starts,
+// so a fix to the script reaches the clients without changing a setting.
+func TestStartRewritesAnOutdatedBat(t *testing.T) {
+	main := t.TempDir()
+	a := newTestApp(t, main)
+	if err := a.save(); err != nil { // not the first start
+		t.Fatal(err)
+	}
+	outdated := "@echo off\r\nrem Made by GameFix (RapTech Portable). An older script.\r\npause\r\n"
+	os.WriteFile(filepath.Join(main, BatName), []byte(outdated), 0o644)
+	serviceRunning = func() bool { return true }
+	b := &App{settingsPath: a.settingsPath}
+	b.load()
+	got, _ := os.ReadFile(filepath.Join(main, BatName))
+	if string(got) != makeBat(nil) {
+		t.Fatalf("GameFix.bat was not rewritten when the tab started:\n%s", got)
+	}
+}
+
 func TestWriteBatWithoutMainFolderWritesNothing(t *testing.T) {
 	cwd, _ := os.Getwd()
 	dir := t.TempDir()

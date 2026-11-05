@@ -70,6 +70,10 @@ export function RemoveFolder(arg1, arg2) {
   return window['go']['gamefix']['App']['RemoveFolder'](arg1, arg2);
 }
 
+export function RemoveFromCCBoot() {
+  return window['go']['gamefix']['App']['RemoveFromCCBoot']();
+}
+
 export function SaveFolders(arg1, arg2) {
   return window['go']['gamefix']['App']['SaveFolders'](arg1, arg2);
 }

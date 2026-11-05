@@ -17,7 +17,11 @@ updated straight from Roblox's servers.
   standalone GameFix's.
 - `internal/ccboot` — reads and adds `run` lines to CCBoot's command file
   `C:\CCBoot\Cmd\public.txt` (every client runs it at boot). The GameFix
-  tab's footer "Add" puts `run -startup -skipupdate <main>\GameFix.bat` there.
+  tab's footer Add/Remove puts `run -startup -skipupdate <main>\GameFix.bat`
+  there or takes it out. CCBoot runs `-startup` lines at logon as the
+  customer (CCBootClient.exe -startup from HKLM Run, asInvoker), so
+  GameFix.bat asks for admin rights once (fltmc check), never waits for a
+  key, and logs to `GameFix.log` next to it; the tab rewrites it at start.
 
 ## Rules
 

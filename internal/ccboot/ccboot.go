@@ -84,18 +84,51 @@ func AddRun(script, flags, cmd string) (added bool, err error) {
 		add = RunLine(flags, cmd)
 	}
 	lines = append(lines[:last+1], append([]string{add}, lines[last+1:]...)...)
+	return true, write(script, start+strings.Join(lines, ""))
+}
 
-	// Written next to it, then moved over it, so a client booting now
-	// never reads half a file.
-	tmp := script + ".rp-tmp"
-	if err := os.WriteFile(tmp, []byte(start+strings.Join(lines, "")), 0o644); err != nil {
+// RemoveRun takes every run line that runs cmd (with any flags) out of
+// script and keeps the rest as it is, comments too. removed reports
+// whether there was one.
+func RemoveRun(script, cmd string) (removed bool, err error) {
+	b, err := os.ReadFile(script)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
 		return false, err
+	}
+	text := string(b)
+	start := ""
+	if strings.HasPrefix(text, bom) {
+		start, text = bom, text[len(bom):]
+	}
+	var kept []string
+	for _, line := range strings.SplitAfter(text, "\n") {
+		if runs(line, cmd) {
+			removed = true
+			continue
+		}
+		kept = append(kept, line)
+	}
+	if !removed {
+		return false, nil
+	}
+	return true, write(script, start+strings.Join(kept, ""))
+}
+
+// write replaces script with text: written next to it, then moved over it,
+// so a client booting now never reads half a file.
+func write(script, text string) error {
+	tmp := script + ".rp-tmp"
+	if err := os.WriteFile(tmp, []byte(text), 0o644); err != nil {
+		return err
 	}
 	if err := os.Rename(tmp, script); err != nil {
 		os.Remove(tmp)
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 // runs reports whether line is a run line that runs cmd: after "run" and

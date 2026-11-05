@@ -128,6 +128,47 @@ func TestAddRunMakesAMissingScript(t *testing.T) {
 	}
 }
 
+func TestRemoveRunTakesOutEveryLineThatRunsIt(t *testing.T) {
+	path := script(t, "run -startup -skipupdate G:\\GameFix\\GameFix.bat\r\n"+
+		"run -winlogon \"G:\\Portable\\STOVE\\STOVE.exe\" --setup\r\n"+
+		"RUN -service \"g:\\gamefix\\gamefix.bat\"\r\n"+
+		"\r\n#run -startup -skipupdate G:\\GameFix\\GameFix.bat\r\n")
+	removed, err := RemoveRun(path, bat)
+	if err != nil || !removed {
+		t.Fatalf("removed=%v err=%v", removed, err)
+	}
+	want := "run -winlogon \"G:\\Portable\\STOVE\\STOVE.exe\" --setup\r\n" +
+		"\r\n#run -startup -skipupdate G:\\GameFix\\GameFix.bat\r\n"
+	if got := read(t, path); got != want {
+		t.Fatalf("got\n%q\nwant\n%q (other lines and comments kept)", got, want)
+	}
+}
+
+func TestRemoveRunLastLineWithoutLineEnd(t *testing.T) {
+	path := script(t, "\xEF\xBB\xBFrun -startup a.bat\nrun -startup -skipupdate G:\\GameFix\\GameFix.bat")
+	if _, err := RemoveRun(path, bat); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := read(t, path), "\xEF\xBB\xBFrun -startup a.bat\n"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestRemoveRunWhenItIsNotThere(t *testing.T) {
+	text := "run -startup a.bat\r\n#run -startup -skipupdate G:\\GameFix\\GameFix.bat\r\n"
+	path := script(t, text)
+	removed, err := RemoveRun(path, bat)
+	if err != nil || removed {
+		t.Fatalf("removed=%v err=%v, want false", removed, err)
+	}
+	if got := read(t, path); got != text {
+		t.Fatalf("script changed: %q", got)
+	}
+	if removed, err := RemoveRun(script(t, ""), bat); err != nil || removed {
+		t.Fatalf("missing script: removed=%v err=%v", removed, err)
+	}
+}
+
 func TestAddRunWithoutCCBoot(t *testing.T) {
 	path := filepath.Join(t.TempDir(), `CCBoot\Cmd\public.txt`)
 	if _, err := AddRun(path, "-startup -skipupdate", bat); err == nil {
