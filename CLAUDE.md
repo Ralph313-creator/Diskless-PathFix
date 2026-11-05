@@ -2,7 +2,7 @@
 
 Since 2026-11-06 the window shows the app as **Diskless PathFix** with "Created by: Raptech"
 (`frontend/src/Brand.jsx`) and the GameFix tab as **SymbolicLink**. Project folder:
-`D:ProjectDiskless-PathFix` (was RapTech-Portable). Only shown text
+`D:\Project\Diskless-PathFix` (was RapTech-Portable). Only shown text
 changed: code names, `RapTech-Portable.exe`, `GameFix.bat`, `RapTech-GameFix.json`,
 the service name and the bat marker `(RapTech Portable)` keep their old names.
 
