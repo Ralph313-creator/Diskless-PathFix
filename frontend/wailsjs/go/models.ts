@@ -1,5 +1,23 @@
 export namespace gamefix {
 	
+	export class CCBoot {
+	    line: string;
+	    script: string;
+	    added: boolean;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CCBoot(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.line = source["line"];
+	        this.script = source["script"];
+	        this.added = source["added"];
+	        this.error = source["error"];
+	    }
+	}
 	export class Folder {
 	    name: string;
 	    source: string;

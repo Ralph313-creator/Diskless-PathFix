@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from 'react'
 import {
-    AddFolder, AddGame, BrowseFolder, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
-    GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, SaveFolders,
+    AddFolder, AddGame, AddToCCBoot, BrowseFolder, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
+    GetCCBoot, GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, SaveFolders,
     SetWatch, UninstallService
 } from '../wailsjs/go/gamefix/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
@@ -80,6 +80,8 @@ export default function GameFixTab({tabs, hidden}) {
     const [edits, setEdits] = useState({}) // unsaved fields: {game: {folder: {source, link}}}
     const [service, setService] = useState('') // state of the Windows service; see serviceState in service.go
     const [serviceBusy, setServiceBusy] = useState(false)
+    const [ccboot, setCCBoot] = useState(null) // GameFix.bat's line in CCBoot's script; see CCBoot in ccboot.go
+    const [ccbootBusy, setCCBootBusy] = useState(false)
     const toastTimer = useRef()
 
     const game = games.find(g => g.name === selected) ?? games[0]
@@ -108,7 +110,11 @@ export default function GameFixTab({tabs, hidden}) {
             if (error) fail(`Copying ${folder === GAME_ITSELF ? game : folder}: ${error}`)
             refresh()
         })
-        const checkService = () => GetServiceState().then(setService)
+        // Also shows a line added to CCBoot's script by hand.
+        const checkService = () => {
+            GetServiceState().then(setService)
+            GetCCBoot().then(setCCBoot)
+        }
         checkService()
         const serviceTimer = setInterval(checkService, 5000)
         return () => {
@@ -132,6 +138,18 @@ export default function GameFixTab({tabs, hidden}) {
         }
         setService(await GetServiceState())
         setServiceBusy(false)
+    }
+
+    const addToCCBoot = async () => {
+        setCCBootBusy(true)
+        try {
+            const c = await AddToCCBoot()
+            notify('ok', `Added to ${c.script}: ${c.line}. Each client now runs GameFix.bat when it starts.`)
+        } catch (err) {
+            fail(err)
+        }
+        setCCBoot(await GetCCBoot())
+        setCCBootBusy(false)
     }
 
     const valueOf = (g, f, field) => edits[g.name]?.[f.name]?.[field] ?? f[field]
@@ -167,6 +185,7 @@ export default function GameFixTab({tabs, hidden}) {
             const path = await ChooseMainFolder()
             if (path) {
                 setMainFolder(path)
+                setCCBoot(await GetCCBoot()) // the line is for this main folder's GameFix.bat
                 await refresh()
             }
         } catch (err) {
@@ -412,6 +431,16 @@ export default function GameFixTab({tabs, hidden}) {
                     It replaces the folder at each link path with a link to the copy.
                     Or run <b>GameFix Copy.bat</b> to give the client its own copy instead.
                 </span>
+                {ccboot && (
+                    <span className="ccboot" title={ccboot.error ||
+                        (ccboot.added ? ccboot.script + ' has:\n' : 'Adds this line to ' + ccboot.script + ',\nso each client runs GameFix.bat when it starts:\n') + ccboot.line}>
+                        <span className={'dot ' + (ccboot.added ? 'ok' : '')}/>
+                        CCBoot: {ccboot.added ? 'runs GameFix.bat at start' : ccboot.error ? 'not found' : 'not added'}
+                        {!ccboot.added && (
+                            <button className="ghost" onClick={addToCCBoot} disabled={ccbootBusy || !!ccboot.error}>Add</button>
+                        )}
+                    </span>
+                )}
                 <span className="service" title={'The GameFix service copies the enabled folders\n' +
                     'whenever their source changes, even when this app is closed.'}>
                     <span className={'dot ' + (service === 'running' ? 'ok' : '')}/>

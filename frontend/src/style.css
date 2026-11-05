@@ -159,8 +159,8 @@ input::placeholder { color: #5b6573; }
     border-top: 1px solid var(--border); background: var(--panel);
 }
 .footer > span:first-child { flex: 1; }
-.service { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.service button { padding: 2px 8px; font-size: 12px; }
+.service, .ccboot { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.service button, .ccboot button { padding: 2px 8px; font-size: 12px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
 .dot.ok { background: var(--ok); }
 .footer b { color: var(--text); font-weight: 600; }
