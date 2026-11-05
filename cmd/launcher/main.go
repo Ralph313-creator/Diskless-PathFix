@@ -195,7 +195,7 @@ func openLog(dir string) func(string, ...any) {
 // (no console), plus the exit code for scripts.
 func fail(mode string, err error) {
 	if mode == "run" || mode == "" {
-		title, _ := windows.UTF16PtrFromString("RapTech Portable")
+		title, _ := windows.UTF16PtrFromString("Diskless PathFix")
 		text, _ := windows.UTF16PtrFromString(err.Error())
 		windows.MessageBox(0, text, title, windows.MB_ICONERROR|windows.MB_OK)
 	} else {

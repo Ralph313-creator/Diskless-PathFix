@@ -87,16 +87,16 @@ export function Guide({onClose, openTab, openLines}) {
     }, [onClose])
     return (
         <div className="overlay" onClick={onClose}>
-            <div className="guide" role="dialog" aria-label="How RapTech Portable works" onClick={e => e.stopPropagation()}>
+            <div className="guide" role="dialog" aria-label="How Diskless PathFix works" onClick={e => e.stopPropagation()}>
                 <div className="guide-head">
                     <img src={logo} alt=""/>
-                    <h2>How RapTech Portable works</h2>
+                    <div className="brand-text"><h2>How Diskless PathFix works</h2><span className="byline">Created by: Raptech</span></div>
                     <span className="spacer"/>
                     <button className="icon-btn" title="Close" aria-label="Close" onClick={onClose}><XIcon/></button>
                 </div>
                 <p className="guide-lead">
                     Floor PCs forget everything when they restart, and their C: drive is only as new as the last image
-                    update. RapTech Portable keeps apps and game files on the <b>game disk (G:)</b> instead, so every
+                    update. Diskless PathFix keeps apps and game files on the <b>game disk (G:)</b> instead, so every
                     floor PC gets the newest version and the files it needs, without updating the image.
                 </p>
 
@@ -109,10 +109,10 @@ export function Guide({onClose, openTab, openLines}) {
                         <span className="guide-go">Open Portable apps →</span>
                     </button>
                     <button className="guide-card" onClick={() => openTab('gamefix')}>
-                        <b>GameFix</b>
-                        <span>For games that need a folder on C:, like <b>Riot Games</b> in C:\ProgramData. GameFix copies
+                        <b>SymbolicLink</b>
+                        <span>For games that need a folder on C:, like <b>Riot Games</b> in C:\ProgramData. SymbolicLink copies
                             that folder to G:, and floor PCs link to it with GameFix.bat.</span>
-                        <span className="guide-go">Open GameFix →</span>
+                        <span className="guide-go">Open SymbolicLink →</span>
                     </button>
                     <button className="guide-card" onClick={() => openTab('hunt')}>
                         <b>Hunt</b>
@@ -131,7 +131,7 @@ export function Guide({onClose, openTab, openLines}) {
                     <dd>One app's folder in the apps folder, such as <code>G:\Portable\Roblox</code>. It holds the app,
                         its settings, and its launcher (<code>Roblox.exe</code>) that sets everything up and starts it.</dd>
                     <dt>Main folder</dt>
-                    <dd>Where GameFix keeps the copied game folders, such as <code>G:\GameFix</code>.</dd>
+                    <dd>Where SymbolicLink keeps the copied game folders, such as <code>G:\GameFix</code>.</dd>
                     <dt>Server</dt>
                     <dd>This PC, the CCBoot server. Floor PCs are the diskless customer PCs.</dd>
                 </dl>

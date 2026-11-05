@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState} from 'react'
+import Brand from './Brand'
 import {
     AddFolder, AddGame, BrowseFolder, CCBootLine, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
     GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, SaveFolders,
@@ -69,7 +70,7 @@ function PathField({label, value, placeholder, hint, onChange, onCommit, onBrows
     )
 }
 
-// GameFixTab is the GameFix app, ported: copy game folders into a main folder
+// GameFixTab is the SymbolicLink app, ported: copy game folders into a main folder
 // for clients to link (GameFix.bat) or copy (GameFix Copy.bat).
 export default function GameFixTab({tabs, hidden, openLines}) {
     const [mainFolder, setMainFolder] = useState('')
@@ -124,13 +125,13 @@ export default function GameFixTab({tabs, hidden, openLines}) {
 
     const toggleService = async () => {
         const installed = service !== 'not installed'
-        if (installed && !confirm('Uninstall the RapTech GameFix service?\n\nEnabled folders are then only copied while RapTech Portable is open.')) return
+        if (installed && !confirm('Uninstall the SymbolicLink service?\n\nEnabled folders are then only copied while Diskless PathFix is open.')) return
         setServiceBusy(true)
         try {
             await (installed ? UninstallService() : InstallService())
             notify('ok', installed
-                ? 'Service uninstalled. Enabled folders are copied while RapTech Portable is open.'
-                : 'Service installed. Enabled folders are now copied even when RapTech Portable is closed.')
+                ? 'Service uninstalled. Enabled folders are copied while Diskless PathFix is open.'
+                : 'Service installed. Enabled folders are now copied even when Diskless PathFix is closed.')
         } catch (err) {
             fail(err)
         }
@@ -237,7 +238,7 @@ export default function GameFixTab({tabs, hidden, openLines}) {
                 notify('ok', `${name} is on. Clients get it once it is copied. Set its source to copy it.`)
             } else {
                 notify('ok', `${name} is on. Clients get it, and it is copied again whenever its source changes` +
-                    (service === 'running' ? ', even when RapTech Portable is closed.' : ', while RapTech Portable is open. Install the service to keep copying it when GameFix is closed.'))
+                    (service === 'running' ? ', even when Diskless PathFix is closed.' : ', while Diskless PathFix is open. Install the service to keep copying it when SymbolicLink is closed.'))
             }
         } catch (err) {
             fail(err)
@@ -271,8 +272,8 @@ export default function GameFixTab({tabs, hidden, openLines}) {
             <div className="welcome" style={hidden ? {display: 'none'} : undefined}>
                 {tabs}
                 <img className="welcome-logo" src={logo} alt=""/>
-                <h1>GameFix</h1>
-                <p>Some games need a folder on C:, such as Riot Games in C:\ProgramData. GameFix copies those folders
+                <h1>SymbolicLink</h1>
+                <p>Some games need a folder on C:, such as Riot Games in C:\ProgramData. SymbolicLink copies those folders
                     to the game disk, and the floor PCs link to the copies.</p>
                 <p>Start by choosing a main folder on the game disk to keep the copies in, such as <code>G:\GameFix</code>.</p>
                 <button className="primary big" onClick={chooseMain}>Choose main folder</button>
@@ -318,7 +319,7 @@ export default function GameFixTab({tabs, hidden, openLines}) {
     return (
         <div className="app" style={hidden ? {display: 'none'} : undefined}>
             <header className="topbar">
-                <h1 className="brand"><img src={logo} alt=""/>RapTech Portable</h1>
+                <Brand/>
                 {tabs}
                 <div className="main-folder" title="Main folder">
                     <Icon name="folder"/>
@@ -389,7 +390,7 @@ export default function GameFixTab({tabs, hidden, openLines}) {
                                         <span className="spacer"/>
                                         <label className={'watch' + (f.watch ? ' on' : '')}
                                                title={'On: clients get this folder (GameFix.bat and GameFix Copy.bat),\n' +
-                                                   'and it is copied again whenever its source changes: while GameFix is open,\n' +
+                                                   'and it is copied again whenever its source changes: while SymbolicLink is open,\n' +
                                                    'or all the time if the service is installed.\n' +
                                                    'Off: clients don\'t get it.'}>
                                             <input type="checkbox" checked={f.watch} onChange={() => toggleWatch(game, f)}/>
@@ -455,7 +456,7 @@ export default function GameFixTab({tabs, hidden, openLines}) {
                     Floor PCs get the enabled folders by running <b>GameFix.bat</b> from the main folder.
                     <b> GameFix Copy.bat</b> gives each PC its own copy instead of a link.
                 </span>
-                <span className="service" title={'The GameFix service copies the enabled folders\n' +
+                <span className="service" title={'The SymbolicLink service copies the enabled folders\n' +
                     'whenever their source changes, even when this app is closed.'}>
                     <span className={'dot ' + (service === 'running' ? 'ok' : '')}/>
                     Service: {service === 'running' ? 'watching' : service || '…'}

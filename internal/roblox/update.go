@@ -157,7 +157,7 @@ func (u *Updater) install(ctx context.Context, dir, version string) (err error) 
 	}
 	for _, e := range entries {
 		if _, known := packageDirs[e.name]; !known && strings.HasSuffix(strings.ToLower(e.name), ".zip") {
-			return fmt.Errorf("Roblox added a package this updater does not know (%s); update RapTech Portable", e.name)
+			return fmt.Errorf("Roblox added a package this updater does not know (%s); update Diskless PathFix", e.name)
 		}
 		if strings.ContainsAny(e.name, `\/:`) {
 			return fmt.Errorf("odd package name %q", e.name)

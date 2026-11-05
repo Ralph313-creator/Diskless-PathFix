@@ -1,11 +1,12 @@
 import {useEffect, useState} from 'react'
+import Brand from './Brand'
 import * as Go from '../wailsjs/go/main/App'
 import * as GF from '../wailsjs/go/gamefix/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
 import {Steps} from './Guide'
 
 // HuntTab is hunt mode, one tool for the whole program: hunt any program,
-// then add the folders it found to a portable app or to a GameFix game.
+// then add the folders it found to a portable app or to a SymbolicLink game.
 
 const Icon = ({d}) => (
     <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -16,7 +17,7 @@ const XIcon = () => <Icon d={<path d="M18 6 6 18M6 6l12 12"/>}/>
 
 const norm = p => (p || '').toLowerCase().replace(/[\\/]+$/, '')
 
-export default function HuntTab({tabs, hidden, logo}) {
+export default function HuntTab({tabs, hidden}) {
     const [st, setSt] = useState(null) // the hunt's state; see hunt.State
     const [targets, setTargets] = useState([]) // [{id, label}]
     const [target, setTarget] = useState('')   // "p:<package folder>" or "g:<game name>"
@@ -38,7 +39,7 @@ export default function HuntTab({tabs, hidden, logo}) {
         }
         try {
             for (const g of (await GF.ListGames()) || []) list.push({id: 'g:' + g.name, label: 'GameFix game: ' + g.name})
-        } catch { /* no GameFix main folder yet */ }
+        } catch { /* no SymbolicLink main folder yet */ }
         setTargets(list)
         if (!list.find(t => t.id === target)) setTarget(list.length ? list[0].id : '')
     }
@@ -81,7 +82,7 @@ export default function HuntTab({tabs, hidden, logo}) {
                 : await GF.AddHuntFolders(name(target), chosen)
             const where = (targets.find(t => t.id === target) || {}).label || ''
             setToast({ok: true, text: `Added ${n} folder${n === 1 ? '' : 's'} to ${where.replace(/^[^:]*: /, '')}.` +
-                    (target.startsWith('g:') ? ' Check their link paths in the GameFix tab, then Copy and Enable them.' : ' Their files were copied into the package.')})
+                    (target.startsWith('g:') ? ' Check their link paths in the SymbolicLink tab, then Copy and Enable them.' : ' Their files were copied into the package.')})
             setTicked({})
             setAddedOnce(true)
         } catch (e) { setToast({ok: false, text: String(e)}) }
@@ -102,7 +103,7 @@ export default function HuntTab({tabs, hidden, logo}) {
         },
         {
             title: 'Add the folders', done: addedOnce,
-            hint: <>The folders it used are ticked. Under <b>Add to</b>, choose the portable app or GameFix game they
+            hint: <>The folders it used are ticked. Under <b>Add to</b>, choose the portable app or SymbolicLink game they
                 belong to, then click <b>Add</b>.</>,
         },
     ]
@@ -121,7 +122,7 @@ export default function HuntTab({tabs, hidden, logo}) {
     return (
         <div className="app" style={hidden ? {display: 'none'} : undefined}>
             <div className="topbar">
-                <div className="brand"><img src={logo} alt=""/><h1>RapTech Portable</h1></div>
+                <Brand/>
                 {tabs}
             </div>
             <div className="body">
@@ -136,7 +137,7 @@ export default function HuntTab({tabs, hidden, logo}) {
                                 : <button className="primary" onClick={start}><SearchIcon/>Choose program…</button>}
                         </div>
                         <p className="small muted">Hunt starts a program and watches it. It finds every folder the program uses and
-                            every folder where files change, so you can add them to a portable app or a GameFix game.
+                            every folder where files change, so you can add them to a portable app or a SymbolicLink game.
                             Use the installed program, not a copy.</p>
                     </div>
 
@@ -159,7 +160,7 @@ export default function HuntTab({tabs, hidden, logo}) {
                             <div className="field">
                                 <span className="small muted">Add to</span>
                                 <select value={target} onChange={e => setTarget(e.target.value)} disabled={busy}>
-                                    {targets.length === 0 && <option value="">Make a portable app or a GameFix game first</option>}
+                                    {targets.length === 0 && <option value="">Make a portable app or a SymbolicLink game first</option>}
                                     {targets.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                                 </select>
                                 <span className="spacer"/>

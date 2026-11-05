@@ -1,4 +1,4 @@
-// RapTech Portable manager: makes and looks after portable packages, and
+// Diskless PathFix manager: makes and looks after portable packages, and
 // (in its GameFix tab) copies game folders into a main folder for clients.
 package main
 
@@ -33,7 +33,7 @@ func main() {
 	gf := gamefix.NewApp()
 	app.gameFixMain = gf.GetMainFolder // hunt never suggests it
 	err := wails.Run(&options.App{
-		Title:            "RapTech Portable",
+		Title:            "Diskless PathFix",
 		Width:            1040,
 		Height:           700,
 		MinWidth:         760,

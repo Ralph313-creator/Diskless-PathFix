@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
+import Brand from './Brand'
 import * as Go from '../wailsjs/go/main/App'
-import logo from './assets/logo.png'
 import GameFixTab from './GameFix'
 import HuntTab from './Hunt'
 import {Guide, HelpIcon, Steps, store} from './Guide'
@@ -8,11 +8,11 @@ import PublicTxt, {copyText, FileIcon} from './PublicTxt'
 
 const TABS = [
     ['portable', 'Portable apps', 'Apps that live on the game disk, such as Roblox'],
-    ['gamefix', 'GameFix', 'Folders games need on C:, copied to the game disk'],
+    ['gamefix', 'SymbolicLink', 'Folders games need on C:, copied to the game disk'],
     ['hunt', 'Hunt', 'Find the folders a program uses'],
 ]
 
-// App is the window: a Portable apps tab, a GameFix tab and the Hunt tool.
+// App is the window: a Portable apps tab, a SymbolicLink tab and the Hunt tool.
 // All stay mounted, so a copy or hunt running in one keeps going while
 // another is shown. The guide opens by itself the first time.
 export default function App() {
@@ -32,7 +32,7 @@ export default function App() {
             {TABS.map(([id, label, about]) => (
                 <button key={id} className={'tab' + (tab === id ? ' active' : '')} title={about} onClick={() => choose(id)}>{label}</button>
             ))}
-            <button className="tab help-tab" title="How RapTech Portable works" onClick={() => setGuide(true)}><HelpIcon/>Help</button>
+            <button className="tab help-tab" title="How Diskless PathFix works" onClick={() => setGuide(true)}><HelpIcon/>Help</button>
             <button className="tab help-tab" title="The lines to copy into CCBoot's C:\CCBoot\Cmd\public.txt" onClick={() => setLines(true)}><FileIcon/>public.txt</button>
         </nav>
     )
@@ -40,7 +40,7 @@ export default function App() {
     return <>
         <PortableTab tabs={tabs} hidden={tab !== 'portable'} openLines={openLines}/>
         <GameFixTab tabs={tabs} hidden={tab !== 'gamefix'} openLines={openLines}/>
-        <HuntTab tabs={tabs} hidden={tab !== 'hunt'} logo={logo}/>
+        <HuntTab tabs={tabs} hidden={tab !== 'hunt'}/>
         {guide && <Guide onClose={closeGuide} openTab={t => { choose(t); closeGuide() }} openLines={() => { closeGuide(); openLines() }}/>}
         {lines && <PublicTxt onClose={() => setLines(false)}/>}
     </>
@@ -121,7 +121,7 @@ function PortableTab({tabs, hidden, openLines}) {
         },
         {
             title: 'Set up the floor PCs',
-            hint: <>Click <b>public.txt</b> at the top: it has the lines for every app and GameFix. Copy them,
+            hint: <>Click <b>public.txt</b> at the top: it has the lines for every app and SymbolicLink. Copy them,
                 paste them into <code>C:\CCBoot\Cmd\public.txt</code>, save, and restart one floor PC to test.</>,
             action: <button className="primary" disabled={!packages.length} onClick={openLines}><FileIcon/>Lines for public.txt</button>,
         },
@@ -130,7 +130,7 @@ function PortableTab({tabs, hidden, openLines}) {
     return (
         <div className="app" style={hidden ? {display: 'none'} : undefined}>
             <div className="topbar">
-                <div className="brand"><img src={logo} alt=""/><h1>RapTech Portable</h1></div>
+                <Brand/>
                 {tabs}
                 <div className="main-folder" title="Folder on the game disk where the portable apps are kept">
                     <span>Apps folder</span>
@@ -335,7 +335,7 @@ function Package({pkg, busy, run, openLines}) {
                 </ol>
                 <p className="small muted">The line has this PC's drive letter. If the game disk has another letter on the floor PCs, change it in the line.</p>
                 <div className="field">
-                    <span className="small muted">More than one app, or GameFix too? Copy all their lines at once:</span>
+                    <span className="small muted">More than one app, or SymbolicLink too? Copy all their lines at once:</span>
                     <button onClick={openLines}><FileIcon/>All lines for public.txt</button>
                 </div>
             </div>

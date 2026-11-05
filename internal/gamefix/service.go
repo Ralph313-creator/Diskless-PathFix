@@ -52,7 +52,7 @@ func RunCommandLine() bool {
 	}
 	if err != nil {
 		// Started elevated by the app, which cannot read what it prints.
-		title, _ := windows.UTF16PtrFromString("RapTech GameFix service")
+		title, _ := windows.UTF16PtrFromString("Diskless PathFix SymbolicLink service")
 		text, _ := windows.UTF16PtrFromString(err.Error())
 		windows.MessageBox(0, text, title, windows.MB_OK|windows.MB_ICONERROR)
 		os.Exit(1)
@@ -141,8 +141,8 @@ func (a *App) useSavedVars() {
 // rights.
 func installService() error {
 	return installServiceAs(ServiceName, "RapTech GameFix Watch",
-		"Copies the folders that have Enable on in the GameFix tab of RapTech Portable into the main folder whenever their source changes, "+
-			"while RapTech Portable is closed.", ServiceFlag)
+		"Copies the folders that have Enable on in the SymbolicLink tab of Diskless PathFix into the main folder whenever their source changes, "+
+			"while Diskless PathFix is closed.", ServiceFlag)
 }
 
 // removeService stops and uninstalls the service. It needs administrator
@@ -301,7 +301,7 @@ func runElevated(flag string) error {
 		if exit.ExitCode() == 2 {
 			return errors.New("administrator rights are needed; it was cancelled")
 		}
-		return errors.New("it did not work; see the message GameFix showed")
+		return errors.New("it did not work; see the message SymbolicLink showed")
 	}
 	return err
 }

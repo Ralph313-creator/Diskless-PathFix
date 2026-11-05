@@ -309,7 +309,7 @@ func makeBat(links []batLink) string {
 	line("set FAILED=0")
 	systemCheck(line)
 	if len(links) == 0 {
-		line("echo No link paths yet. Set them in GameFix.")
+		line("echo No link paths yet. Set them in the SymbolicLink tab.")
 	}
 	for _, l := range links {
 		line(callLink("link", l))
@@ -412,7 +412,7 @@ func makeCopyBat(links []batLink) string {
 	line("set FAILED=0")
 	systemCheck(line)
 	if len(links) == 0 {
-		line("echo No link paths yet. Set them in GameFix.")
+		line("echo No link paths yet. Set them in the SymbolicLink tab.")
 	}
 	for _, l := range links {
 		line(callLink("copy", l))

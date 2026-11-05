@@ -222,7 +222,7 @@ func Remove(exe string) error {
 	}
 	id, ok := names[0].(windows.ResourceID)
 	if !ok {
-		return errors.New("this program's icon was not given by RapTech Portable")
+		return errors.New("this program's icon was not given by Diskless PathFix")
 	}
 	g, _, err := loadPE(exe)
 	if err != nil {

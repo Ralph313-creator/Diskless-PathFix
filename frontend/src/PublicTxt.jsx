@@ -57,13 +57,13 @@ export default function PublicTxt({onClose}) {
                     <button className="icon-btn" title="Close" aria-label="Close" onClick={onClose}><XIcon/></button>
                 </div>
                 <p className="guide-lead">Floor PCs only set up what is in CCBoot's <code>C:\CCBoot\Cmd\public.txt</code>.
-                    These are the lines for every portable app and GameFix in RapTech Portable.</p>
+                    These are the lines for every portable app and SymbolicLink in Diskless PathFix.</p>
 
                 {text === null ? <p className="muted">Loading…</p>
                     : text === '' ? (
                         <div className="empty">
                             <h2>Nothing to paste yet</h2>
-                            <p className="muted">Add a portable app, or set up GameFix, first. Their lines show up here.</p>
+                            <p className="muted">Add a portable app, or set up SymbolicLink, first. Their lines show up here.</p>
                         </div>
                     ) : (
                         <textarea className="lines" readOnly value={text.trimEnd()} rows={Math.min(Math.max(lines, 2), 8)}

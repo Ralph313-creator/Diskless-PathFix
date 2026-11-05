@@ -1,4 +1,9 @@
-# RapTech Portable
+# RapTech Portable (shown as "Diskless PathFix")
+
+Since 2026-11-06 the window shows the app as **Diskless PathFix** with "Created by: Raptech"
+(`frontend/src/Brand.jsx`) and the GameFix tab as **SymbolicLink**. Only shown text
+changed: code names, `RapTech-Portable.exe`, `GameFix.bat`, `RapTech-GameFix.json`,
+the service name and the bat marker `(RapTech Portable)` keep their old names.
 
 Makes apps portable for CCBoot diskless PCs: an app's folders and registry
 keys live in one package folder next to a launcher exe (any drive), and the
