@@ -304,9 +304,10 @@ export default function GameFixTab({tabs, hidden, openLines}) {
         },
         {
             title: 'Run GameFix.bat on the floor PCs',
-            hint: <>On a floor PC, <code>GameFix.bat</code> links every enabled folder to its copy (it asks for admin
-                rights itself). To run it at every start, paste this line into <code>C:\CCBoot\Cmd\public.txt</code>:
-                <code className="line">{line}</code> Then save, restart one floor PC, and test the game.</>,
+            hint: <>On a floor PC, <code>GameFix.bat</code> links every enabled folder to its copy. It needs admin
+                rights, so paste this line into <code>C:\CCBoot\Cmd\public.txt</code> (in place of any older GameFix.bat line):
+                <code className="line">{line}</code> With <b>-service</b>, CCBoot runs it as SYSTEM, with admin rights and
+                nothing to click, each time a floor PC starts. Save, restart one floor PC, and test the game.</>,
             action: <div className="step-buttons">
                 <button className="primary" disabled={!line} onClick={copyLine}>Copy line</button>
                 <button onClick={openLines}><FileIcon/>All lines</button>
@@ -434,6 +435,12 @@ export default function GameFixTab({tabs, hidden, openLines}) {
                                                 onCommit={() => commit(game)}
                                                 onBrowse={() => browse(game, f, 'link', 'Choose the link path')}
                                             />
+                                            {f.userFolder && (
+                                                <p className="small warn-text">This link path is in the customer's own folder
+                                                    ({f.link.split('\\')[0]}). CCBoot runs GameFix.bat as SYSTEM, before anyone
+                                                    logs on, so it skips this folder there. Run GameFix.bat by hand on a floor
+                                                    PC to link it.</p>
+                                            )}
                                         </>
                                     )}
                                 </section>

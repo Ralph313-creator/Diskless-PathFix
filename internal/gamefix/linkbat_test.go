@@ -116,7 +116,8 @@ func TestAddCopyRemoveFolders(t *testing.T) {
 		t.Errorf("bat = %q, want %q", got, bat)
 	}
 	enable(t, a, "GTA V", "Rockstar Games", "No Link")
-	line := `call :link "%USERPROFILE%\Documents\Rockstar Games" "%~dp0GTA V\Rockstar Games"`
+	// In a user folder: done with :userlink, which skips it when run as SYSTEM.
+	line := `call :userlink "%USERPROFILE%\Documents\Rockstar Games" "%~dp0GTA V\Rockstar Games"`
 	if script, _ := os.ReadFile(bat); strings.Contains(string(script), line) {
 		t.Error("GameFix.bat should not link a folder before it is copied")
 	}
@@ -138,7 +139,7 @@ func TestAddCopyRemoveFolders(t *testing.T) {
 	if strings.Contains(string(script), "Gone") || strings.Contains(string(script), "No Link") {
 		t.Errorf("GameFix.bat should only link folders with a link path:\n%s", script)
 	}
-	copyLine := `call :copy "%USERPROFILE%\Documents\Rockstar Games" "%~dp0GTA V\Rockstar Games"`
+	copyLine := `call :usercopy "%USERPROFILE%\Documents\Rockstar Games" "%~dp0GTA V\Rockstar Games"`
 	if script, _ := os.ReadFile(filepath.Join(a.settings.MainFolder, CopyBatName)); !strings.Contains(string(script), copyLine) {
 		t.Errorf("GameFix Copy.bat is missing %s:\n%s", copyLine, script)
 	}
@@ -290,9 +291,9 @@ func TestFolderNamedLikeGame(t *testing.T) {
 	}
 }
 
-// TestBatsRunWithNobodyThere: CCBoot runs GameFix.bat on every client when
-// a customer logs on (run -startup in public.txt), so the scripts must work
-// with nobody at the keyboard.
+// TestBatsRunWithNobodyThere: CCBoot runs GameFix.bat on every client (run
+// -service in public.txt, as SYSTEM, before anyone logs on), so the scripts
+// must work with nobody at the keyboard.
 func TestBatsRunWithNobodyThere(t *testing.T) {
 	links := []batLink{{Link: `C:\ProgramData\Riot Games`, Source: `Riot\Riot Games`}}
 	for name, body := range map[string]string{BatName: makeBat(links), CopyBatName: makeCopyBat(links)} {
@@ -470,5 +471,102 @@ func TestOldSetupBatIsRemoved(t *testing.T) {
 	a.writeBat()
 	if _, err := os.Stat(old); err != nil {
 		t.Error("a GameFix Client Setup.bat that GameFix did not make was removed")
+	}
+}
+
+// TestInUserFolder: link paths in a customer's own folders, which only mean
+// the customer's when the script runs as the customer, not as SYSTEM.
+func TestInUserFolder(t *testing.T) {
+	for link, want := range map[string]bool{
+		`%USERPROFILE%\Saved Games\Game`: true,
+		`%APPDATA%\Game`:                 true,
+		`%localappdata%\Game`:            true,
+		`C:\Users\me\Documents\Game`:     false, // a full path: the same folder for SYSTEM
+		`C:\Users\Public\Game`:           false,
+		`%PUBLIC%\Game`:                  false,
+		`%ProgramData%\Riot Games`:       false,
+		`%ProgramFiles%\Game`:            false,
+		`C:\Games\Game`:                  false,
+	} {
+		if got := inUserFolder(link); got != want {
+			t.Errorf("inUserFolder(%q) = %v, want %v", link, got, want)
+		}
+	}
+}
+
+// TestFolderShowsUserFolder: the tab warns about a link path in a user
+// folder, which GameFix.bat skips when CCBoot runs it as SYSTEM.
+func TestFolderShowsUserFolder(t *testing.T) {
+	game := t.TempDir()
+	folders := gameFolders(game, map[string]FolderSettings{
+		"Saves": {Link: `%USERPROFILE%\Saved Games\Game`},
+		"Data":  {Link: `%ProgramData%\Game`},
+	})
+	for _, f := range folders {
+		if want := f.Name == "Saves"; f.UserFolder != want {
+			t.Errorf("%s: UserFolder = %v, want %v", f.Name, f.UserFolder, want)
+		}
+	}
+}
+
+// TestBatsSkipUserFoldersAsSystem runs real scripts. CCBoot runs GameFix.bat
+// as SYSTEM (run -service), before anyone logs on: then %USERPROFILE% and
+// the other user folders are SYSTEM's own, so those link paths are skipped
+// and logged, and the others are still done. Run as a customer, a script does
+// them all. The scripts need administrator rights, so it is skipped otherwise.
+func TestBatsSkipUserFoldersAsSystem(t *testing.T) {
+	if exec.Command("net", "session").Run() != nil {
+		t.Skip("needs administrator rights")
+	}
+	for _, c := range []struct {
+		name string
+		make func([]batLink) string
+	}{{BatName, makeBat}, {CopyBatName, makeCopyBat}} {
+		t.Run(c.name, func(t *testing.T) {
+			root := t.TempDir()
+			main := filepath.Join(root, "main")
+			for _, name := range []string{"Data", "Saves"} {
+				os.MkdirAll(filepath.Join(main, "Game", name), 0o755)
+				os.WriteFile(filepath.Join(main, "Game", name, "save.dat"), []byte(name), 0o644)
+			}
+			machine := filepath.Join(root, "ProgramData", "Game")
+			bat := filepath.Join(main, c.name)
+			os.WriteFile(bat, []byte(c.make([]batLink{
+				{Link: machine, Source: `Game\Data`},
+				{Link: `%USERPROFILE%\Saved Games\Game`, Source: `Game\Saves`},
+			})), 0o644)
+			run := func(profile string) string {
+				cmd := exec.Command("cmd")
+				cmd.SysProcAttr = &syscall.SysProcAttr{CmdLine: `cmd /c ""` + bat + `""`}
+				cmd.Env = append(os.Environ(), "USERPROFILE="+profile)
+				out, err := cmd.CombinedOutput()
+				t.Logf("%s", out)
+				if err != nil {
+					t.Errorf("USERPROFILE=%s: %v", profile, err)
+				}
+				log, _ := os.ReadFile(strings.TrimSuffix(bat, ".bat") + ".log")
+				return string(log)
+			}
+
+			// As SYSTEM, whose profile is ...\config\systemprofile.
+			system := filepath.Join(root, "config", "systemprofile")
+			log := run(system)
+			if got, err := os.ReadFile(filepath.Join(machine, "save.dat")); err != nil || string(got) != "Data" {
+				t.Errorf("as SYSTEM, the folder outside the user folders was not done: %q, %v", got, err)
+			}
+			if _, err := os.Lstat(filepath.Join(system, "Saved Games", "Game")); !os.IsNotExist(err) {
+				t.Error("as SYSTEM, something was made in SYSTEM's own user folder")
+			}
+			if !strings.Contains(log, "[SKIPPED]") {
+				t.Errorf("log = %q, want a [SKIPPED] line for the user folder", log)
+			}
+
+			// As the customer.
+			user := filepath.Join(root, "Users", "RapTech")
+			run(user)
+			if got, err := os.ReadFile(filepath.Join(user, "Saved Games", "Game", "save.dat")); err != nil || string(got) != "Saves" {
+				t.Errorf("as the customer, the user folder was not done: %q, %v", got, err)
+			}
+		})
 	}
 }

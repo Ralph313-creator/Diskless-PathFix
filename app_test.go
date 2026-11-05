@@ -32,7 +32,8 @@ func TestListShowsPackageWithCCBootLine(t *testing.T) {
 }
 
 // TestPublicTxtHasEveryLine: PublicTxt is what the user pastes into
-// C:\CCBoot\Cmd\public.txt: each portable app's line, then GameFix.bat's.
+// C:\CCBoot\Cmd\public.txt: each portable app's line (-startup: at logon, as
+// the customer), then GameFix.bat's (-service: as SYSTEM, with admin rights).
 func TestPublicTxtHasEveryLine(t *testing.T) {
 	root := t.TempDir()
 	if _, err := manager.CreateRoblox(root, false, []byte("MZ")); err != nil {
@@ -47,7 +48,7 @@ func TestPublicTxtHasEveryLine(t *testing.T) {
 
 	want := "run -startup -skipupdate " + filepath.Join(root, "Game", "Game.exe") + " --setup\r\n" +
 		"run -startup -skipupdate " + filepath.Join(root, "Roblox", "Roblox.exe") + " --setup\r\n" +
-		"run -startup -skipupdate " + filepath.Join(gameFix, "GameFix.bat") + "\r\n"
+		"run -service -skipupdate " + filepath.Join(gameFix, "GameFix.bat") + "\r\n"
 	if got := a.PublicTxt(); got != want {
 		t.Fatalf("PublicTxt() =\n%s\nwant\n%s", got, want)
 	}

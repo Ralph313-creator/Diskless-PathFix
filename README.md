@@ -72,6 +72,11 @@ only sticks when it runs **on the server** (or a super client):
 - **public.txt** (next to the tabs) shows the lines for every app and GameFix.bat
   at once, with **Copy all** and **Open public.txt** (opens it in Notepad to
   paste into). The app never writes that file itself.
+- GameFix.bat's line is `run -service -skipupdate G:\GameFix\GameFix.bat`: CCBoot's
+  service runs it as SYSTEM, with the admin rights mklink needs, before anyone
+  logs on (with `-startup` it ran as the customer and could not get them). As
+  SYSTEM it skips link paths in the customer's own folders (`%USERPROFILE%`,
+  `%APPDATA%`, `%LOCALAPPDATA%`) and logs them as `[SKIPPED]`.
 
 ## The manager (RapTech-Portable.exe)
 

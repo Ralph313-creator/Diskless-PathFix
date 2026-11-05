@@ -34,6 +34,9 @@ type Folder struct {
 	Link   string `json:"link"`   // where the symbolic link is made
 	Copied bool   `json:"copied"` // whether the copy exists in the main folder
 	Watch  bool   `json:"watch"`  // on (Enable): clients get it, and it is copied again whenever the source changes
+	// UserFolder: the link path is in a customer's own folders, which
+	// GameFix.bat skips when CCBoot runs it as SYSTEM (see inUserFolder).
+	UserFolder bool `json:"userFolder"`
 }
 
 // Progress is sent to the UI while a folder is being copied.

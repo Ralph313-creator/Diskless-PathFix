@@ -48,7 +48,8 @@ func gameFolders(gameFolder string, settings map[string]FolderSettings) []Folder
 				}
 			}
 		}
-		folders = append(folders, Folder{Name: name, Source: s.Source, Link: s.Link, Copied: copied, Watch: s.Watch})
+		folders = append(folders, Folder{Name: name, Source: s.Source, Link: s.Link, Copied: copied, Watch: s.Watch,
+			UserFolder: inUserFolder(s.Link)})
 	}
 	sort.Slice(folders, func(i, j int) bool { return strings.ToLower(folders[i].Name) < strings.ToLower(folders[j].Name) })
 	return folders
@@ -245,6 +246,53 @@ var systemFolders = []string{
 	`%systemroot%`, `%systemdrive%`, `%programfiles%`, `%programfiles(x86)%`, `%onedrive%`,
 }
 
+// inUserFolder reports whether a link path starts with a variable for the
+// customer's own folders: %USERPROFILE%, %APPDATA%, %LOCALAPPDATA%. Those are
+// only the customer's when the script runs as the customer. CCBoot runs
+// GameFix.bat as SYSTEM (run -service), so the scripts skip them then (see
+// userLinks). A full path such as C:\Users\RapTech\... is the same folder
+// for SYSTEM, and %PUBLIC% is everyone's, so those are done.
+func inUserFolder(link string) bool {
+	l := strings.ToLower(strings.TrimSpace(link))
+	for _, v := range []string{`%userprofile%`, `%appdata%`, `%localappdata%`, `%homedrive%%homepath%`, `%homepath%`, `%onedrive%`} {
+		if l == v || strings.HasPrefix(l, v+`\`) {
+			return true
+		}
+	}
+	return false
+}
+
+// callLink is the line that does one link path with label (link or copy):
+// call :<label>, or call :user<label> for a link path in a user folder.
+func callLink(label string, l batLink) string {
+	if inUserFolder(l.Link) {
+		label = "user" + label
+	}
+	return `call :` + label + ` "` + l.Link + `" "%~dp0` + l.Source + `"`
+}
+
+// systemCheck sets SYSTEMRUN when the script runs as SYSTEM: CCBoot's
+// service runs it that way (run -service), before anyone logs on. Then
+// %USERPROFILE% and the other user folders are SYSTEM's own, not a customer's.
+func systemCheck(line func(string)) {
+	line("set SKIPPED=0")
+	line("rem Run by CCBoot's service (run -service), it is SYSTEM, before anyone logs on: user folders are then SYSTEM's own.")
+	line(`set "SYSTEMRUN="`)
+	line(`if /i "%USERNAME%"=="%COMPUTERNAME%$" set SYSTEMRUN=1`)
+	line(`if /i "%USERPROFILE:~-13%"=="systemprofile" set SYSTEMRUN=1`)
+}
+
+// userLinks writes :user<label>, which does a link path in a user folder
+// with :<label>, or skips it when the script runs as SYSTEM.
+func userLinks(line func(string), label string) {
+	line(`rem :user` + label + ` "<link path in a user folder>" "<folder>"`)
+	line(":user" + label)
+	line("if not defined SYSTEMRUN goto " + label)
+	line(`echo [SKIPPED] "%~1": it is in a user folder, and this runs as SYSTEM (CCBoot -service), before anyone logs on.`)
+	line("set /a SKIPPED+=1")
+	line("exit /b")
+}
+
 // makeBat writes a script that makes a symbolic link at each link path,
 // pointing to the copy in the main folder, next to the script:
 // mklink /d "<link>" "%~dp0<game>\<folder>". Running it from the network
@@ -259,16 +307,18 @@ func makeBat(links []batLink) string {
 	}, "rem mklink needs administrator rights.")
 	line("set OK=0")
 	line("set FAILED=0")
+	systemCheck(line)
 	if len(links) == 0 {
 		line("echo No link paths yet. Set them in GameFix.")
 	}
 	for _, l := range links {
-		line(`call :link "` + l.Link + `" "%~dp0` + l.Source + `"`)
+		line(callLink("link", l))
 	}
 	line("echo.")
-	line("echo Done: %OK% linked, %FAILED% failed.")
+	line("echo Done: %OK% linked, %FAILED% failed, %SKIPPED% skipped.")
 	line("exit /b %FAILED%")
 	line("")
+	userLinks(line, "link")
 	line(`rem :link "<link path>" "<folder>"`)
 	line(":link")
 	line(`set "LINK=%~1"`)
@@ -304,9 +354,10 @@ func makeBat(links []batLink) string {
 // startBat writes the start of both scripts: what the script does, then
 // getting administrator rights (whyAdmin says why), then running :main,
 // which the caller writes next. CCBoot runs GameFix.bat on every client
-// when a customer logs on, so the script never waits for a key, and what
-// it did is kept next to it in <script name>.log (G:\GameFix\GameFix.log),
-// to read on the client.
+// with nobody at the keyboard (run -service: as SYSTEM, which already has
+// the rights; run by hand or with -startup it asks for them once), so the
+// script never waits for a key, and what it did is kept next to it in
+// <script name>.log (G:\GameFix\GameFix.log), to read on the client.
 func startBat(line func(string), about []string, whyAdmin string) {
 	line("@echo off")
 	for _, s := range about {
@@ -359,16 +410,18 @@ func makeCopyBat(links []batLink) string {
 	}, "rem Link paths can be in folders such as Program Files, which need administrator rights.")
 	line("set OK=0")
 	line("set FAILED=0")
+	systemCheck(line)
 	if len(links) == 0 {
 		line("echo No link paths yet. Set them in GameFix.")
 	}
 	for _, l := range links {
-		line(`call :copy "` + l.Link + `" "%~dp0` + l.Source + `"`)
+		line(callLink("copy", l))
 	}
 	line("echo.")
-	line("echo Done: %OK% copied, %FAILED% failed.")
+	line("echo Done: %OK% copied, %FAILED% failed, %SKIPPED% skipped.")
 	line("exit /b %FAILED%")
 	line("")
+	userLinks(line, "copy")
 	line(`rem :copy "<link path>" "<folder>"`)
 	line(":copy")
 	line(`set "LINK=%~1"`)

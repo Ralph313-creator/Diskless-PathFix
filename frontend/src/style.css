@@ -297,6 +297,7 @@ textarea.lines {
 }
 textarea.lines:focus { outline: none; border-color: var(--accent); }
 .ok-text { color: var(--ok); }
+.warn-text { color: #fbbf24; line-height: 1.5; margin-left: 60px; }
 .guide-foot .error-text { margin: 0; }
 code.line {
     display: block; margin: 6px 0; padding: 5px 8px; border-radius: 6px; background: var(--bg);

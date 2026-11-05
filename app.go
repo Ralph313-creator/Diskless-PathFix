@@ -344,7 +344,7 @@ func (a *App) Open(dir string) { exec.Command("explorer.exe", dir).Start() }
 // customer, which %LOCALAPPDATA% links and HKCU keys need; the launcher asks
 // for admin rights itself for C:\Program Files.
 func ccbootLine(launcher string) string {
-	return ccboot.RunLine(launcher, "--setup")
+	return ccboot.RunLine(ccboot.Startup, launcher, "--setup")
 }
 
 // PublicTxt is every line for C:\CCBoot\Cmd\public.txt, for the user to
@@ -362,7 +362,7 @@ func (a *App) PublicTxt() string {
 	if a.gameFixMain != nil {
 		if main := a.gameFixMain(); main != "" {
 			if bat := filepath.Join(main, gamefix.BatName); isFile(bat) {
-				lines = append(lines, ccboot.RunLine(bat))
+				lines = append(lines, ccboot.RunLine(ccboot.Service, bat)) // as SYSTEM: mklink needs admin rights
 			}
 		}
 	}

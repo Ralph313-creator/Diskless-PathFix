@@ -76,8 +76,10 @@ export default function PublicTxt({onClose}) {
                         <code> GameFix.bat</code>), delete them, so each line is there only once. Then paste.</li>
                     <li>Save the file (Ctrl+S), and restart one floor PC to test.</li>
                 </ol>
-                <p className="small muted">The lines use this PC's drive letters. If the game disk has another letter on the
-                    floor PCs, change it after pasting. Don't add other text to the lines.</p>
+                <p className="small muted">Apps run with <b>-startup</b>, when a customer logs on. GameFix.bat runs
+                    with <b>-service</b>: as SYSTEM, with admin rights, before anyone logs on. The lines use this PC's
+                    drive letters; if the game disk has another letter on the floor PCs, change it after pasting.
+                    Don't add other text to the lines.</p>
 
                 <div className="guide-foot">
                     {msg && <span className={'small ' + (msg.ok ? 'ok-text' : 'error-text')}>{msg.text}</span>}

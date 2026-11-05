@@ -6,6 +6,7 @@ export namespace gamefix {
 	    link: string;
 	    copied: boolean;
 	    watch: boolean;
+	    userFolder: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Folder(source);
@@ -18,6 +19,7 @@ export namespace gamefix {
 	        this.link = source["link"];
 	        this.copied = source["copied"];
 	        this.watch = source["watch"];
+	        this.userFolder = source["userFolder"];
 	    }
 	}
 	export class Game {
