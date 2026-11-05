@@ -15,13 +15,11 @@ updated straight from Roblox's servers.
   ported from `D:\Project\Diskless-GameFix`; its own settings file
   (`RapTech-GameFix.json`) and service (`RapTechGameFixWatch`), never the
   standalone GameFix's.
-- `internal/ccboot` — reads and adds `run` lines to CCBoot's command file
-  `C:\CCBoot\Cmd\public.txt` (every client runs it at boot). The GameFix
-  tab's footer Add/Remove puts `run -startup -skipupdate <main>\GameFix.bat`
-  there or takes it out. CCBoot runs `-startup` lines at logon as the
-  customer (CCBootClient.exe -startup from HKLM Run, asInvoker), so
-  GameFix.bat asks for admin rights once (fltmc check), never waits for a
-  key, and logs to `GameFix.log` next to it; the tab rewrites it at start.
+- GameFix.bat is run on clients from `C:\CCBoot\Cmd\public.txt`, which the
+  user edits by hand (the app never touches it; the Add/Remove button was
+  removed at the user's request). It asks for admin rights once (fltmc
+  check), never waits for a key, and logs to `GameFix.log` next to it; the
+  tab rewrites it at start.
 
 ## Rules
 

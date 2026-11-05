@@ -14,10 +14,6 @@ export function AddHuntFolders(arg1, arg2) {
   return window['go']['gamefix']['App']['AddHuntFolders'](arg1, arg2);
 }
 
-export function AddToCCBoot() {
-  return window['go']['gamefix']['App']['AddToCCBoot']();
-}
-
 export function BrowseFolder(arg1, arg2) {
   return window['go']['gamefix']['App']['BrowseFolder'](arg1, arg2);
 }
@@ -42,10 +38,6 @@ export function GameSources(arg1) {
   return window['go']['gamefix']['App']['GameSources'](arg1);
 }
 
-export function GetCCBoot() {
-  return window['go']['gamefix']['App']['GetCCBoot']();
-}
-
 export function GetMainFolder() {
   return window['go']['gamefix']['App']['GetMainFolder']();
 }
@@ -68,10 +60,6 @@ export function OpenFolder(arg1) {
 
 export function RemoveFolder(arg1, arg2) {
   return window['go']['gamefix']['App']['RemoveFolder'](arg1, arg2);
-}
-
-export function RemoveFromCCBoot() {
-  return window['go']['gamefix']['App']['RemoveFromCCBoot']();
 }
 
 export function SaveFolders(arg1, arg2) {

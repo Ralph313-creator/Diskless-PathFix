@@ -11,8 +11,7 @@ import (
 func newTestApp(t *testing.T, mainFolder string) *App {
 	os.MkdirAll(mainFolder, 0o755)
 	serviceRunning = func() bool { return false } // the app watches, even if the service is installed here
-	return &App{settings: Settings{MainFolder: mainFolder}, settingsPath: filepath.Join(t.TempDir(), SettingsName),
-		ccbootScript: filepath.Join(t.TempDir(), "public.txt")} // never the real C:\CCBoot\Cmd\public.txt
+	return &App{settings: Settings{MainFolder: mainFolder}, settingsPath: filepath.Join(t.TempDir(), SettingsName)}
 }
 
 // enable turns folders on, so clients get them, without watching their

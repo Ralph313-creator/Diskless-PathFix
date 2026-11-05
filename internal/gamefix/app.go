@@ -17,8 +17,6 @@ import (
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	"raptech-portable/internal/ccboot"
 )
 
 // Game is one game folder inside the main folder: <main folder>\<game name>.
@@ -52,7 +50,6 @@ type App struct {
 	ctx          context.Context
 	settings     Settings
 	settingsPath string // GameFix.json next to GameFix.exe
-	ccbootScript string // CCBoot's command file, where GameFix.bat's line goes
 
 	// Watched folders are copied in the background, so the settings are
 	// only used with mu held. copyMu is held while a folder is copied or
@@ -70,7 +67,7 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{settingsPath: exeSettingsPath(), ccbootScript: ccboot.Script}
+	return &App{settingsPath: exeSettingsPath()}
 }
 
 // Startup is called when the window starts. The context is saved

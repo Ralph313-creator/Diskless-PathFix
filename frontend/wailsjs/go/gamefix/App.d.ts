@@ -9,8 +9,6 @@ export function AddGame(arg1:string):Promise<gamefix.Game>;
 
 export function AddHuntFolders(arg1:string,arg2:Array<string>):Promise<number>;
 
-export function AddToCCBoot():Promise<gamefix.CCBoot>;
-
 export function BrowseFolder(arg1:string,arg2:string):Promise<string>;
 
 export function ChooseFolder(arg1:string):Promise<string>;
@@ -23,8 +21,6 @@ export function DeleteGame(arg1:string):Promise<void>;
 
 export function GameSources(arg1:string):Promise<Array<string>>;
 
-export function GetCCBoot():Promise<gamefix.CCBoot>;
-
 export function GetMainFolder():Promise<string>;
 
 export function GetServiceState():Promise<string>;
@@ -36,8 +32,6 @@ export function ListGames():Promise<Array<gamefix.Game>>;
 export function OpenFolder(arg1:string):Promise<void>;
 
 export function RemoveFolder(arg1:string,arg2:string):Promise<void>;
-
-export function RemoveFromCCBoot():Promise<gamefix.CCBoot>;
 
 export function SaveFolders(arg1:string,arg2:Record<string, gamefix.FolderSettings>):Promise<string>;
 
