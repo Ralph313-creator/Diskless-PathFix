@@ -79,7 +79,7 @@ export function Steps({id, steps}) {
 
 // Guide explains the whole program in plain words. It opens by itself the
 // first time, and from Help next to the tabs. openTab(id) goes to a tab.
-export function Guide({onClose, openTab}) {
+export function Guide({onClose, openTab, openLines}) {
     useEffect(() => {
         const key = e => e.key === 'Escape' && onClose()
         window.addEventListener('keydown', key)
@@ -140,8 +140,9 @@ export function Guide({onClose, openTab}) {
                 <ol className="guide-rules">
                     <li><b>Update and copy here on the server.</b> Floor PCs throw away what they write to G: when they
                         restart, so only changes made here stay.</li>
-                    <li><b>Floor PCs only do what CCBoot tells them.</b> Put the app's line (each app shows it) or
-                        GameFix.bat in <code>C:\CCBoot\Cmd\public.txt</code>, then restart one floor PC to test.</li>
+                    <li><b>Floor PCs only do what CCBoot tells them.</b> Click <b>public.txt</b> next to the tabs, copy
+                        the lines, and paste them into <code>C:\CCBoot\Cmd\public.txt</code>. Then restart one floor PC to
+                        test. <button className="link-btn" onClick={openLines}>Show the lines</button></li>
                 </ol>
 
                 <div className="guide-foot">

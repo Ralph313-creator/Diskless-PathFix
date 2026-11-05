@@ -31,6 +31,46 @@ func TestListShowsPackageWithCCBootLine(t *testing.T) {
 	}
 }
 
+// TestPublicTxtHasEveryLine: PublicTxt is what the user pastes into
+// C:\CCBoot\Cmd\public.txt: each portable app's line, then GameFix.bat's.
+func TestPublicTxtHasEveryLine(t *testing.T) {
+	root := t.TempDir()
+	if _, err := manager.CreateRoblox(root, false, []byte("MZ")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := manager.CreatePackage(root, "Game", "", "", []byte("MZ")); err != nil {
+		t.Fatal(err)
+	}
+	gameFix := t.TempDir()
+	os.WriteFile(filepath.Join(gameFix, "GameFix.bat"), []byte("@echo off\r\n"), 0o644)
+	a := &App{Root: root, gameFixMain: func() string { return gameFix }}
+
+	want := "run -startup -skipupdate " + filepath.Join(root, "Game", "Game.exe") + " --setup\r\n" +
+		"run -startup -skipupdate " + filepath.Join(root, "Roblox", "Roblox.exe") + " --setup\r\n" +
+		"run -startup -skipupdate " + filepath.Join(gameFix, "GameFix.bat") + "\r\n"
+	if got := a.PublicTxt(); got != want {
+		t.Fatalf("PublicTxt() =\n%s\nwant\n%s", got, want)
+	}
+}
+
+// TestPublicTxtWithoutGameFixBat: no GameFix line until GameFix.bat exists,
+// so no line points at nothing.
+func TestPublicTxtWithoutGameFixBat(t *testing.T) {
+	root := t.TempDir()
+	if _, err := manager.CreateRoblox(root, false, []byte("MZ")); err != nil {
+		t.Fatal(err)
+	}
+	for _, main := range []string{"", t.TempDir()} {
+		a := &App{Root: root, gameFixMain: func() string { return main }}
+		if got := a.PublicTxt(); strings.Contains(got, "GameFix.bat") || !strings.Contains(got, "Roblox.exe --setup") {
+			t.Fatalf("main folder %q: PublicTxt() = %q", main, got)
+		}
+	}
+	if got := (&App{}).PublicTxt(); got != "" {
+		t.Fatalf("no apps folder, no GameFix: PublicTxt() = %q, want nothing", got)
+	}
+}
+
 func TestAddFolderAndSession(t *testing.T) {
 	root := t.TempDir()
 	p, _ := manager.CreatePackage(root, "Game", "", "", []byte("MZ"))

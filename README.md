@@ -69,6 +69,9 @@ only sticks when it runs **on the server** (or a super client):
   No quotes and no `-winlogon`: with those, public.txt stopped running on the
   clients. `-startup` runs it at logon as the customer; the launcher asks for
   admin rights itself for `C:\Program Files`.
+- **public.txt** (next to the tabs) shows the lines for every app and GameFix.bat
+  at once, with **Copy all** and **Open public.txt** (opens it in Notepad to
+  paste into). The app never writes that file itself.
 
 ## The manager (RapTech-Portable.exe)
 

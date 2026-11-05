@@ -4,6 +4,7 @@ import logo from './assets/logo.png'
 import GameFixTab from './GameFix'
 import HuntTab from './Hunt'
 import {Guide, HelpIcon, Steps, store} from './Guide'
+import PublicTxt, {copyText, FileIcon} from './PublicTxt'
 
 const TABS = [
     ['portable', 'Portable apps', 'Apps that live on the game disk, such as Roblox'],
@@ -17,6 +18,7 @@ const TABS = [
 export default function App() {
     const [tab, setTab] = useState(() => store.get('tab') || 'portable')
     const [guide, setGuide] = useState(() => store.get('guide-seen') !== '1')
+    const [lines, setLines] = useState(false) // the lines for public.txt are shown
     const choose = t => {
         setTab(t)
         store.set('tab', t)
@@ -31,13 +33,16 @@ export default function App() {
                 <button key={id} className={'tab' + (tab === id ? ' active' : '')} title={about} onClick={() => choose(id)}>{label}</button>
             ))}
             <button className="tab help-tab" title="How RapTech Portable works" onClick={() => setGuide(true)}><HelpIcon/>Help</button>
+            <button className="tab help-tab" title="The lines to copy into CCBoot's C:\CCBoot\Cmd\public.txt" onClick={() => setLines(true)}><FileIcon/>public.txt</button>
         </nav>
     )
+    const openLines = () => setLines(true)
     return <>
-        <PortableTab tabs={tabs} hidden={tab !== 'portable'}/>
-        <GameFixTab tabs={tabs} hidden={tab !== 'gamefix'}/>
+        <PortableTab tabs={tabs} hidden={tab !== 'portable'} openLines={openLines}/>
+        <GameFixTab tabs={tabs} hidden={tab !== 'gamefix'} openLines={openLines}/>
         <HuntTab tabs={tabs} hidden={tab !== 'hunt'} logo={logo}/>
-        {guide && <Guide onClose={closeGuide} openTab={t => { choose(t); closeGuide() }}/>}
+        {guide && <Guide onClose={closeGuide} openTab={t => { choose(t); closeGuide() }} openLines={() => { closeGuide(); openLines() }}/>}
+        {lines && <PublicTxt onClose={() => setLines(false)}/>}
     </>
 }
 
@@ -60,7 +65,7 @@ const SCHEDULES = [[0, 'Off'], [15, 'Every 15 minutes'], [30, 'Every 30 minutes'
 
 const stateText = {0: 'not linked', 1: 'linked', 2: 'links elsewhere', 3: 'real folder (not linked)', 4: 'a file is in the way'}
 
-function PortableTab({tabs, hidden}) {
+function PortableTab({tabs, hidden, openLines}) {
     const [root, setRoot] = useState('')
     const [packages, setPackages] = useState([])
     const [selected, setSelected] = useState('')
@@ -116,8 +121,9 @@ function PortableTab({tabs, hidden}) {
         },
         {
             title: 'Set up the floor PCs',
-            hint: <>Open the app and copy its line from the <b>Set up the floor PCs</b> box. Paste it on its own line
-                in <code>C:\CCBoot\Cmd\public.txt</code>, save, and restart one floor PC to test.</>,
+            hint: <>Click <b>public.txt</b> at the top: it has the lines for every app and GameFix. Copy them,
+                paste them into <code>C:\CCBoot\Cmd\public.txt</code>, save, and restart one floor PC to test.</>,
+            action: <button className="primary" disabled={!packages.length} onClick={openLines}><FileIcon/>Lines for public.txt</button>,
         },
     ]
 
@@ -169,7 +175,7 @@ function PortableTab({tabs, hidden}) {
                             </div>
                         </div>
                     ))}
-                    {!creating && pkg && <Package pkg={pkg} busy={busy} run={run}/>}
+                    {!creating && pkg && <Package pkg={pkg} busy={busy} run={run} openLines={openLines}/>}
                 </div>
             </div>
             <div className="footer">
@@ -254,7 +260,7 @@ function NewApp({busy, run, done, root, cancel}) {
     )
 }
 
-function Package({pkg, busy, run}) {
+function Package({pkg, busy, run, openLines}) {
     const [link, setLink] = useState('')
     const [session, setSession] = useState('')
     const [key, setKey] = useState('')
@@ -319,13 +325,19 @@ function Package({pkg, busy, run}) {
                 </ol>
                 <div className="field">
                     <input readOnly value={pkg.CCBoot}/>
-                    <button className="primary" onClick={() => run('Copying', async () => { await navigator.clipboard.writeText(pkg.CCBoot) }, 'Line copied')}>Copy</button>
+                    <button className="primary" onClick={() => run('Copying', async () => {
+                        if (!await copyText(pkg.CCBoot)) throw new Error('Could not copy. Select the line and press Ctrl+C.')
+                    }, 'Line copied')}>Copy</button>
                 </div>
                 <ol className="how" start={2}>
                     <li>Open <code>C:\CCBoot\Cmd\public.txt</code> in Notepad, paste the line on its own line, and save.</li>
                     <li>Restart one floor PC to test: the app should start from its icon and from the website's Play button.</li>
                 </ol>
                 <p className="small muted">The line has this PC's drive letter. If the game disk has another letter on the floor PCs, change it in the line.</p>
+                <div className="field">
+                    <span className="small muted">More than one app, or GameFix too? Copy all their lines at once:</span>
+                    <button onClick={openLines}><FileIcon/>All lines for public.txt</button>
+                </div>
             </div>
 
             <div className="section-title">What the app keeps</div>

@@ -17,7 +17,9 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sys/windows/registry"
 
+	"raptech-portable/internal/ccboot"
 	"raptech-portable/internal/core"
+	"raptech-portable/internal/gamefix"
 	"raptech-portable/internal/hunt"
 	"raptech-portable/internal/icon"
 	"raptech-portable/internal/manager"
@@ -338,15 +340,48 @@ func (a *App) UseAppIcon(dir string) error {
 func (a *App) Open(dir string) { exec.Command("explorer.exe", dir).Start() }
 
 // ccbootLine is the line for C:\CCBoot\Cmd\public.txt that sets the app up
-// on each floor PC. It has the same form as a line CCBoot runs
-// (run -startup -skipupdate G:\GameFix\GameFix.bat): with -winlogon and a
-// quoted path, public.txt stopped running on the clients. -startup runs it at
-// logon as the customer, which %LOCALAPPDATA% links and HKCU keys need; the
-// launcher asks for admin rights itself for C:\Program Files. The path is
-// only quoted when it has a space.
+// on each floor PC (see ccboot.RunLine). -startup runs it at logon as the
+// customer, which %LOCALAPPDATA% links and HKCU keys need; the launcher asks
+// for admin rights itself for C:\Program Files.
 func ccbootLine(launcher string) string {
-	if strings.ContainsAny(launcher, " \t") {
-		launcher = `"` + launcher + `"`
+	return ccboot.RunLine(launcher, "--setup")
+}
+
+// PublicTxt is every line for C:\CCBoot\Cmd\public.txt, for the user to
+// copy and paste there: each portable app's line, then GameFix.bat's once
+// the GameFix tab has written it. The app never writes public.txt itself.
+func (a *App) PublicTxt() string {
+	var lines []string
+	if a.Root != "" {
+		for _, info := range manager.Scan(a.Root) {
+			if info.Error == "" {
+				lines = append(lines, ccbootLine(info.Launcher))
+			}
+		}
 	}
-	return "run -startup -skipupdate " + launcher + " --setup"
+	if a.gameFixMain != nil {
+		if main := a.gameFixMain(); main != "" {
+			if bat := filepath.Join(main, gamefix.BatName); isFile(bat) {
+				lines = append(lines, ccboot.RunLine(bat))
+			}
+		}
+	}
+	if len(lines) == 0 {
+		return ""
+	}
+	return strings.Join(lines, "\r\n") + "\r\n"
+}
+
+// OpenPublicTxt opens C:\CCBoot\Cmd\public.txt in Notepad, for the user to
+// paste the lines into and save.
+func (a *App) OpenPublicTxt() error {
+	if _, err := os.Stat(filepath.Dir(ccboot.Script)); err != nil {
+		return fmt.Errorf("CCBoot is not on this PC (no %s)", filepath.Dir(ccboot.Script))
+	}
+	return exec.Command("notepad.exe", ccboot.Script).Start()
+}
+
+func isFile(path string) bool {
+	st, err := os.Stat(path)
+	return err == nil && !st.IsDir()
 }

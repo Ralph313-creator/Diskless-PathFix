@@ -50,12 +50,20 @@ export function Open(arg1) {
   return window['go']['main']['App']['Open'](arg1);
 }
 
+export function OpenPublicTxt() {
+  return window['go']['main']['App']['OpenPublicTxt']();
+}
+
 export function PickExe() {
   return window['go']['main']['App']['PickExe']();
 }
 
 export function PickFolder(arg1) {
   return window['go']['main']['App']['PickFolder'](arg1);
+}
+
+export function PublicTxt() {
+  return window['go']['main']['App']['PublicTxt']();
 }
 
 export function RemoveApp(arg1) {

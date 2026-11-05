@@ -11,6 +11,8 @@ export function AddHuntFolders(arg1:string,arg2:Array<string>):Promise<number>;
 
 export function BrowseFolder(arg1:string,arg2:string):Promise<string>;
 
+export function CCBootLine():Promise<string>;
+
 export function ChooseFolder(arg1:string):Promise<string>;
 
 export function ChooseMainFolder():Promise<string>;

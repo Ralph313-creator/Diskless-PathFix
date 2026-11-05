@@ -18,6 +18,10 @@ export function BrowseFolder(arg1, arg2) {
   return window['go']['gamefix']['App']['BrowseFolder'](arg1, arg2);
 }
 
+export function CCBootLine() {
+  return window['go']['gamefix']['App']['CCBootLine']();
+}
+
 export function ChooseFolder(arg1) {
   return window['go']['gamefix']['App']['ChooseFolder'](arg1);
 }

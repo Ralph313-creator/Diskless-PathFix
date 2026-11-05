@@ -290,6 +290,23 @@ button.danger-btn.solid { background: var(--error); border-color: var(--error); 
 .guide-rules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; line-height: 1.5; }
 .guide-rules li { color: var(--muted); }
 .guide-rules b { color: var(--text); }
+/* Lines for public.txt (PublicTxt.jsx) */
+textarea.lines {
+    width: 100%; resize: none; font: 13px/1.6 Consolas, monospace; color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; white-space: pre; overflow-x: auto;
+}
+textarea.lines:focus { outline: none; border-color: var(--accent); }
+.ok-text { color: var(--ok); }
+.guide-foot .error-text { margin: 0; }
+code.line {
+    display: block; margin: 6px 0; padding: 5px 8px; border-radius: 6px; background: var(--bg);
+    border: 1px solid var(--border); color: var(--text); font-size: 12px; white-space: pre; overflow-x: auto;
+}
+.step-buttons { display: flex; flex-direction: column; gap: 6px; }
+.step-buttons button { justify-content: center; }
+button.link-btn { display: inline; padding: 0; border: none; background: none; color: var(--accent); font: inherit; }
+button.link-btn:hover:not(:disabled) { text-decoration: underline; border: none; }
+
 /* Kept at the bottom of the guide, so "Got it" shows on a small window too. */
 .guide-foot {
     position: sticky; bottom: -20px; margin: 0 -24px -20px; padding: 12px 24px 16px;

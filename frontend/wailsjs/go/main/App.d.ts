@@ -27,9 +27,13 @@ export function MakeRoblox(arg1:boolean):Promise<string>;
 
 export function Open(arg1:string):Promise<void>;
 
+export function OpenPublicTxt():Promise<void>;
+
 export function PickExe():Promise<string>;
 
 export function PickFolder(arg1:string):Promise<string>;
+
+export function PublicTxt():Promise<string>;
 
 export function RemoveApp(arg1:string):Promise<void>;
 

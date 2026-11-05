@@ -1,12 +1,13 @@
 import {useEffect, useRef, useState} from 'react'
 import {
-    AddFolder, AddGame, BrowseFolder, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
+    AddFolder, AddGame, BrowseFolder, CCBootLine, ChooseFolder, ChooseMainFolder, CopyFolder, DeleteGame,
     GetMainFolder, GetServiceState, InstallService, ListGames, OpenFolder, RemoveFolder, SaveFolders,
     SetWatch, UninstallService
 } from '../wailsjs/go/gamefix/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
 import logo from './assets/logo.png'
 import {Steps} from './Guide'
+import {copyText, FileIcon} from './PublicTxt'
 
 const GAME_ITSELF = '.' // folder copied straight into the game folder; see GameItself in linkbat.go
 
@@ -70,7 +71,7 @@ function PathField({label, value, placeholder, hint, onChange, onCommit, onBrows
 
 // GameFixTab is the GameFix app, ported: copy game folders into a main folder
 // for clients to link (GameFix.bat) or copy (GameFix Copy.bat).
-export default function GameFixTab({tabs, hidden}) {
+export default function GameFixTab({tabs, hidden, openLines}) {
     const [mainFolder, setMainFolder] = useState('')
     const [loaded, setLoaded] = useState(false)
     const [games, setGames] = useState([])
@@ -81,7 +82,9 @@ export default function GameFixTab({tabs, hidden}) {
     const [edits, setEdits] = useState({}) // unsaved fields: {game: {folder: {source, link}}}
     const [service, setService] = useState('') // state of the Windows service; see serviceState in service.go
     const [serviceBusy, setServiceBusy] = useState(false)
+    const [line, setLine] = useState('') // GameFix.bat's line for CCBoot's public.txt; see CCBootLine in ccboot.go
     const toastTimer = useRef()
+    useEffect(() => { CCBootLine().then(setLine) }, [mainFolder])
 
     const game = games.find(g => g.name === selected) ?? games[0]
 
@@ -280,6 +283,10 @@ export default function GameFixTab({tabs, hidden}) {
 
     const busy = !!copying
     const percent = copying?.total > 0 ? Math.min(100, copying.done / copying.total * 100) : 0
+    const copyLine = async () => {
+        if (await copyText(line)) notify('ok', 'Line copied. Paste it into C:\\CCBoot\\Cmd\\public.txt and save.')
+        else fail('Could not copy. Select the line and press Ctrl+C.')
+    }
     const steps = [
         {
             title: 'Add a game', done: games.length > 0,
@@ -297,9 +304,13 @@ export default function GameFixTab({tabs, hidden}) {
         },
         {
             title: 'Run GameFix.bat on the floor PCs',
-            hint: <><code>GameFix.bat</code> is in the main folder ({mainFolder}). On a floor PC it links every enabled
-                folder to its copy, and it needs admin rights. To run it at every start, add it
-                to <code>C:\CCBoot\Cmd\public.txt</code>. Then restart one floor PC and test the game.</>,
+            hint: <>On a floor PC, <code>GameFix.bat</code> links every enabled folder to its copy (it asks for admin
+                rights itself). To run it at every start, paste this line into <code>C:\CCBoot\Cmd\public.txt</code>:
+                <code className="line">{line}</code> Then save, restart one floor PC, and test the game.</>,
+            action: <div className="step-buttons">
+                <button className="primary" disabled={!line} onClick={copyLine}>Copy line</button>
+                <button onClick={openLines}><FileIcon/>All lines</button>
+            </div>,
         },
     ]
 
