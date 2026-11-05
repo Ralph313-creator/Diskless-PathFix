@@ -1,7 +1,7 @@
-# Graph Report - RapTech-Portable  (2026-11-06)
+# Graph Report - Diskless-PathFix  (2026-11-06)
 
 ## Corpus Check
-- 77 files · ~56,868 words
+- 77 files · ~56,880 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: (none) 2, .cmd 1, .md5 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3fb82012`
+- Built from commit: `75e95bbf`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
