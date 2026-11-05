@@ -6,6 +6,7 @@ import {
 } from '../wailsjs/go/gamefix/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
 import logo from './assets/logo.png'
+import {Steps} from './Guide'
 
 const GAME_ITSELF = '.' // folder copied straight into the game folder; see GameItself in linkbat.go
 
@@ -268,7 +269,9 @@ export default function GameFixTab({tabs, hidden}) {
                 {tabs}
                 <img className="welcome-logo" src={logo} alt=""/>
                 <h1>GameFix</h1>
-                <p>Choose a main folder to keep the game files in, such as <code>D:\GameFix</code>.</p>
+                <p>Some games need a folder on C:, such as Riot Games in C:\ProgramData. GameFix copies those folders
+                    to the game disk, and the floor PCs link to the copies.</p>
+                <p>Start by choosing a main folder on the game disk to keep the copies in, such as <code>G:\GameFix</code>.</p>
                 <button className="primary big" onClick={chooseMain}>Choose main folder</button>
                 {toast && <Toast toast={toast} onClose={() => setToast(null)}/>}
             </div>
@@ -277,6 +280,28 @@ export default function GameFixTab({tabs, hidden}) {
 
     const busy = !!copying
     const percent = copying?.total > 0 ? Math.min(100, copying.done / copying.total * 100) : 0
+    const steps = [
+        {
+            title: 'Add a game', done: games.length > 0,
+            hint: <>Type the game's name in the box at the bottom left, such as <b>Riot</b>, and press Enter.</>,
+        },
+        {
+            title: 'Add its folders', done: games.some(g => g.folders.length > 0),
+            hint: <>Open the game and click <b>Add folder</b>. Choose a folder the game needs on C:, such
+                as <code>C:\ProgramData\Riot Games</code>. Not sure which? The <b>Hunt</b> tab finds them.</>,
+        },
+        {
+            title: 'Copy and enable', done: games.some(g => g.folders.some(f => f.copied && f.watch)),
+            hint: <>Click <b>Copy</b>. Check <b>Link</b>: it is where the floor PCs need the folder, usually the same
+                place as Source. Then tick <b>Enable</b>.</>,
+        },
+        {
+            title: 'Run GameFix.bat on the floor PCs',
+            hint: <><code>GameFix.bat</code> is in the main folder ({mainFolder}). On a floor PC it links every enabled
+                folder to its copy, and it needs admin rights. To run it at every start, add it
+                to <code>C:\CCBoot\Cmd\public.txt</code>. Then restart one floor PC and test the game.</>,
+        },
+    ]
 
     return (
         <div className="app" style={hidden ? {display: 'none'} : undefined}>
@@ -313,10 +338,11 @@ export default function GameFixTab({tabs, hidden}) {
                 </aside>
 
                 <main className="content">
+                    <Steps id="gamefix" steps={steps}/>
                     {!game ? (
                         <div className="empty">
-                            <p>No games yet.</p>
-                            <p className="muted">Type a game name at the bottom left and press Enter.</p>
+                            <h2>No games yet</h2>
+                            <p className="muted">Type a game name in the box at the bottom left, such as Riot, and press Enter.</p>
                         </div>
                     ) : (
                         <>
@@ -337,9 +363,9 @@ export default function GameFixTab({tabs, hidden}) {
 
                             {game.folders.length === 0 ? (
                                 <div className="empty">
-                                    <p>No folders yet.</p>
-                                    <p className="muted">Click “Add folder” and choose where the game keeps its files,
-                                        such as its save or config folder. Or find them with the Hunt tab while the game runs.</p>
+                                    <h2>No folders yet</h2>
+                                    <p className="muted">Click <b>Add folder</b> and choose a folder the game needs on C:,
+                                        such as its data, save or config folder. Not sure which? The Hunt tab finds them while the game runs.</p>
                                 </div>
                             ) : game.folders.map(f => (
                                 <section className="card" key={f.name}>
@@ -408,9 +434,8 @@ export default function GameFixTab({tabs, hidden}) {
 
             <footer className="footer">
                 <span>
-                    On each client, run <b>GameFix.bat</b> from the main folder's network share.
-                    It replaces the folder at each link path with a link to the copy.
-                    Or run <b>GameFix Copy.bat</b> to give the client its own copy instead.
+                    Floor PCs get the enabled folders by running <b>GameFix.bat</b> from the main folder.
+                    <b> GameFix Copy.bat</b> gives each PC its own copy instead of a link.
                 </span>
                 <span className="service" title={'The GameFix service copies the enabled folders\n' +
                     'whenever their source changes, even when this app is closed.'}>

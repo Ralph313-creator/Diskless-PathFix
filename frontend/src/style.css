@@ -218,3 +218,80 @@ button.danger-btn.solid { background: var(--error); border-color: var(--error); 
 .tab.active { color: var(--text); background: var(--panel-2); border-color: var(--border); }
 .welcome .tabs { position: absolute; top: 12px; left: 12px; margin: 0; }
 .welcome-logo { width: 88px; height: 88px; }
+.welcome p { max-width: 460px; line-height: 1.5; }
+.tab.help-tab { margin-left: 8px; color: var(--accent); }
+.tab.help-tab:hover:not(:disabled) { color: #fff; }
+
+/* Getting started steps (Guide.jsx) */
+.steps {
+    display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; flex-shrink: 0;
+    border: 1px solid rgba(59, 130, 246, .35); border-radius: var(--radius);
+    background: linear-gradient(rgba(59, 130, 246, .07), rgba(59, 130, 246, .02)), var(--panel);
+}
+.steps.slim { flex-direction: row; align-items: center; gap: 10px; padding: 4px 6px 4px 14px; }
+.steps-head { display: flex; align-items: center; margin: -4px -6px -4px 0; }
+.steps-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+.step-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.step { gap: 8px; padding: 4px 12px 4px 4px; border-radius: 20px; background: var(--panel-2); color: var(--muted); font-size: 13px; }
+.step.done, .step.next { color: var(--text); }
+.step.next { border-color: var(--accent); }
+.step.shown { background: rgba(59, 130, 246, .2); }
+.step-num {
+    width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; background: var(--bg); border: 1px solid var(--border);
+}
+.step.info .step-num { border-style: dashed; }
+.step.done .step-num { background: var(--ok); border-color: var(--ok); color: #052e12; }
+.step.next .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+.step-help { display: flex; align-items: center; gap: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
+.step-text { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.step-title { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.step-text p { color: var(--muted); line-height: 1.5; }
+.step-text code, .card p code, .how code { color: var(--text); }
+
+.empty h2 { font-size: 18px; }
+.empty .muted { max-width: 460px; line-height: 1.5; }
+.empty .big { margin-top: 8px; }
+.empty-actions { display: flex; gap: 8px; }
+.card > p { line-height: 1.5; }
+.section-title {
+    margin-top: 6px; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.how { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.5; }
+
+/* Guide (Help) */
+.overlay {
+    position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    padding: 24px; background: rgba(0, 0, 0, .6);
+}
+.guide {
+    width: min(780px, 100%); max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+    padding: 20px 24px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+.guide-head { display: flex; align-items: center; gap: 10px; }
+.guide-head img { width: 32px; height: 32px; }
+.guide h3 { margin: 4px 0 -4px; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.guide-lead { line-height: 1.55; }
+.guide-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.guide-card {
+    flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; text-align: left;
+    line-height: 1.45; background: var(--panel-2); flex-shrink: 1;
+}
+.guide-card:hover:not(:disabled) { border-color: var(--accent); }
+.guide-card > b { font-size: 15px; }
+.guide-card > span { color: var(--muted); font-size: 13px; }
+.guide-card > span b { color: var(--text); font-weight: 600; }
+.guide-card .guide-go { margin-top: auto; padding-top: 4px; color: var(--accent); font-size: 12px; }
+.guide-words { display: grid; grid-template-columns: 100px 1fr; gap: 6px 14px; margin: 0; line-height: 1.45; }
+.guide-words dt { font-weight: 600; }
+.guide-words dd { margin: 0; color: var(--muted); }
+.guide-words code, .guide-rules code { color: var(--text); }
+.guide-rules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; line-height: 1.5; }
+.guide-rules li { color: var(--muted); }
+.guide-rules b { color: var(--text); }
+/* Kept at the bottom of the guide, so "Got it" shows on a small window too. */
+.guide-foot {
+    position: sticky; bottom: -20px; margin: 0 -24px -20px; padding: 12px 24px 16px;
+    display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border); background: var(--panel);
+}

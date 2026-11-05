@@ -3,31 +3,41 @@ import * as Go from '../wailsjs/go/main/App'
 import logo from './assets/logo.png'
 import GameFixTab from './GameFix'
 import HuntTab from './Hunt'
+import {Guide, HelpIcon, Steps, store} from './Guide'
 
-const TABS = [['portable', 'Portable apps'], ['gamefix', 'GameFix'], ['hunt', 'Hunt']]
+const TABS = [
+    ['portable', 'Portable apps', 'Apps that live on the game disk, such as Roblox'],
+    ['gamefix', 'GameFix', 'Folders games need on C:, copied to the game disk'],
+    ['hunt', 'Hunt', 'Find the folders a program uses'],
+]
 
 // App is the window: a Portable apps tab, a GameFix tab and the Hunt tool.
 // All stay mounted, so a copy or hunt running in one keeps going while
-// another is shown.
+// another is shown. The guide opens by itself the first time.
 export default function App() {
-    const [tab, setTab] = useState(() => {
-        try { return localStorage.getItem('tab') || 'portable' } catch { return 'portable' }
-    })
+    const [tab, setTab] = useState(() => store.get('tab') || 'portable')
+    const [guide, setGuide] = useState(() => store.get('guide-seen') !== '1')
     const choose = t => {
         setTab(t)
-        try { localStorage.setItem('tab', t) } catch {}
+        store.set('tab', t)
+    }
+    const closeGuide = () => {
+        setGuide(false)
+        store.set('guide-seen', '1')
     }
     const tabs = (
         <nav className="tabs">
-            {TABS.map(([id, label]) => (
-                <button key={id} className={'tab' + (tab === id ? ' active' : '')} onClick={() => choose(id)}>{label}</button>
+            {TABS.map(([id, label, about]) => (
+                <button key={id} className={'tab' + (tab === id ? ' active' : '')} title={about} onClick={() => choose(id)}>{label}</button>
             ))}
+            <button className="tab help-tab" title="How RapTech Portable works" onClick={() => setGuide(true)}><HelpIcon/>Help</button>
         </nav>
     )
     return <>
         <PortableTab tabs={tabs} hidden={tab !== 'portable'}/>
         <GameFixTab tabs={tabs} hidden={tab !== 'gamefix'}/>
         <HuntTab tabs={tabs} hidden={tab !== 'hunt'} logo={logo}/>
+        {guide && <Guide onClose={closeGuide} openTab={t => { choose(t); closeGuide() }}/>}
     </>
 }
 
@@ -84,16 +94,42 @@ function PortableTab({tabs, hidden}) {
 
     const pkg = packages.find(p => p.Dir === selected)
     const done = dir => { setCreating(''); setSelected(dir) }
+    const chooseRoot = async () => { setRoot(await Go.ChooseRoot()); refresh() }
+    const updatable = packages.filter(p => p.Update && !p.Error)
+
+    const steps = [
+        {
+            title: 'Choose the apps folder', done: !!root,
+            hint: <>Pick a folder on the game disk, such as <code>G:\Portable</code>. Each app gets its own folder in it.</>,
+            action: <button className="primary" onClick={chooseRoot}>Choose apps folder…</button>,
+        },
+        {
+            title: 'Add an app', done: packages.length > 0,
+            hint: <><b>Add Roblox</b> downloads Roblox for you. <b>Add another app</b> copies an app that is installed
+                on this PC. Both are at the bottom left.</>,
+            action: <button className="primary" disabled={!!busy || !root} onClick={() => setCreating('roblox')}>Add Roblox</button>,
+        },
+        {
+            title: 'Keep it updated', done: packages.length > 0 && updatable.every(p => p.ScheduleMinutes > 0),
+            hint: <>Open the app, click <b>Update now</b>, then set <b>Automatic</b> so it updates by itself.
+                Always update here on the server: floor PCs lose their changes when they restart.</>,
+        },
+        {
+            title: 'Set up the floor PCs',
+            hint: <>Open the app and copy its line from the <b>Set up the floor PCs</b> box. Paste it on its own line
+                in <code>C:\CCBoot\Cmd\public.txt</code>, save, and restart one floor PC to test.</>,
+        },
+    ]
 
     return (
         <div className="app" style={hidden ? {display: 'none'} : undefined}>
             <div className="topbar">
                 <div className="brand"><img src={logo} alt=""/><h1>RapTech Portable</h1></div>
                 {tabs}
-                <div className="main-folder">
+                <div className="main-folder" title="Folder on the game disk where the portable apps are kept">
                     <span>Apps folder</span>
                     <span className="path">{root || 'not chosen'}</span>
-                    <button onClick={async () => { setRoot(await Go.ChooseRoot()); refresh() }}>Choose…</button>
+                    <button onClick={chooseRoot}>{root ? 'Change…' : 'Choose…'}</button>
                 </div>
             </div>
             <div className="body">
@@ -114,19 +150,30 @@ function PortableTab({tabs, hidden}) {
                     </div>
                 </div>
                 <div className="content">
-                    {creating === 'roblox' && <NewRoblox busy={busy} run={run} done={done} root={root}/>}
-                    {creating === 'app' && <NewApp busy={busy} run={run} done={done} root={root}/>}
-                    {!creating && !pkg && (
+                    <Steps id="portable" steps={steps}/>
+                    {creating === 'roblox' && <NewRoblox busy={busy} run={run} done={done} root={root} cancel={() => setCreating('')}/>}
+                    {creating === 'app' && <NewApp busy={busy} run={run} done={done} root={root} cancel={() => setCreating('')}/>}
+                    {!creating && !pkg && (!root ? (
+                        <div className="empty">
+                            <h2>Start here</h2>
+                            <p className="muted">Choose a folder on the game disk to keep the portable apps in, such as <code>G:\Portable</code>.</p>
+                            <button className="primary big" onClick={chooseRoot}>Choose apps folder…</button>
+                        </div>
+                    ) : (
                         <div className="empty">
                             <h2>No portable apps yet</h2>
-                            <p className="muted">Choose the apps folder on the game disk, such as G:\Portable, then add Roblox or another app.</p>
+                            <p className="muted">Add Roblox to download it straight from Roblox, or add an app that is installed on this PC.</p>
+                            <div className="empty-actions">
+                                <button className="primary big" disabled={!!busy} onClick={() => setCreating('roblox')}>Add Roblox</button>
+                                <button className="big" disabled={!!busy} onClick={() => setCreating('app')}>Add another app</button>
+                            </div>
                         </div>
-                    )}
+                    ))}
                     {!creating && pkg && <Package pkg={pkg} busy={busy} run={run}/>}
                 </div>
             </div>
             <div className="footer">
-                <span>{busy ? busy + '…' : 'Updates only stick when they run here on the server: floor PCs throw away game disk writes at restart.'}</span>
+                <span>{busy ? busy + '…' : 'Update apps here on the server only: floor PCs throw away what they write to the game disk when they restart.'}</span>
             </div>
             {toast && (
                 <div className={'toast ' + (toast.ok ? 'ok' : 'error')}>
@@ -143,20 +190,21 @@ function lastLine(s) {
     return lines[lines.length - 1].replace(/^\S+ \S+ \S+ \[\d+\] /, '')
 }
 
-function NewRoblox({busy, run, done, root}) {
+function NewRoblox({busy, run, done, root, cancel}) {
     const [perUser, setPerUser] = useState(false)
     useEffect(() => { Go.RobloxPerUser().then(setPerUser) }, [])
     return (
         <div className="card">
             <div className="card-head"><h2>Add Roblox</h2></div>
             <p className="muted">Makes <code>{root}\Roblox</code> and downloads the newest Roblox Player into it straight from Roblox.
-                Customers' Roblox logins are emptied when Roblox closes.</p>
+                When a customer closes Roblox, their login is wiped, so the next customer starts logged out.</p>
+            <p className="small"><b>Where is Roblox installed on the floor PCs' image?</b> If you don't know, keep the first one.</p>
             <label className="watch"><input type="radio" checked={!perUser} onChange={() => setPerUser(false)}/>
-                Installed for everyone (C:\Program Files\Roblox) — like this server</label>
+                For everyone (C:\Program Files\Roblox), like this server</label>
             <label className="watch"><input type="radio" checked={perUser} onChange={() => setPerUser(true)}/>
-                Installed for one user (%LOCALAPPDATA%\Roblox)</label>
-            <p className="small muted">Pick how Roblox is installed in the client image, so its folder gets linked.</p>
+                For one user (%LOCALAPPDATA%\Roblox)</label>
             <div className="hunt-actions">
+                <button onClick={cancel} disabled={!!busy}>Cancel</button>
                 <button className="primary" disabled={!!busy}
                         onClick={() => run('Downloading Roblox', () => Go.MakeRoblox(perUser)).then(ok => ok && done(root + '\\Roblox'))}>
                     Make and download
@@ -166,7 +214,7 @@ function NewRoblox({busy, run, done, root}) {
     )
 }
 
-function NewApp({busy, run, done, root}) {
+function NewApp({busy, run, done, root, cancel}) {
     const [name, setName] = useState('')
     const [appDir, setAppDir] = useState('')
     const [exe, setExe] = useState('')
@@ -180,9 +228,10 @@ function NewApp({busy, run, done, root}) {
     return (
         <div className="card">
             <div className="card-head"><h2>Add another app</h2></div>
-            <p className="muted">The app's folder is copied into <code>{root}\{name || '<name>'}</code>, and its usual place
-                becomes a link to that copy. The app is started through its usual place, so it still thinks it is installed
-                there, and everything it writes lands in the package.</p>
+            <p className="muted">Copies an app that is installed on this PC into <code>{root}\{name || '<name>'}</code>.
+                Its usual place becomes a link to that copy, so the app still thinks it is installed there, and
+                everything it saves goes into the copy.</p>
+            <p className="small muted">Click <b>Browse…</b> next to Program and pick the app's .exe. Folder and Name fill in by themselves.</p>
             <div className="field"><span className="field-label">Program</span>
                 <input value={exe} onChange={e => setExe(e.target.value)} placeholder="C:\Games\Game\game.exe"/>
                 <button onClick={pickExe}>Browse…</button></div>
@@ -191,9 +240,10 @@ function NewApp({busy, run, done, root}) {
                 <button onClick={async () => { const d = await Go.PickFolder("The app's folder"); if (d) setAppDir(d) }}>Browse…</button></div>
             <div className="field"><span className="field-label">Name</span>
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="Game"/></div>
-            <p className="small muted">Then add the other folders and registry keys the app keeps on C:, such as its
-                settings in %LOCALAPPDATA%.</p>
+            <p className="small muted">Afterwards, add the other folders and registry keys the app keeps on C:, such as its
+                settings in %LOCALAPPDATA%. The Hunt tab can find them for you.</p>
             <div className="hunt-actions">
+                <button onClick={cancel} disabled={!!busy}>Cancel</button>
                 <button className="primary" disabled={!!busy || !name}
                         onClick={() => run('Copying ' + name, () => Go.CreatePackage(name, appDir, exe), 'Made ' + name)
                             .then(ok => ok && done(root + '\\' + name))}>
@@ -247,7 +297,8 @@ function Package({pkg, busy, run}) {
                 <div className="card">
                     <div className="card-head"><RefreshIcon/><span className="name">Updates</span><span className="spacer"/>
                         {pkg.Version && <span className="pill ok">{pkg.Version}</span>}</div>
-                    <p className="small muted">{pkg.Update.kind === 'roblox' ? 'Downloads each new Roblox version from Roblox and keeps the last ' + (pkg.Update.keep || 2) + '.' : 'Runs the app\'s own updater here.'}</p>
+                    <p className="small muted">{pkg.Update.kind === 'roblox' ? 'Downloads each new Roblox version from Roblox and keeps the last ' + (pkg.Update.keep || 2) + '.' : 'Runs the app\'s own updater here.'}
+                        {' '}Set <b>Automatic</b> so you never have to do it by hand.</p>
                     {pkg.LastLog && <p className="small muted"><code>{pkg.LastLog}</code></p>}
                     <div className="field">
                         <button className="primary" disabled={!!busy} onClick={() => run('Updating ' + pkg.Name, () => Go.UpdateNow(pkg.Dir))}>Update now</button>
@@ -262,11 +313,32 @@ function Package({pkg, busy, run}) {
             )}
 
             <div className="card">
-                <div className="card-head"><LinkIcon/><span className="name">Folders</span><span className="spacer"/>
-                    <button disabled={!!busy} onClick={() => run('Linking on this PC', () => Go.SetupHere(pkg.Dir))}>Link on this PC</button>
-                    <button disabled={!!busy} onClick={() => run('Unlinking on this PC', () => Go.UnlinkHere(pkg.Dir))}>Unlink</button>
+                <div className="card-head"><span className="name">Set up the floor PCs</span></div>
+                <ol className="how">
+                    <li>Copy this line:</li>
+                </ol>
+                <div className="field">
+                    <input readOnly value={pkg.CCBoot}/>
+                    <button className="primary" onClick={() => run('Copying', async () => { await navigator.clipboard.writeText(pkg.CCBoot) }, 'Line copied')}>Copy</button>
                 </div>
-                <p className="small muted">Each folder's usual place is a link to its copy in the package. Not sure which folders the app uses? Use the Hunt tab.</p>
+                <ol className="how" start={2}>
+                    <li>Open <code>C:\CCBoot\Cmd\public.txt</code> in Notepad, paste the line on its own line, and save.</li>
+                    <li>Restart one floor PC to test: the app should start from its icon and from the website's Play button.</li>
+                </ol>
+                <p className="small muted">The line has this PC's drive letter. If the game disk has another letter on the floor PCs, change it in the line.</p>
+            </div>
+
+            <div className="section-title">What the app keeps</div>
+
+            <div className="card">
+                <div className="card-head"><LinkIcon/><span className="name">Folders</span><span className="spacer"/>
+                    <button disabled={!!busy} title="Make the links on this PC, to test the app here" onClick={() => run('Linking on this PC', () => Go.SetupHere(pkg.Dir))}>Link on this PC</button>
+                    <button disabled={!!busy} title="Remove the links on this PC and put the original folders back" onClick={() => run('Unlinking on this PC', () => Go.UnlinkHere(pkg.Dir))}>Unlink</button>
+                </div>
+                <p className="small muted">The app's folders are kept in the package. On a PC where the app is set up, each
+                    one is linked from its usual place on C:. <b>"not linked" is normal on this server</b>: floor PCs make
+                    the links when a customer logs on. Use <b>Link on this PC</b> only to test here.
+                    Not sure which folders the app uses? Use the Hunt tab.</p>
                 {(pkg.Folders || []).map((f, i) => (
                     <div key={i} className="field">
                         <span className={'pill' + (f.State === 1 ? ' ok' : '')}>{stateText[f.State]}</span>
@@ -291,21 +363,13 @@ function Package({pkg, busy, run}) {
 
             <div className="card">
                 <div className="card-head"><KeyIcon/><span className="name">Registry</span></div>
+                <p className="small muted">Settings the app keeps in the Windows registry. They are saved into the package
+                    when the app closes and loaded again next time, on any PC.</p>
                 {(pkg.Registry || []).map(k => <code key={k} className="hunt-path">{k}</code>)}
                 <div className="field">
                     <input value={key} onChange={e => setKey(e.target.value)} placeholder="HKCU\Software\Game"/>
                     <button className="primary" disabled={!!busy || !key}
                             onClick={() => run('Saving key', () => Go.AddRegistry(pkg.Dir, key), 'Key saved').then(ok => ok && setKey(''))}>Add key</button>
-                </div>
-            </div>
-
-            <div className="card">
-                <div className="card-head"><span className="name">Floor PCs (CCBoot)</span></div>
-                <p className="small muted">Add this line to <code>C:\CCBoot\Cmd\public.txt</code> so each PC links the app when a customer logs on.
-                    Use the drive letter the game disk has on the clients.</p>
-                <div className="field">
-                    <input readOnly value={pkg.CCBoot}/>
-                    <button onClick={() => navigator.clipboard.writeText(pkg.CCBoot)}>Copy</button>
                 </div>
             </div>
         </>

@@ -72,7 +72,12 @@ only sticks when it runs **on the server** (or a super client):
 
 ## The manager (RapTech-Portable.exe)
 
-Runs as administrator. Choose the apps folder (default `G:\Portable`), then:
+Runs as administrator. For new users, a guide (**Help**, next to the tabs) opens
+by itself the first time and explains each tab in plain words, and each tab
+starts with numbered **Getting started** steps that tick themselves as they are
+done (hidden with **Hide steps**). Both live in `frontend/src/Guide.jsx`.
+
+Choose the apps folder (default `G:\Portable`), then:
 
 - **Add Roblox**: makes the package and downloads Roblox into it. Pick whether the
   client image has Roblox installed for everyone (Program Files) or one user.

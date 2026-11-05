@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react'
 import * as Go from '../wailsjs/go/main/App'
 import * as GF from '../wailsjs/go/gamefix/App'
 import {EventsOn} from '../wailsjs/runtime/runtime'
+import {Steps} from './Guide'
 
 // HuntTab is hunt mode, one tool for the whole program: hunt any program,
 // then add the folders it found to a portable app or to a GameFix game.
@@ -24,6 +25,7 @@ export default function HuntTab({tabs, hidden, logo}) {
     const [more, setMore] = useState(false)
     const [busy, setBusy] = useState(false)
     const [toast, setToast] = useState(null)
+    const [addedOnce, setAddedOnce] = useState(false) // folders were added from this hunt
 
     useEffect(() => EventsOn('hunt', setSt), [])
 
@@ -56,6 +58,7 @@ export default function HuntTab({tabs, hidden, logo}) {
             const exe = await Go.StartHunt()
             if (exe) {
                 setTicked({})
+                setAddedOnce(false)
                 setSt({exe, running: true, programs: [], folders: [], live: 0})
             }
         } catch (e) { setToast({ok: false, text: String(e)}) }
@@ -80,10 +83,29 @@ export default function HuntTab({tabs, hidden, logo}) {
             setToast({ok: true, text: `Added ${n} folder${n === 1 ? '' : 's'} to ${where.replace(/^[^:]*: /, '')}.` +
                     (target.startsWith('g:') ? ' Check their link paths in the GameFix tab, then Copy and Enable them.' : ' Their files were copied into the package.')})
             setTicked({})
+            setAddedOnce(true)
         } catch (e) { setToast({ok: false, text: String(e)}) }
         setBusy(false)
         loadHave()
     }
+
+    const steps = [
+        {
+            title: 'Choose the program', done: !!st,
+            hint: <>Close other programs first: every change on the PC is counted. Then click <b>Choose program…</b> below
+                and pick the program that starts the app or game. It starts by itself.</>,
+        },
+        {
+            title: 'Use it, then close it', done: !!st && !st.running,
+            hint: <>Use it the way customers do: log in, change a setting, play a little. Then close it (also from the
+                tray). Hunting stops a few seconds after it closes.</>,
+        },
+        {
+            title: 'Add the folders', done: addedOnce,
+            hint: <>The folders it used are ticked. Under <b>Add to</b>, choose the portable app or GameFix game they
+                belong to, then click <b>Add</b>.</>,
+        },
+    ]
 
     const row = f => (
         <label key={f.real} className={'hunt-row' + (added(f) ? ' added' : '')} title={f.example}>
@@ -104,6 +126,7 @@ export default function HuntTab({tabs, hidden, logo}) {
             </div>
             <div className="body">
                 <div className="content">
+                    <Steps id="hunt" steps={steps}/>
                     <div className="card">
                         <div className="card-head"><SearchIcon/><span className="name">Hunt: find the folders a program uses</span>
                             <span className="spacer"/>
@@ -112,10 +135,9 @@ export default function HuntTab({tabs, hidden, logo}) {
                                     <button onClick={() => Go.StopHunt()} title="Stop hunting. The program keeps running.">Stop</button></>
                                 : <button className="primary" onClick={start}><SearchIcon/>Choose program…</button>}
                         </div>
-                        <p className="small muted">Choose the program that starts the app or game (the installed one). It starts, and
-                            while it runs, every folder its programs use and every folder where files change is found. Use it the way
-                            players do: log in, change a setting, play a little. Then close it (also from the tray); hunting stops a few
-                            seconds after its last program ends. Close other programs meanwhile: every change on the PC is counted.</p>
+                        <p className="small muted">Hunt starts a program and watches it. It finds every folder the program uses and
+                            every folder where files change, so you can add them to a portable app or a GameFix game.
+                            Use the installed program, not a copy.</p>
                     </div>
 
                     {st && (
