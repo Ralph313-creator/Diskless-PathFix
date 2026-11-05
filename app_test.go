@@ -20,7 +20,9 @@ func TestListShowsPackageWithCCBootLine(t *testing.T) {
 		t.Fatalf("listed %d packages", len(list))
 	}
 	v := list[0]
-	want := `run -winlogon "` + filepath.Join(root, "Roblox", "Roblox.exe") + `" --setup`
+	// Same form as a line CCBoot runs (run -startup -skipupdate G:\GameFix\GameFix.bat):
+	// -winlogon and quotes stopped public.txt from running on the clients.
+	want := `run -startup -skipupdate ` + filepath.Join(root, "Roblox", "Roblox.exe") + ` --setup`
 	if v.CCBoot != want {
 		t.Fatalf("CCBoot = %q, want %q", v.CCBoot, want)
 	}

@@ -96,7 +96,7 @@ func (a *App) List() []PackageView {
 			if on, every := manager.ScheduleOn(info.Name); on {
 				v.ScheduleMinutes = int(every / time.Minute)
 			}
-			v.CCBoot = fmt.Sprintf(`run -winlogon "%s" --setup`, info.Launcher)
+			v.CCBoot = ccbootLine(info.Launcher)
 			if png, err := icon.PNG(info.Launcher); err == nil {
 				v.Icon = "data:image/png;base64," + base64.StdEncoding.EncodeToString(png)
 			}
@@ -336,3 +336,17 @@ func (a *App) UseAppIcon(dir string) error {
 
 // Open shows a folder in Explorer.
 func (a *App) Open(dir string) { exec.Command("explorer.exe", dir).Start() }
+
+// ccbootLine is the line for C:\CCBoot\Cmd\public.txt that sets the app up
+// on each floor PC. It has the same form as a line CCBoot runs
+// (run -startup -skipupdate G:\GameFix\GameFix.bat): with -winlogon and a
+// quoted path, public.txt stopped running on the clients. -startup runs it at
+// logon as the customer, which %LOCALAPPDATA% links and HKCU keys need; the
+// launcher asks for admin rights itself for C:\Program Files. The path is
+// only quoted when it has a space.
+func ccbootLine(launcher string) string {
+	if strings.ContainsAny(launcher, " \t") {
+		launcher = `"` + launcher + `"`
+	}
+	return "run -startup -skipupdate " + launcher + " --setup"
+}

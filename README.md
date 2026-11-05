@@ -64,8 +64,11 @@ only sticks when it runs **on the server** (or a super client):
   newest 2 versions. A version still in use is kept until next time.
 - The manager's **Automatic** setting makes a Task Scheduler task
   (`\RapTech Portable\<app>`) that runs `--update` as SYSTEM.
-- On the floor PCs, add `run -winlogon "G:\Portable\Roblox\Roblox.exe" --setup`
+- On the floor PCs, add `run -startup -skipupdate G:\Portable\Roblox\Roblox.exe --setup`
   to `C:\CCBoot\Cmd\public.txt` (with the game disk's drive letter on the clients).
+  No quotes and no `-winlogon`: with those, public.txt stopped running on the
+  clients. `-startup` runs it at logon as the customer; the launcher asks for
+  admin rights itself for `C:\Program Files`.
 
 ## The manager (RapTech-Portable.exe)
 
