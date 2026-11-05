@@ -15,6 +15,9 @@ updated straight from Roblox's servers.
   ported from `D:\Project\Diskless-GameFix`; its own settings file
   (`RapTech-GameFix.json`) and service (`RapTechGameFixWatch`), never the
   standalone GameFix's.
+- `internal/ccboot` — reads and adds `run` lines to CCBoot's command file
+  `C:\CCBoot\Cmd\public.txt` (every client runs it at boot). The GameFix
+  tab's footer "Add" puts `run -startup -skipupdate <main>\GameFix.bat` there.
 
 ## Rules
 
