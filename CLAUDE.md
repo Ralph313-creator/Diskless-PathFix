@@ -1,7 +1,8 @@
 # RapTech Portable (shown as "Diskless PathFix")
 
 Since 2026-11-06 the window shows the app as **Diskless PathFix** with "Created by: Raptech"
-(`frontend/src/Brand.jsx`) and the GameFix tab as **SymbolicLink**. Only shown text
+(`frontend/src/Brand.jsx`) and the GameFix tab as **SymbolicLink**. Project folder:
+`D:ProjectDiskless-PathFix` (was RapTech-Portable). Only shown text
 changed: code names, `RapTech-Portable.exe`, `GameFix.bat`, `RapTech-GameFix.json`,
 the service name and the bat marker `(RapTech Portable)` keep their old names.
 
@@ -37,7 +38,7 @@ updated straight from Roblox's servers.
 
 ## Rules
 
-- Remote: private GitHub repo Ralph313-creator/RapTech-Portable (origin). Push only
+- Remote: private GitHub repo Ralph313-creator/Diskless-PathFix (origin; the old RapTech-Portable repo was deleted 2026-11-06). Push only
   when asked. No Claude
   co-author line in commits.
 - Test first (TDD). `go test ./...` must stay green; registry tests use
