@@ -362,7 +362,7 @@ func (a *App) PublicTxt() string {
 	if a.gameFixMain != nil {
 		if main := a.gameFixMain(); main != "" {
 			if bat := filepath.Join(main, gamefix.BatName); isFile(bat) {
-				lines = append(lines, ccboot.RunLine(ccboot.Service, bat)) // as SYSTEM: mklink needs admin rights
+				lines = append(lines, ccboot.RunLine(ccboot.Startup, bat)) // at logon; GameFix.bat asks for admin rights itself
 			}
 		}
 	}

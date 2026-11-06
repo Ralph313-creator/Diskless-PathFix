@@ -24,11 +24,11 @@ updated straight from Roblox's servers.
 - `internal/ccboot` — only formats lines for `C:\CCBoot\Cmd\public.txt`
   (`run <-startup|-service> -skipupdate <cmd> [args]`, quoted only with a
   space). Portable apps use `-startup` (at logon, as the customer: their
-  %LOCALAPPDATA% links and HKCU keys). GameFix.bat uses `-service` (as
-  SYSTEM, before logon): with `-startup` it had no admin rights for mklink
-  (user report 2026-11-06). As SYSTEM, GameFix.bat skips link paths that
+  %LOCALAPPDATA% links and HKCU keys). GameFix.bat uses `-startup` too (the
+  user's choice 2026-11-06, after a stretch on `-service`); it asks for admin
+  rights itself. If it is ever run as SYSTEM it still skips link paths that
   start with a user-folder variable (`inUserFolder`, `:userlink`), logged as
-  [SKIPPED]; the tab warns on such folders. The
+  [SKIPPED]. The
   user pastes them in by hand: the app NEVER writes public.txt (the Add/Remove
   button was removed at the user's request). The **public.txt** window
   (`frontend/src/PublicTxt.jsx`, `App.PublicTxt`) lists every app's line plus
