@@ -502,5 +502,11 @@
     "seen": 1794019738.10876,
     "ast_hash": "f80c4b3d6829c3d52c8da9077c81152d",
     "semantic_hash": ""
+  },
+  "internal/selfupdate/live_test.go": {
+    "mtime": 1794019784.099373,
+    "seen": 1794019801.328445,
+    "ast_hash": "3698b31decc9600fecbad561e76b7130",
+    "semantic_hash": ""
   }
 }
