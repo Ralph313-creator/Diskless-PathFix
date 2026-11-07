@@ -5,6 +5,7 @@ import GameFixTab from './GameFix'
 import HuntTab from './Hunt'
 import {Guide, HelpIcon, Steps, store} from './Guide'
 import PublicTxt, {copyText, FileIcon} from './PublicTxt'
+import Update, {UpdateButton, useUpdate} from './Update'
 
 const TABS = [
     ['portable', 'Portable apps', 'Apps that live on the game disk, such as Roblox'],
@@ -19,6 +20,8 @@ export default function App() {
     const [tab, setTab] = useState(() => store.get('tab') || 'portable')
     const [guide, setGuide] = useState(() => store.get('guide-seen') !== '1')
     const [lines, setLines] = useState(false) // the lines for public.txt are shown
+    const [updates, setUpdates] = useState(false) // the Updates window is shown
+    const update = useUpdate()
     const choose = t => {
         setTab(t)
         store.set('tab', t)
@@ -34,6 +37,7 @@ export default function App() {
             ))}
             <button className="tab help-tab" title="How Diskless PathFix works" onClick={() => setGuide(true)}><HelpIcon/>Help</button>
             <button className="tab help-tab" title="The lines to copy into CCBoot's C:\CCBoot\Cmd\public.txt" onClick={() => setLines(true)}><FileIcon/>public.txt</button>
+            <UpdateButton info={update} onClick={() => setUpdates(true)}/>
         </nav>
     )
     const openLines = () => setLines(true)
@@ -43,6 +47,7 @@ export default function App() {
         <HuntTab tabs={tabs} hidden={tab !== 'hunt'}/>
         {guide && <Guide onClose={closeGuide} openTab={t => { choose(t); closeGuide() }} openLines={() => { closeGuide(); openLines() }}/>}
         {lines && <PublicTxt onClose={() => setLines(false)}/>}
+        {updates && <Update onClose={() => setUpdates(false)}/>}
     </>
 }
 

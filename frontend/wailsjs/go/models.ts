@@ -120,6 +120,26 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class UpdateInfo {
+	    Current: string;
+	    Latest: string;
+	    Newer: boolean;
+	    Notes: string;
+	    Page: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Current = source["Current"];
+	        this.Latest = source["Latest"];
+	        this.Newer = source["Newer"];
+	        this.Notes = source["Notes"];
+	        this.Page = source["Page"];
+	    }
+	}
 
 }
 

@@ -1,6 +1,14 @@
-# RapTech Portable
+# Diskless PathFix
 
-*Created by **RapTech***
+*Created by **Raptech***
+
+**Download:** the newest `Diskless-PathFix.exe` is on the
+[Releases page](https://github.com/Ralph313-creator/Diskless-PathFix/releases/latest).
+Put it in a folder of its own on the server (it keeps its settings next to
+itself) and run it; it asks for administrator rights. It checks for a newer
+version each time it opens: **Update to …** in the top bar downloads it, checks
+its SHA-256, swaps the exe and reopens. (Inside the code the app is still
+called RapTech Portable.)
 
 Makes apps portable for CCBoot diskless PCs. Everything an app keeps on C:
 (its program folder, AppData, registry keys) lives in **one package folder
@@ -146,3 +154,21 @@ go test ./...
 ```
 
 Output: `build\bin\RapTech-Portable.exe` and `build\bin\RapPortable-Launcher.exe`.
+
+## Releases and the updater
+
+`internal/selfupdate` reads GitHub's newest release, downloads the asset named
+`Diskless-PathFix.exe` as `<exe>.new`, checks it against the asset's SHA-256
+digest, renames the running exe to `<exe>.old` (deleted at the next start) and
+moves the new one in. If the GameFix service runs from that exe it is
+restarted, so it runs the new file too.
+
+To release: raise `Version` in `app_update.go` and `info.productVersion` in
+`wails.json` (a test checks they match), build, then
+
+```
+copy build\bin\RapTech-Portable.exe Diskless-PathFix.exe
+gh release create v1.2.3 Diskless-PathFix.exe --title "Diskless PathFix 1.2.3" --notes "..."
+```
+
+The asset must be called `Diskless-PathFix.exe`, or the updater won't find it.

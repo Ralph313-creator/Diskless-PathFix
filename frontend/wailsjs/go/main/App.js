@@ -18,6 +18,10 @@ export function ChangeIcon(arg1) {
   return window['go']['main']['App']['ChangeIcon'](arg1);
 }
 
+export function CheckUpdate() {
+  return window['go']['main']['App']['CheckUpdate']();
+}
+
 export function ChooseRoot() {
   return window['go']['main']['App']['ChooseRoot']();
 }
@@ -30,12 +34,20 @@ export function GetRoot() {
   return window['go']['main']['App']['GetRoot']();
 }
 
+export function GetVersion() {
+  return window['go']['main']['App']['GetVersion']();
+}
+
 export function HuntAdded(arg1) {
   return window['go']['main']['App']['HuntAdded'](arg1);
 }
 
 export function InUse(arg1) {
   return window['go']['main']['App']['InUse'](arg1);
+}
+
+export function InstallUpdate() {
+  return window['go']['main']['App']['InstallUpdate']();
 }
 
 export function List() {

@@ -6,6 +6,13 @@
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
+  "info": {
+    "companyName": "Raptech",
+    "productName": "Diskless PathFix",
+    "productVersion": "1.0.0",
+    "copyright": "Created by Raptech",
+    "comments": "https://github.com/Ralph313-creator/Diskless-PathFix"
+  },
   "author": {
     "name": "RapTech",
     "email": ""

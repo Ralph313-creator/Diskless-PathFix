@@ -23,6 +23,7 @@ import (
 	"raptech-portable/internal/hunt"
 	"raptech-portable/internal/icon"
 	"raptech-portable/internal/manager"
+	"raptech-portable/internal/selfupdate"
 )
 
 // App is what the window calls. The work is in internal/manager.
@@ -42,6 +43,7 @@ func NewApp() *App { return &App{} }
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	exe, _ := os.Executable()
+	selfupdate.Cleanup(exe) // the exe an update replaced
 	a.settingsPath = filepath.Join(filepath.Dir(exe), "RapTech-Portable.json")
 	if b, err := os.ReadFile(a.settingsPath); err == nil {
 		json.Unmarshal(b, a)

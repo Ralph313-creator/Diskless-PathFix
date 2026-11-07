@@ -38,9 +38,12 @@ updated straight from Roblox's servers.
 
 ## Rules
 
-- Remote: private GitHub repo Ralph313-creator/Diskless-PathFix (origin; the old RapTech-Portable repo was deleted 2026-11-06). Push only
-  when asked. No Claude
-  co-author line in commits.
+- Remote: PUBLIC GitHub repo Ralph313-creator/Diskless-PathFix (origin; public
+  since 2026-11-07). Push only when asked. No Claude co-author line in commits.
+  Never commit secrets, tokens or shop-private data.
+- Releases: `Version` (app_update.go) = wails.json `info.productVersion`; tag
+  `v<Version>`; the asset must be named `Diskless-PathFix.exe` (the in-app
+  updater, `internal/selfupdate`, looks for it). See README "Releases".
 - Test first (TDD). `go test ./...` must stay green; registry tests use
   `HKCU\Software\RapPortableTest` and clean up.
 - On floor PCs the game disk is write-back too: updates only stick when run
