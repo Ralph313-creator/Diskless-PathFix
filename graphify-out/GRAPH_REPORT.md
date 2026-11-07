@@ -1,44 +1,44 @@
-# Graph Report - Diskless-PathFix  (2026-11-06)
+# Graph Report - Diskless-PathFix  (2026-11-07)
 
 ## Corpus Check
-- 77 files · ~56,880 words
+- 82 files · ~59,576 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: (none) 2, .cmd 1, .md5 1)
 
 ## Summary
-- 845 nodes · 2497 edges · 91 communities (33 shown, 58 thin omitted)
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 298 edges (avg confidence: 0.85)
+- 896 nodes · 2642 edges · 96 communities (39 shown, 57 thin omitted)
+- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 306 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fc01bdc7`
+- Built from commit: `8a399cd4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - app.go
 - icon/icon.go
-- settings_test.go
+- testing.T
 - GameFix.jsx
-- SaveRegistry
-- AddFolder
-- Updater
+- links_test.go
+- CreatePackage
+- context.Context
 - runtime/package.json
 - raptech-portable
 - wails.json
-- LinkStatus
+- IsUNC
 - runtime.js
 - runtime.d.ts
 - models.ts
-- RapTech Portable
+- Diskless PathFix
 - EventsOnMultiple
-- BrowserOpenURL
+- manager/icon_test.go
 - CanResolveFilePaths
 - CheckNotificationAuthorization
 - CleanupNotifications
 - ClipboardGetText
-- testing.T
-- EventsOff
+- CreateRoblox
+- selfupdate_test.go
 - EventsOffAll
 - Hide
 - Hunter
@@ -48,13 +48,13 @@
 - LogInfo
 - LogPrint
 - LogTrace
-- LogWarning
+- Latest
 - OnFileDrop
 - frontend/package.json
-- main.go
+- gameFolders
 - RemoveAllDeliveredNotifications
 - App
-- fakeRoblox
+- update_test.go
 - RemoveNotificationCategory
 - Environment
 - RequestNotificationAuthorization
@@ -65,13 +65,13 @@
 - Show
 - WindowCenter
 - WindowFullscreen
-- WindowGetPosition
+- TestRemovePackageRemovesProtocolAndSchedule
 - WindowGetSize
 - App
 - WindowIsMaximised
-- WindowIsMinimised
+- .PublicTxt
 - IsNotificationAvailable
-- .Execute
+- Guide.jsx
 - WindowReload
 - WindowReloadApp
 - WindowSetAlwaysOnTop
@@ -79,7 +79,7 @@
 - WindowSetDarkTheme
 - WindowSetLightTheme
 - WindowSetMaxSize
-- Quit
+- RapTech Portable (shown as "Diskless PathFix")
 - WindowSetSize
 - WindowSetSystemDefaultTheme
 - WindowSetTitle
@@ -88,28 +88,33 @@
 - WindowUnmaximise
 - WindowUnminimise
 - .ResolveExe
+- Run
 - linkbat.go
 - RemoveDeliveredNotification
-- gamefix/app.go
+- CheckData
 - WindowIsFullscreen
 - Load
-- WindowSetMinSize
-- settings.go
+- RegisterNotificationCategory
+- RemoveNotification
 - App.jsx
 - InitializeNotifications
 - OnFileDropOff
 - RemoveAllPendingNotifications
 - WindowHide
-- WindowMaximise
-- Guide.jsx
+- RemovePendingNotification
+- WindowIsNormal
+- App
+- WindowMinimise
 - Package
-- main_test.go
+- WindowSetPosition
+- main
 - Hunt.jsx
 - PublicTxt.jsx
+- WindowToggleMaximise
 
 ## God Nodes (most connected - your core abstractions)
 1. `App` - 41 edges
-2. `App` - 34 edges
+2. `App` - 37 edges
 3. `CreatePackage()` - 33 edges
 4. `GameFixTab()` - 32 edges
 5. `Package` - 31 edges
@@ -128,141 +133,165 @@
   app.go → internal/core/manifest.go
 - `load()` --calls--> `Load()`  [EXTRACTED]
   app.go → internal/core/manifest.go
-- `TestHuntAddedAndAddForAPortableApp()` --calls--> `SamePath()`  [EXTRACTED]
-  app_hunt_test.go → internal/core/paths.go
+- `TestPublicTxtHasEveryLine()` --calls--> `CreatePackage()`  [EXTRACTED]
+  app_test.go → internal/manager/manager.go
 
 ## Import Cycles
 - None detected.
 
-## Communities (91 total, 58 thin omitted)
+## Communities (96 total, 57 thin omitted)
 
 ### Community 0 - "app.go"
-Cohesion: 0.17
-Nodes (9): sameFolder(), TestOneGlobalHuntAtATimeSkippingOurOwnFolders(), jobAccounting, WatchResult, installService(), installServiceAs(), removeService(), removeServiceNamed() (+1 more)
+Cohesion: 0.13
+Nodes (8): sameFolder(), TestOneGlobalHuntAtATimeSkippingOurOwnFolders(), jobAccounting, Folder, Progress, WatchResult, dataFor(), TestDataFor()
 
 ### Community 1 - "icon/icon.go"
-Cohesion: 0.08
-Nodes (47): ccbootLine(), isFile(), LinkState, Manifest, PackageView, group, RunLine(), TestRunLine() (+39 more)
+Cohesion: 0.20
+Nodes (19): group, Copy(), groupCount(), groupNames(), load(), loadICO(), loadPE(), PNG() (+11 more)
 
-### Community 2 - "settings_test.go"
-Cohesion: 0.15
-Nodes (24): TestCopyMakesTheCopyTheSameAsTheSource(), TestDeleteGame(), TestGamesHaveTheirOwnFolders(), TestInside(), TestCCBootLine(), TestAddHuntFoldersNamesThemApart(), TestGameSourcesListsWhatAGameHas(), portable() (+16 more)
+### Community 2 - "testing.T"
+Cohesion: 0.14
+Nodes (26): TestAddFolderAndSession(), TestListShowsIconAndChosenIcon(), TestListWithoutRootIsEmpty(), TestVersionMatchesWailsJSON(), buildLauncher(), copyFile(), TestLauncherRunsPackageEndToEnd(), TestLauncherStartsTheAppAtItsDefaultLocation() (+18 more)
 
 ### Community 3 - "GameFix.jsx"
 Cohesion: 0.16
 Nodes (26): copyPath(), folderName(), formatSize(), GameFixTab(), Icon(), IconButton(), ICONS, PathField() (+18 more)
 
-### Community 4 - "SaveRegistry"
-Cohesion: 0.13
-Nodes (26): TestFinishSavesRegistryAndEmptiesSession(), testPackage(), TestSetupLinksAndLoadsRegistry(), TestStatusReportsEachFolder(), TestUnlinkPutsOriginalBack(), TestUnlinkRemovesOnlyOurProtocols(), fromUTF16(), keyExists() (+18 more)
+### Community 4 - "links_test.go"
+Cohesion: 0.07
+Nodes (47): Folder, LinkState, isReparse(), LinkStatus(), makeJunction(), MakeLink(), RemoveLink(), mustRead() (+39 more)
 
-### Community 5 - "AddFolder"
-Cohesion: 0.15
-Nodes (21): CheckLink(), ExpandVars(), hasPrefixFold(), normPath(), Portable(), protected(), SamePath(), TestCheckLinkRefusesSystemAndUserFolders() (+13 more)
+### Community 5 - "CreatePackage"
+Cohesion: 0.10
+Nodes (33): TestHuntAddedAndAddForAPortableApp(), TestRemoveAppDeletesPackageEvenWithBrokenManifest(), CheckLink(), ExpandVars(), Portable(), protected(), SamePath(), TestCheckLinkRefusesSystemAndUserFolders() (+25 more)
 
-### Community 6 - "Updater"
-Cohesion: 0.09
-Nodes (25): fail(), main(), openLog(), run(), setup(), update(), attachConsole(), imagePath() (+17 more)
+### Community 6 - "context.Context"
+Cohesion: 0.32
+Nodes (5): cleanLeftovers(), complete(), lock(), pkgEntry, Updater
 
 ### Community 8 - "runtime/package.json"
 Cohesion: 0.12
 Nodes (15): author, bugs, url, description, homepage, keywords, license, main (+7 more)
 
 ### Community 10 - "wails.json"
-Cohesion: 0.18
-Nodes (10): author, email, name, frontend:build, frontend:dev:serverUrl, frontend:dev:watcher, frontend:install, name (+2 more)
+Cohesion: 0.12
+Nodes (16): author, email, name, frontend:build, frontend:dev:serverUrl, frontend:dev:watcher, frontend:install, info (+8 more)
 
-### Community 11 - "LinkStatus"
-Cohesion: 0.16
-Nodes (21): isReparse(), LinkStatus(), makeJunction(), MakeLink(), RemoveLink(), mustRead(), mustWrite(), TestLinkStatusMissing() (+13 more)
+### Community 11 - "IsUNC"
+Cohesion: 0.50
+Nodes (4): hasPrefixFold(), IsUNC(), normPath(), TestIsUNC()
 
 ### Community 12 - "runtime.js"
 Cohesion: 0.22
-Nodes (7): RegisterNotificationCategory(), RemoveNotification(), RemovePendingNotification(), WindowIsNormal(), WindowMinimise(), WindowSetPosition(), WindowToggleMaximise()
+Nodes (7): EventsOff(), LogWarning(), Quit(), WindowGetPosition(), WindowIsMinimised(), WindowMaximise(), WindowSetMinSize()
 
 ### Community 13 - "runtime.d.ts"
 Cohesion: 0.25
 Nodes (7): EnvironmentInfo, NotificationAction, NotificationCategory, NotificationOptions, Position, Screen, Size
 
 ### Community 14 - "models.ts"
-Cohesion: 0.10
-Nodes (8): Folder, Game, gamefix, main, manager, PackageView, Program, Use
+Cohesion: 0.09
+Nodes (9): Folder, Game, gamefix, main, manager, PackageView, Program, UpdateInfo (+1 more)
 
-### Community 15 - "RapTech Portable"
+### Community 15 - "Diskless PathFix"
+Cohesion: 0.22
+Nodes (8): Build, Diskless PathFix, Diskless: where updates stick, GameFix tab, Hunt tab: find the folders a program uses, Releases and the updater, The manager (RapTech-Portable.exe), What the launcher does
+
+### Community 17 - "manager/icon_test.go"
+Cohesion: 0.33
+Nodes (15): ApplyIcon(), FixIcons(), HasOwnIcon(), SetIcon(), copyTo(), realLauncher(), sameIcon(), TestApplyIconAfterRobloxDownload() (+7 more)
+
+### Community 22 - "CreateRoblox"
 Cohesion: 0.25
-Nodes (7): Build, Diskless: where updates stick, GameFix tab, Hunt tab: find the folders a program uses, RapTech Portable, The manager (RapTech-Portable.exe), What the launcher does
+Nodes (9): TestListShowsPackageWithCCBootLine(), TestPublicTxtHasEveryLine(), TestPublicTxtWithoutGameFixBat(), CreateRoblox(), hasLink(), sessionHas(), TestCreateRefusesExistingPackage(), TestCreateRobloxMachineWide() (+1 more)
 
-### Community 22 - "testing.T"
-Cohesion: 0.17
-Nodes (20): TestHuntAddedAndAddForAPortableApp(), TestAddFolderAndSession(), TestListShowsIconAndChosenIcon(), TestListShowsPackageWithCCBootLine(), TestListWithoutRootIsEmpty(), TestPublicTxtHasEveryLine(), TestPublicTxtWithoutGameFixBat(), TestRemoveAppDeletesPackageEvenWithBrokenManifest() (+12 more)
+### Community 23 - "selfupdate_test.go"
+Cohesion: 0.19
+Nodes (8): Swap(), fakeGitHub(), TestDownloadChecksTheDigest(), TestLatestHTTPError(), TestLatestPicksTheExe(), TestLatestWithoutTheExeFails(), TestSwapPutsTheOldBackWhenTheNewIsMissing(), TestSwapReplacesTheExeAndKeepsTheOld()
 
 ### Community 26 - "Hunter"
 Cohesion: 0.06
-Nodes (31): find, Folder, process, State, activeProcesses(), TestBatsSkipUserFoldersAsSystem(), Hunter, New() (+23 more)
+Nodes (32): within(), find, Folder, process, State, activeProcesses(), TestBatsSkipUserFoldersAsSystem(), Hunter (+24 more)
+
+### Community 33 - "Latest"
+Cohesion: 0.22
+Nodes (9): restartServiceOf(), UpdateInfo, Download(), get(), Latest(), Newer(), parse(), TestNewer() (+1 more)
 
 ### Community 35 - "frontend/package.json"
 Cohesion: 0.10
 Nodes (20): dependencies, react, react-dom, devDependencies, @types/react, @types/react-dom, vite, @vitejs/plugin-react (+12 more)
 
-### Community 36 - "main.go"
-Cohesion: 0.20
-Nodes (3): TestServiceSettings(), TestWatchDirStops(), waitFor()
+### Community 36 - "gameFolders"
+Cohesion: 0.24
+Nodes (12): TestAddHuntFoldersNamesThemApart(), TestGameSourcesListsWhatAGameHas(), gameFolders(), portable(), makeSource(), TestAddCopyRemoveFolders(), TestFolderNamedLikeGame(), isDir() (+4 more)
 
 ### Community 38 - "App"
-Cohesion: 0.06
-Nodes (27): within(), lastLines(), load(), App, closePrograms(), Use, imagePath(), InUse() (+19 more)
+Cohesion: 0.09
+Nodes (8): lastLines(), load(), App, SetSession(), TestSetSessionSavesSubfolders(), Cleanup(), TestCleanupRemovesLeftovers(), App
 
-### Community 39 - "fakeRoblox"
-Cohesion: 0.33
-Nodes (10): assertOnly(), fakeRoblox(), read(), standardPkgs(), TestUpdateInstallsLatestVersion(), TestUpdateRefusesBadDownloads(), TestUpdateReplacesBrokenVersionFolder(), TestUpdateWhenCurrentDownloadsNothing() (+2 more)
+### Community 39 - "update_test.go"
+Cohesion: 0.29
+Nodes (11): assertOnly(), fakeRoblox(), read(), standardPkgs(), TestPruneKeepsNewestAndCurrent(), TestUpdateInstallsLatestVersion(), TestUpdateRefusesBadDownloads(), TestUpdateReplacesBrokenVersionFolder() (+3 more)
+
+### Community 50 - "TestRemovePackageRemovesProtocolAndSchedule"
+Cohesion: 0.44
+Nodes (7): TestRemovePackageRemovesProtocolAndSchedule(), RemoveSchedule(), ScheduleOn(), schtasks(), SetSchedule(), TestScheduleCreateQueryRemove(), TestScheduleRefusesOddTimes()
 
 ### Community 52 - "App"
-Cohesion: 0.12
-Nodes (7): App, Game, watch, displayName(), runElevated(), serviceState(), watchKey()
+Cohesion: 0.05
+Nodes (34): NewApp(), App, FolderSettings, Game, Settings, watch, watchService, checkSource() (+26 more)
 
-### Community 56 - ".Execute"
-Cohesion: 0.18
-Nodes (7): NewApp(), watchService, NewApp(), logFile(), exeSettingsPath(), TestSettingsNextToExe(), main()
+### Community 54 - ".PublicTxt"
+Cohesion: 0.40
+Nodes (4): ccbootLine(), isFile(), RunLine(), TestRunLine()
+
+### Community 56 - "Guide.jsx"
+Cohesion: 0.53
+Nodes (5): Guide(), HelpIcon(), Icon(), store, XIcon()
+
+### Community 64 - "RapTech Portable (shown as "Diskless PathFix")"
+Cohesion: 0.40
+Nodes (4): Build, graphify, RapTech Portable (shown as "Diskless PathFix"), Rules
 
 ### Community 72 - ".ResolveExe"
-Cohesion: 0.22
-Nodes (7): Created(), hiddenPart(), TestResolveExeMissing(), TestResolveExePicksNewestVersionFolder(), TestStartPathGoesThroughTheDefaultLocation(), Prune(), TestPruneKeepsNewestAndCurrent()
+Cohesion: 0.25
+Nodes (6): Created(), hiddenPart(), TestResolveExeMissing(), TestResolveExePicksNewestVersionFolder(), TestStartPathGoesThroughTheDefaultLocation(), Prune()
+
+### Community 73 - "Run"
+Cohesion: 0.40
+Nodes (5): Result, Run(), TestRunMissingExe(), TestRunTimeoutEndsTheTree(), TestRunWaitsForGrandchildren()
 
 ### Community 74 - "linkbat.go"
-Cohesion: 0.12
-Nodes (25): Build, graphify, RapTech Portable (shown as "Diskless PathFix"), Rules, batLink, callLink(), cleanLink(), gameFolders() (+17 more)
+Cohesion: 0.17
+Nodes (20): batLink, callLink(), cleanLink(), inUserFolder(), makeBat(), makeCopyBat(), protected(), removeOldBat() (+12 more)
 
-### Community 76 - "gamefix/app.go"
-Cohesion: 0.18
-Nodes (8): Folder, Progress, folderSize(), removeEntry(), removeGameFiles(), removeTree(), robocopy(), TestRobocopyCopiesEverything()
+### Community 76 - "CheckData"
+Cohesion: 0.40
+Nodes (4): CheckData(), TestCheckDataStaysInsidePackage(), extract(), writeEntry()
 
 ### Community 78 - "Load"
-Cohesion: 0.38
-Nodes (5): Load(), TestLoadReadsManifest(), TestLoadRefusesUnsafeManifests(), TestSaveThenLoadKeepsManifest(), writeManifest()
-
-### Community 80 - "settings.go"
-Cohesion: 0.15
-Nodes (11): FolderSettings, Settings, checkSource(), inside(), huntFolderName(), copyPath(), expandVars(), isDir() (+3 more)
+Cohesion: 0.13
+Nodes (15): Manifest, PackageView, Update, Load(), TestLoadReadsManifest(), TestLoadRefusesUnsafeManifests(), TestSaveThenLoadKeepsManifest(), writeManifest() (+7 more)
 
 ### Community 81 - "App.jsx"
 Cohesion: 0.22
 Nodes (18): AppIcon(), FolderIcon(), Icon(), KeyIcon(), lastLine(), LinkIcon(), nearest(), NewApp() (+10 more)
 
-### Community 88 - "Guide.jsx"
-Cohesion: 0.20
-Nodes (10): App(), Guide(), HelpIcon(), Icon(), store, XIcon(), container, root (+2 more)
+### Community 88 - "App"
+Cohesion: 0.22
+Nodes (12): App(), container, root, Icon(), Update(), UpdateButton(), UpdateIcon(), useUpdate() (+4 more)
 
 ### Community 90 - "Package"
-Cohesion: 0.17
-Nodes (10): Folder, Package, EmptyFolder(), RemoveProtocol(), TestEmptyFolderKeepsFolder(), SetSession(), hasLink(), sessionHas() (+2 more)
+Cohesion: 0.23
+Nodes (12): Package, closePrograms(), Use, imagePath(), InUse(), RemovePackage(), removeServices(), serviceExe() (+4 more)
 
-### Community 92 - "main_test.go"
-Cohesion: 0.33
-Nodes (7): parseArgs(), buildLauncher(), copyFile(), TestLauncherRunsPackageEndToEnd(), TestLauncherStartsTheAppAtItsDefaultLocation(), TestParseArgs(), options
+### Community 92 - "main"
+Cohesion: 0.18
+Nodes (14): fail(), main(), openLog(), parseArgs(), run(), setup(), TestParseArgs(), update() (+6 more)
 
 ### Community 93 - "Hunt.jsx"
-Cohesion: 0.40
-Nodes (8): Brand(), Steps(), HuntTab(), Icon(), norm(), SearchIcon(), XIcon(), EventsOn()
+Cohesion: 0.32
+Nodes (9): Brand(), Steps(), HuntTab(), Icon(), norm(), SearchIcon(), XIcon(), GetVersion() (+1 more)
 
 ### Community 94 - "PublicTxt.jsx"
 Cohesion: 0.57
@@ -270,23 +299,23 @@ Nodes (6): copyText(), FileIcon(), Icon(), PublicTxt(), XIcon(), ClipboardSetTex
 
 ## Knowledge Gaps
 - **3 isolated node(s):** `@types/react`, `@types/react-dom`, `raptech-portable`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 143 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 155 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **57 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `App` connect `App` to `app.go`, `icon/icon.go`, `Updater`, `.Execute`, `Hunter`?**
-  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+- **Why does `App` connect `App` to `app.go`, `Latest`, `Hunter`, `CreatePackage`, `context.Context`, `Load`, `TestRemovePackageRemovesProtocolAndSchedule`, `App`, `.PublicTxt`, `Package`?**
+  _High betweenness centrality (0.037) - this node is a cross-community bridge._
 - **What connects `@types/react`, `@types/react-dom`, `raptech-portable` to the rest of the system?**
   _3 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `icon/icon.go` be split into smaller, more focused modules?**
-  _Cohesion score 0.07890122735242548 - nodes in this community are weakly interconnected._
-- **Why does `App` connect `App` to `icon/icon.go`, `Updater`, `linkbat.go`, `gamefix/app.go`, `settings.go`, `.Execute`, `Hunter`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **Should `settings_test.go` be split into smaller, more focused modules?**
-  _Cohesion score 0.1452991452991453 - nodes in this community are weakly interconnected._
-- **Why does `Hunter` connect `Hunter` to `app.go`, `.ResolveExe`, `AddFolder`, `App`?**
-  _High betweenness centrality (0.027) - this node is a cross-community bridge._
-- **Should `SaveRegistry` be split into smaller, more focused modules?**
-  _Cohesion score 0.1282051282051282 - nodes in this community are weakly interconnected._
+- **Should `app.go` be split into smaller, more focused modules?**
+  _Cohesion score 0.13283395755305868 - nodes in this community are weakly interconnected._
+- **Why does `App` connect `App` to `app.go`, `context.Context`, `linkbat.go`, `.PublicTxt`, `Hunter`?**
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+- **Should `testing.T` be split into smaller, more focused modules?**
+  _Cohesion score 0.1354679802955665 - nodes in this community are weakly interconnected._
+- **Why does `Hunter` connect `Hunter` to `app.go`, `.ResolveExe`, `App`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+- **Should `links_test.go` be split into smaller, more focused modules?**
+  _Cohesion score 0.0701344243132671 - nodes in this community are weakly interconnected._
